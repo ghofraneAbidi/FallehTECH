@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une Offre{% endblock %}
+
+{% block body %}
+    <div class="form-container">
+        <h1>Créer une Nouvelle Offre</h1>
+
+        {{ include('offre_emploi/_form.html.twig', {'button_label': 'Créer'}) }}
+
+        <div class="button-group">
+            <a href="{{ path('app_offre_emploi_index') }}" class="btn-back">🔙 Retour</a>
+        </div>
+    </div>
+{% endblock %}

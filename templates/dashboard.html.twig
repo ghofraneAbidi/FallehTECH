@@ -1,0 +1,98 @@
+
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="head-title">
+    <div class="left">
+        <h1>Dashboard</h1>
+      
+
+        <ul class="breadcrumb">
+            <li>
+                <a href="#">Dashboard</a>
+            </li>
+            <li><i class="bx bx-chevron-right"></i></li>
+            <li>
+                <a class="active" href="#">Home</a>
+            </li>
+        </ul>
+    </div>
+    <div class="right">
+        <a href="#" class="btn-download">
+            <i class="bx bxs-cloud-download"></i>
+            <span class="text">Download PDF</span>
+        </a>
+    </div>
+</div>
+
+
+<ul class="box-info">
+    <li>
+        <div class="icon green">🌱</div>
+        <span class="text">
+            <h3>1020</h3>
+            <p>New Crop Orders</p>
+        </span>
+    </li>
+    <li>
+        <div class="icon yellow">🚜</div>
+        <span class="text">
+            <h3>2834</h3>
+            <p>Active Farmers</p>
+        </span>
+    </li>
+    <li>
+        <div class="icon orange">💰</div>
+        <span class="text">
+            <h3>$2543</h3>
+            <p>Total Revenue</p>
+        </span>
+    </li>
+</ul>
+
+<div class="table-data">
+    <div class="order">
+        <div class="head">
+            <h3>Recent Orders</h3>
+            <i class="bx bx-search"></i>
+            <i class="bx bx-filter"></i>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Date Order</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <img src="{{ asset('img/zied.jpg') }}">
+                        <p>Zied Alimi</p>
+                    </td>
+                    <td>01-10-2021</td>
+                    <td><span class="status completed">Completed</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="{{ asset('img/chima.jpg') }}">
+                        <p>Sarah Faleh</p>
+                    </td>
+                    <td>01-10-2021</td>
+                    <td><span class="status pending">Pending</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="{{ asset('img/ghof.jpg') }}">
+                        <p>Ghofrane Abidi</p>
+                    </td>
+                    <td>01-10-2021</td>
+                    <td><span class="status process">Process</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
