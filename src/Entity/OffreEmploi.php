@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Utilisateur;
@@ -39,6 +41,17 @@ class OffreEmploi
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?Utilisateur $id_employeur = null;
 
+    /**
+     * @var Collection<int, Candidature>
+     */
+    #[ORM\OneToMany(targetEntity: Candidature::class, mappedBy: 'idOffre', orphanRemoval: true)]
+    private Collection $candidatures;
+
+    public function __construct()
+    {
+        $this->candidatures = new ArrayCollection();
+    }
+
     // Getters and Setters
     public function getId(): ?int { return $this->id; }
 
@@ -59,4 +72,34 @@ class OffreEmploi
 
     public function getIdEmployeur(): ?Utilisateur { return $this->id_employeur; }
     public function setIdEmployeur(?Utilisateur $id_employeur): self { $this->id_employeur = $id_employeur; return $this; }
+
+    /**
+     * @return Collection<int, Candidature>
+     */
+    public function getCandidatures(): Collection
+    {
+        return $this->candidatures;
+    }
+
+    public function addCandidature(Candidature $candidature): static
+    {
+        if (!$this->candidatures->contains($candidature)) {
+            $this->candidatures->add($candidature);
+            $candidature->setIdOffre($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCandidature(Candidature $candidature): static
+    {
+        if ($this->candidatures->removeElement($candidature)) {
+            // set the owning side to null (unless already changed)
+            if ($candidature->getIdOffre() === $this) {
+                $candidature->setIdOffre(null);
+            }
+        }
+
+        return $this;
+    }
 }
