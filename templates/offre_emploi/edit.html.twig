@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Offre d'Emploi{% endblock %}
+
+{% block body %}
+    <div class="edit-form-container">
+        <h1>Modifier l'Offre d'Emploi</h1>
+
+        {{ include('offre_emploi/_form.html.twig', {'button_label': 'Mettre à Jour'}) }}
+
+        <div class="edit-button-group">
+            <a href="{{ path('app_offre_emploi_index') }}" class="btn-back">🔙 Retour</a>
+           
+        </div>
+    </div>
+{% endblock %}
