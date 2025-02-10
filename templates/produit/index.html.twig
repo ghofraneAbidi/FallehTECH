@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produit Index{% endblock %}
+
+{% block body %}
+    <h1>Produit Index</h1>
+
+    <section id="content">
+        <main>
+            <div class="table-container">
+                <div class="table-data">
+                    <div class="head">
+                        <h3>Liste des Produits</h3>
+                    </div>
+                </div>
+               
+            </div>
+
+             <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Nom</th>
+                                <th>Prix</th>
+                                <th>Description</th>
+                                <th>Categorie</th>
+                                <th>Souscategorie</th>
+                                <th>Image</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for produit in produits %}
+                                <tr>
+                                    <td>{{ produit.id }}</td>
+                                    <td>{{ produit.nom }}</td>
+                                    <td>{{ produit.prix }}</td>
+                                    <td>{{ produit.description }}</td>
+                                    <td>{{ produit.categorie }}</td>
+                                    <td>{{ produit.souscategorie }}</td>
+                                    <td><img src="{{ produit.image }}" alt="{{ produit.nom }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"></td>
+                                    <td>
+                                        <a href="{{ path('app_produit_show', {'id': produit.id}) }}">Show</a>
+                                        <a href="{{ path('app_produit_edit', {'id': produit.id}) }}">Edit</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="8">No products found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+        </main>
+    </section>
+{% endblock %}
