@@ -1,0 +1,26 @@
+{% extends 'front_base.html.twig' %}
+
+{% block body %}
+<section class="container my-5">
+    <h1 class="text-center text-primary mb-4">Nos Catégories</h1>
+
+    <div class="row">
+        {% for categorie in categories %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card shadow-sm border-0 text-center">
+                    <!-- Afficher l'image de la catégorie -->
+                    <img src="{{ categorie.image }}" class="card-img-top img-fluid" alt="{{ categorie.nom }}">
+                    <div class="card-body">
+                        
+                        <a href="{{ path('categorie_details', {'categorie': categorie.nom}) }}">
+    {{ categorie.nom }}
+
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+

@@ -605,13 +605,21 @@ body {
 
 /* Table Styling */
 .produit-table {
-    width: 50%;
+    width: 70%;
     border-collapse: collapse;
-    margin: 24px 0;
+    margin: 50px 0;
     background: var(--light);
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.produit-table-wrapper {
+    background: var(--light);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80%; /* Adjust width for better centering */
+    max-width: 1200px; /* Prevents it from getting too wide */
 }
 
 .produit-table th, 
@@ -636,6 +644,13 @@ body {
     object-fit: cover;
     border-radius: 8px;
     border: 1px solid var(--grey);
+}
+.produit-table-container {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Centers vertically if needed */
+    width: 100%;
+    padding: 20px;
 }
 
 .produit-table tr:last-child td {

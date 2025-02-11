@@ -21,6 +21,13 @@ final class ProduitController extends AbstractController
             'produits' => $produitRepository->findAll(),
         ]);
     }
+    #[Route('/index_front',name: 'app_produit_index1', methods: ['GET'])]
+    public function index1(ProduitRepository $produitRepository): Response
+    {
+        return $this->render('produit_new/index.html.twig', [
+            'produits' => $produitRepository->findAll(),
+        ]);
+    }
 
     #[Route('/new', name: 'app_produit_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -67,7 +74,6 @@ final class ProduitController extends AbstractController
             'form' => $form,
         ]);
     }
-
     #[Route('/{id}', name: 'app_produit_delete', methods: ['POST'])]
     public function delete(Request $request, Produit $produit, EntityManagerInterface $entityManager): Response
     {
@@ -78,4 +84,84 @@ final class ProduitController extends AbstractController
 
         return $this->redirectToRoute('app_produit_index', [], Response::HTTP_SEE_OTHER);
     }
+    
+    #[Route('', name: 'produits_front')]
+    public function afficherCategories(): Response
+    {
+        $categories = [
+            ['nom' => 'Matériel Agricole', 'image' => '/img/materiel_agricole.jpg'],
+            ['nom' => 'Produits Agricoles', 'image' => '/img/produits_agricoles.jpg'],
+            ['nom' => 'Produits Transformés', 'image' => '/img/produits_transformes.jpg'],
+        ];
+    
+        return $this->render('produit_new/index.html.twig', [
+            'categories' => $categories,
+        ]);
+    }
+    
+    
+    #[Route('/produits/{categorie}', name: 'categorie_details')]
+    public function afficherSousCategories(string $categorie): Response
+    {
+        $categories = [
+            'Matériel Agricole' => [
+                'image' => '/img/materiel_agricole.jpg',
+                'sousCategories' => [
+                    ['nom' => 'Tracteurs', 'image' => '/img/tracteurs.jpg'],
+                    ['nom' => 'Moissonneuses-batteuses', 'image' => '/img/moisseuneuses-batteuses.jpg'],
+                    ['nom' => 'Semoirs', 'image' => '/img/semoirs.jpg'],
+                    ['nom' => 'Charrues', 'image' => '/img/charrues.jpg'],
+                    ['nom' => 'Pulvérisateurs', 'image' => '/img/pulverisateurs.jpg'],
+                ],
+            ],
+            'Produits Agricoles' => [
+                'image' => '/img/produits_agricoles.jpg',
+                'sousCategories' => [
+                    ['nom' => 'Fruits', 'image' => '/img/fruits.jpg'],
+                    ['nom' => 'Légumes', 'image' => '/img/legumes.jpg'],
+                    ['nom' => 'Grains et céréales', 'image' => '/img/grains.jpg'],
+                    ['nom' => 'Légumineuses', 'image' => '/img/legumineuses.jpg'],
+                    ['nom' => 'Plantes oléagineuses', 'image' => '/img/plantes.jpg'],
+                ],
+            ],
+            'Produits Transformés' => [
+                'image' => '/img/produits_transformes.jpg',
+                'sousCategories' => [
+                    ['nom' => 'Confitures', 'image' => '/img/confitures.jpg'],
+                    ['nom' => 'Jus de fruits', 'image' => '/img/jus.jpg'],
+                    ['nom' => 'Huiles', 'image' => '/img/huiles.jpg'],
+                    ['nom' => 'Farines', 'image' => '/img/farine.jpg'],
+                    ['nom' => 'Produits secs', 'image' => '/img/fruitssecs.jpg'],
+                ],
+            ],
+        ];
+    
+        if (!isset($categories[$categorie])) {
+            throw $this->createNotFoundException('Catégorie introuvable.');
+        }
+    
+        return $this->render('produit_new/souscategories.html.twig', [
+            'categorie' => $categorie,
+            'imageCategorie' => $categories[$categorie]['image'],
+            'sousCategories' => $categories[$categorie]['sousCategories'],
+        ]);
+    }
+
+    #[Route('/produits/sous-categorie/{sousCategorie}', name: 'produits_par_souscategorie')]
+public function afficherProduitsParSousCategorie(string $sousCategorie, ProduitRepository $produitRepository): Response
+{
+    // Récupérer les produits correspondant à la sous-catégorie
+    $produits = $produitRepository->findBy(['souscategorie' => $sousCategorie]);
+
+    if (!$produits) {
+        throw $this->createNotFoundException('Aucun produit trouvé pour cette sous-catégorie.');
+    }
+
+    return $this->render('produit_new/produits.html.twig', [
+        'sousCategorie' => $sousCategorie,
+        'produits' => $produits,
+    ]);
+}
+
+    
 }
