@@ -1,0 +1,67 @@
+{{ form_start(form) }}
+
+    <div class="form-group">
+        {{ form_label(form.commande) }}
+        {{ form_widget(form.commande) }}
+        {% if form.commande.vars.errors|length > 0 %}
+            <div class="alert alert-danger mt-2">
+                {% for error in form.commande.vars.errors %}
+                    <p>{{ error.message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.statut) }}
+        {{ form_widget(form.statut) }}
+        {% if form.statut.vars.errors|length > 0 %}
+            <div class="alert alert-danger mt-2">
+                {% for error in form.statut.vars.errors %}
+                    <p>{{ error.message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.transporteur) }}
+        {{ form_widget(form.transporteur) }}
+        {% if form.transporteur.vars.errors|length > 0 %}
+            <div class="alert alert-danger mt-2">
+                {% for error in form.transporteur.vars.errors %}
+                    <p>{{ error.message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.numTelTransporteur) }}
+        {{ form_widget(form.numTelTransporteur) }}
+        {% if form.numTelTransporteur.vars.errors|length > 0 %}
+            <div class="alert alert-danger mt-2">
+                {% for error in form.numTelTransporteur.vars.errors %}
+                    <p>{{ error.message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.dateLivraison) }}
+        {{ form_widget(form.dateLivraison) }}
+        {% if form.dateLivraison.vars.errors|length > 0 %}
+            <div class="alert alert-danger mt-2">
+                {% for error in form.dateLivraison.vars.errors %}
+                    <p>{{ error.message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form_widget(form.submit) }}
+    </div>
+
+{{ form_end(form) }}

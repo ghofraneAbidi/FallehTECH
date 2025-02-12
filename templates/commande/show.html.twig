@@ -1,0 +1,49 @@
+{% extends 'dashboard.html.twig' %}
+
+{% block title %}Commande{% endblock %}
+
+{% block body %}
+    <h1>Commande</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ commande.id }}</td>
+            </tr>
+            <tr>
+                <th>DateCreation</th>
+                <td>{{ commande.dateCreation ? commande.dateCreation|date('Y-m-d ') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Total</th>
+                <td>{{ commande.total }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ commande.status }}</td>
+            </tr>
+            <tr>
+                <th>AdresseLivraison</th>
+                <td>{{ commande.adresseLivraison }}</td>
+            </tr>
+            <tr>
+                <th>ModePaiement</th>
+                <td>{{ commande.ModePaiement }}</td>
+            </tr>
+            <tr>
+                <th>DatePaiement</th>
+                <td>{{ commande.datePaiement ? commande.datePaiement|date('Y-m-d ') : '' }}</td>
+            </tr>
+            <tr>
+                <th>StatusPaiement</th>
+                <td>{{ commande.statusPaiement }}</td>
+            </tr>
+        </tbody>
+    </table>
+  
+    <a href="{{ path('app_commande_index') }}" title="Go Back" class="text-secondary mx-2">
+        <i class="bi bi-arrow-left-circle fs-3"></i>
+    </a>
+    
+ {% endblock %}

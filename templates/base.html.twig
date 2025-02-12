@@ -1,129 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>{% block title %}FarmFresh - Organic Farm{% endblock %}</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Organic Farming" name="keywords">
+    <meta content="Farm website with job offers" name="description">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
-    <!-- Boxicons -->
-    <link href="{{ asset('https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css ') }}" rel="stylesheet">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-<link rel="stylesheet" href="{{ asset('css/styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <title>{% block title %}Dashboard{% endblock %}</title>
+    <!-- Favicon -->
+    <link href="{{ asset('img/favicon.ico') }}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{{ asset('lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 </head>
+
 <body>
-
-    <!-- SIDEBAR -->
-    <section id="sidebar">
-        <a href="#" class="brand">
-            <span class="text"><img src="{{ asset('img/logo.png') }}" alt="Logo"></span>
+    <!-- ✅ NAVBAR START (Fixed Issue) -->
+    <nav class="navbar navbar-expand-lg bg-primary navbar-dark shadow-sm py-3 px-3">
+        
+            <img src="{{ asset('img/logo.png') }}" alt="FarmFresh Logo" class="logo">
         </a>
-        <ul class="side-menu top">
-            <li class="active">
-                <a href="#">
-                    <i class="bx bxs-dashboard"></i>
-                    <span class="text">Dashboard</span>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bx bxs-group"></i>
-                    <span class="text">Utilisateurs</span>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bx bxs-group"></i>
-                    <span class="text">Produits</span>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bx bxs-group"></i>
-                    <span class="text">Forum</span>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bx bxs-group"></i>
-                    <span class="text">E-commerce</span>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bx bxs-group"></i>
-                    <span class="text">Offres de Travail</span>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bx bxs-message-dots"></i>
-                    <span class="text">Message</span>
-                </a>
-            </li>
-        </ul>
-        <ul class="side-menu">
-            <li>
-                <a href="#">
-                    <i class="bx bxs-cog"></i>
-                    <span class="text">Settings</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" class="logout">
-                    <i class="bx bxs-log-out-circle"></i>
-                    <span class="text">Logout</span>
-                </a>
-            </li>
-        </ul>
-    </section>
-    <!-- SIDEBAR -->
 
-    <!-- CONTENT -->
-    <section id="content">
-       
-       <nav>
-    <i class="bx bx-menu"></i>
-    <a href="#" class="nav-link">Categories</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <form action="#">
-        <div class="form-input">
-            <input type="search" placeholder="Search...">
-            <button type="submit" class="search-btn"><i class="bx bx-search"></i></button>
+        <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
+            <div class="navbar-nav mx-auto py-0">
+                <a href="" class="nav-item nav-link">Home</a>
+                <a href="" class="nav-item nav-link">About</a>
+                <a href="" class="nav-item nav-link">Service</a>
+                <a href="" class="nav-item nav-link">Product</a>
+                <a href="" class="nav-item nav-link">Job Offers</a>
+                <a href="" class="nav-item nav-link">Contact</a>
+            </div>
         </div>
-    </form>
+    </nav>
+    <!-- ✅ NAVBAR END -->
 
-    <!-- New Dropdown for Navigating Entities -->
-    <div class="dropdown">
-        <button class="dropbtn"><i class="bx bx-grid-alt"></i> Entities</button>
-        <div class="dropdown-content">
-            <a href="{{ path('app_offre_emploi_index') }}"><i class="bx bxs-briefcase"></i> Offres de Travail</a>
-            <a href="{{ path('app_candidature_index') }}"><i class="bx bxs-file"></i> Candidatures</a>
-           
+    <!-- Main Content Block -->
+    <main class="container my-5">
+        {% block body %}{% endblock %}
+    </main>
+
+    <!-- Footer Start -->
+    <footer class="container-fluid bg-footer bg-primary text-white mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 pt-5 mb-5">
+                    <h4 class="text-white mb-4">Get In Touch</h4>
+                    <p><i class="bi bi-geo-alt"></i> 123 Street, New York, USA</p>
+                    <p><i class="bi bi-envelope-open"></i> info@example.com</p>
+                    <p><i class="bi bi-telephone"></i> +012 345 67890</p>
+                    <div class="d-flex mt-4">
+                        <a class="btn btn-secondary btn-square rounded-circle me-2" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-secondary btn-square rounded-circle me-2" href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-secondary btn-square rounded-circle me-2" href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a class="btn btn-secondary btn-square rounded-circle" href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </footer>
+    <!-- Footer End -->
 
-    <a href="#" class="notification">
-        <i class="bx bxs-bell"></i>
-        <span class="num">8</span>
-    </a>
-    <a href="#" class="profile">
-        <img src="{{ asset('img/zied.jpg') }}">
-    </a>
-</nav>
-
-        <!-- NAVBAR -->
-
-        <!-- MAIN CONTENT -->
-        <main>
-            {% block content %}{% endblock %}
-            {% block body %}{% endblock %}
-        </main>
-    </section>
-    <!-- CONTENT -->
-
-    <script src="{{ asset('JS/script.js') }}"></script>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('lib/owlcarousel/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('js/main.js') }}"></script>
 </body>
+
 </html>
