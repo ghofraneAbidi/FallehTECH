@@ -1,0 +1,17 @@
+{% extends 'front_base.html.twig' %}
+{% block body %}
+<h2>{{ produit.nom }}</h2>
+<div class="card" style="width: 18rem;">
+    <img src="{{ asset('img/' ~ produit.image) }}" class="card-img-top" alt="{{ produit.nom }}">
+    <div class="card-body">
+        <h5 class="card-title">{{ produit.nom }}</h5>
+        <p class="card-text">{{ produit.description }}</p>
+        <p class="card-text">Prix: {{ produit.prix }}€</p>
+        
+        <!-- Buttons -->
+        <a href="{{ path('app_ajouter_au_panier', {'id': produit.id}) }}" class="btn btn-success">Ajouter au panier</a>
+        <a href="{{ path('app_ajouter_aux_favoris', {'id': produit.id}) }}" class="btn btn-warning">Ajouter aux favoris</a>
+        <a href="{{ path('app_produit_by_category', {'categorySlug': produit.categorie.slug, 'subCategorySlug': produit.sousCategorie.slug}) }}" class="btn btn-secondary">Voir les autres produits</a>
+    </div>
+</div>
+{% endblock %}

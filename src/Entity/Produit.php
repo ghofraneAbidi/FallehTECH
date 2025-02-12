@@ -23,25 +23,22 @@ class Produit
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $categorie = null;
+    #[ORM\ManyToOne(targetEntity: Categorie::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Categorie $categorie = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $souscategorie = null;
+    #[ORM\ManyToOne(targetEntity: SousCategorie::class, inversedBy: 'produits')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?SousCategorie $sousCategorie = null;
 
-    #[ORM\Column(type: Types::BLOB)]
-    private $image;
+    #[ORM\Column(length: 255)]
+    private ?string $image = null;
+
+    // Getters and setters...
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     public function getNom(): ?string
@@ -52,7 +49,6 @@ class Produit
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -64,7 +60,6 @@ class Produit
     public function setPrix(float $prix): static
     {
         $this->prix = $prix;
-
         return $this;
     }
 
@@ -76,42 +71,38 @@ class Produit
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
-    public function getCategorie(): ?string
+    public function getSousCategorie(): ?SousCategorie
     {
-        return $this->categorie;
+        return $this->sousCategorie;
     }
 
-    public function setCategorie(string $categorie): static
+    public function setSousCategorie(?SousCategorie $sousCategorie): static
     {
-        $this->categorie = $categorie;
-
+        $this->sousCategorie = $sousCategorie;
         return $this;
     }
 
-    public function getSouscategorie(): ?string
-    {
-        return $this->souscategorie;
-    }
-
-    public function setSouscategorie(string $souscategorie): static
-    {
-        $this->souscategorie = $souscategorie;
-
-        return $this;
-    }
-
-    public function getImage()
+    public function getImage(): ?string
     {
         return $this->image;
     }
 
-    public function setImage($image): static
+    public function setImage(string $image): static
     {
         $this->image = $image;
+        return $this;
+    }
+    public function getCategorie(): ?Categorie
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(?Categorie $categorie): self
+    {
+        $this->categorie = $categorie;
 
         return $this;
     }

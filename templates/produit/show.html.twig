@@ -34,7 +34,7 @@
                 </tr>
                 <tr>
                     <th>Image</th>
-                    <td><img src="{{ produit.image }}" alt="{{ produit.nom }}" class="produit-image"></td>
+                    <td> <img src="{{ asset('img/' ~ produit.image) }}" alt="{{ produit.nom }}" width="100" height="100">
                 </tr>
             </tbody>
         </table>

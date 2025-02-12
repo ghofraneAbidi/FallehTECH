@@ -10,6 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Repository\SousCategorieRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/produit')]
 final class ProduitController extends AbstractController
@@ -147,21 +149,49 @@ final class ProduitController extends AbstractController
         ]);
     }
 
-    #[Route('/produits/sous-categorie/{sousCategorie}', name: 'produits_par_souscategorie')]
-public function afficherProduitsParSousCategorie(string $sousCategorie, ProduitRepository $produitRepository): Response
+
+#[Route('/get-souscategories/{id}', name: 'get_souscategories', methods: ['GET'])]
+public function getSousCategories(int $id, SousCategorieRepository $sousCategorieRepository): JsonResponse
 {
+    // Récupérer les sous-catégories pour une catégorie donnée
+    $sousCategories = $sousCategorieRepository->findBy(['categorie' => $id]);
+    $data = [];
+
+    foreach ($sousCategories as $sousCategorie) {
+        $data[] = [
+            'id' => $sousCategorie->getId(),
+            'nom' => $sousCategorie->getNom(),
+        ];
+    }
+
+    return new JsonResponse($data);
+}
+#[Route('/produits/sous-categorie/{sousCategorie}', name: 'produits_par_souscategorie')]
+public function afficherProduitsParSousCategorie(string $sousCategorie, ProduitRepository $produitRepository, SousCategorieRepository $sousCategorieRepository): Response
+{
+    // Récupérer l'objet SousCategorie à partir du nom
+    $sousCategorieObj = $sousCategorieRepository->findOneBy(['nom' => $sousCategorie]);
+
+    if (!$sousCategorieObj) {
+        throw $this->createNotFoundException('Sous-catégorie introuvable.');
+    }
+
     // Récupérer les produits correspondant à la sous-catégorie
-    $produits = $produitRepository->findBy(['souscategorie' => $sousCategorie]);
+    $produits = $produitRepository->findBy(['sousCategorie' => $sousCategorieObj]);
 
     if (!$produits) {
         throw $this->createNotFoundException('Aucun produit trouvé pour cette sous-catégorie.');
     }
 
     return $this->render('produit_new/produits.html.twig', [
-        'sousCategorie' => $sousCategorie,
+        'sousCategorie' => $sousCategorieObj,
         'produits' => $produits,
     ]);
 }
+
+
+
+
 
     
 }

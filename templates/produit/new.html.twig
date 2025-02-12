@@ -3,9 +3,40 @@
 {% block title %}New Produit{% endblock %}
 
 {% block body %}
+ <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <h1>Create new Produit</h1>
 
     {{ include('produit/_form.html.twig') }}
 
     <a href="{{ path('app_produit_index') }}">back to list</a>
+
+    <script>
+        // Écouter les changements sur la catégorie
+        document.getElementById('produit_categorie').addEventListener('change', function () {
+            const categorieId = this.value; // ID de la catégorie sélectionnée
+            const sousCategorieSelect = document.getElementById('produit_sousCategorie');
+
+            if (categorieId) {
+                // Effectuer une requête AJAX pour obtenir les sous-catégories
+                fetch(`/produit/get-souscategories/${categorieId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Réinitialiser les options du champ sous-catégorie
+                        sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+                        
+                        // Ajouter les nouvelles options pour les sous-catégories
+                        data.forEach(sousCategorie => {
+                            const option = document.createElement('option');
+                            option.value = sousCategorie.id;
+                            option.textContent = sousCategorie.nom;
+                            sousCategorieSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erreur lors de la récupération des sous-catégories :', error));
+            } else {
+                // Réinitialiser le champ sous-catégorie si aucune catégorie n'est sélectionnée
+                sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+            }
+        });
+    </script>
 {% endblock %}

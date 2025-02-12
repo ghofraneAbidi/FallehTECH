@@ -1,24 +1,79 @@
-{% extends 'base.html.twig' %}
+{% extends 'front_base.html.twig' %}
+
+{% block title %} Produits {% endblock %}
 
 {% block body %}
-<section class="container my-5">
-    <h1 class="text-center text-primary mb-4">Produits de la sous-catégorie : {{ sousCategorie }}</h1>
+    <h1>Produits de la sous-catégorie: {{ sousCategorie.nom }}</h1>
+
     <div class="row">
         {% for produit in produits %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card shadow-sm border-0">
-                    <!-- Image -->
-                    <img src="{{ produit.image }}" alt="{{ produit.nom }}" class="card-img-top" style="height: 200px; object-fit: cover;">
-                    <!-- Card Body -->
-                    <div class="card-body text-center">
+            <div class="col-md-4">
+                <div class="card" style="width: 18rem;">
+                    <img src="{{ asset('img/' ~ produit.image) }}" alt="{{ produit.nom }}" width="100" height="100">
+                    <div class="card-body">
                         <h5 class="card-title">{{ produit.nom }}</h5>
                         <p class="card-text">{{ produit.description }}</p>
-                        <p class="text-success font-weight-bold">{{ produit.prix }} €</p>
-                        <a href="#" class="btn btn-primary">Détails</a>
+                        <p><strong>Prix: </strong>{{ produit.prix }} €</p>
+                        <button class="btn btn-primary btn-details"
+                            data-product-id="{{ produit.id }}"
+                            data-product-name="{{ produit.nom }}"
+                            data-product-description="{{ produit.description }}"
+                            data-product-price="{{ produit.prix }}"
+                            data-product-image="{{ asset('img/' ~ produit.image) }}">
+                            Voir les détails
+                        </button>
                     </div>
                 </div>
             </div>
         {% endfor %}
     </div>
-</section>
+
+    <!-- Product Details Modal (hidden by default) -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Details du Produit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="productDetails">
+                        <h3 id="productName"></h3>
+                        <img id="productImage" class="modal-body img="100" height="100">
+                        <p id="productDescription"></p>
+                        <p><strong>Prix: </strong><span id="productPrice"></span> €</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-primary">Ajouter au Panier</button>
+                    <button type="button" class="btn btn-warning">Ajouter aux Favoris</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Event listener for the "Voir les détails" buttons
+        document.querySelectorAll('.btn-details').forEach(button => {
+            button.addEventListener('click', function () {
+                const productId = this.dataset.productId;
+                const productName = this.dataset.productName;
+                const productDescription = this.dataset.productDescription;
+                const productPrice = this.dataset.productPrice;
+                const productImage = this.dataset.productImage;
+
+                // Set the product details in the modal
+                document.getElementById('productName').textContent = productName;
+                document.getElementById('productDescription').textContent = productDescription;
+                document.getElementById('productPrice').textContent = productPrice;
+                document.getElementById('productImage').src = productImage;  // Updated image source
+
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('productModal'));
+                modal.show();
+            });
+        });
+    </script>
+
 {% endblock %}
