@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+        <!-- CSS -->
+        <link rel="stylesheet" href="{{ asset('auth/css/style.css') }}">
+
+        <link href="https://fonts.googleapis.com/css?family=Poppins:600&display=swap" rel="stylesheet">
+        <script src="https://kit.fontawesome.com/a81368914c.js"></script>
+        
+        <title>{% block title %}Bienvenue{% endblock %}</title>
+
+    </head>
+    <body>
+
+        <div class="container">
+            <div class="image-section">
+                <img src="{{asset('auth/img/avatar.png') }}" alt="Illustration">
+            </div>
+                
+            {% block body %}{% endblock %}
+        
+        </div>
+
+    
+        <script type="text/javascript">
+            function showSignup() {
+                document.getElementById("login-form").style.display = "none";
+                document.getElementById("signup-form").style.display = "block";
+            }
+    
+            function showLogin() {
+                document.getElementById("signup-form").style.display = "none";
+                document.getElementById("login-form").style.display = "block";
+            }
+        </script>
+    
+    
+    </body>
+    
+</html>

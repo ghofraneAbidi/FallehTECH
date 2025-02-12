@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer Un Compte{% endblock %}
+
+{% block body %}
+
+
+    <div class="signup-container">
+        <h2 style="text-align: center; color: #333;">Create Account</h2>
+        {{ include('signup/_form.html.twig') }}
+        
+    </div>
+    <script>
+        document.querySelector(".role-select").addEventListener("change", function() {
+            const ouvrierFields = document.querySelectorAll(".ouvrier-fields");
+            if (this.value === "ouvrier") {
+                ouvrierFields.forEach(field => field.style.display = "block");
+            } else {
+                ouvrierFields.forEach(field => field.style.display = "none");
+            }
+        });
+    </script>
+    
+
+
+{% endblock %}
