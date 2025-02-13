@@ -1,14 +1,90 @@
-{% extends 'base.html.twig' %}
+
+
+   {% extends 'base.html.twig' %}
 
 {% block title %}New Produit{% endblock %}
 
 {% block body %}
- <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <h1>Create new Produit</h1>
+    <style>
+        /* Body styling */
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            padding: 20px;
+        }
 
-    {{ include('produit/_form.html.twig') }}
+        /* Text Styling */
+       h1 {
+            font-size: 2rem;
+            color: #2d6a4f; /* Darker green */
+            text-align: center;
+        }
+        /* Container for the form */
+        .form-container {
+            background: #e3f2e1;  /* Light green background */
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
 
-    <a href="{{ path('app_produit_index') }}">back to list</a>
+        /* Form inputs styling */
+        input, select, textarea {
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+
+        /* Button Styling */
+        button {
+            padding: 12px 20px;
+            background-color: #2d6a4f; /* Green Background */
+            color: white; /* White text */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem; /* Make font size consistent */
+            transition: background-color 0.3s, transform 0.3s; /* Add transition for smooth effects */
+        }
+
+        /* On hover, the button will change color and have a slight grow effect */
+        button:hover {
+            background-color: #1f4d38; /* Darker green */
+            transform: scale(1.05); /* Slightly enlarge the button */
+        }
+
+        /* Add some space between the form and the "back to list" button */
+        a.btn {
+            padding: 12px 20px;
+            background-color: #2d6a4f; /* Green background */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1rem; /* Consistent font size */
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        /* Hover effect for the link button */
+        a.btn:hover {
+            background-color: #1f4d38; /* Darker green on hover */
+            transform: scale(1.05); /* Slightly enlarge */
+        }
+    </style>
+
+
+    <h1 class="button">Create new Produit</h1>
+
+    <!-- Form Section -->
+    <div class="form-container">
+        {{ include('produit/_form.html.twig') }}
+    </div>
+
+    <!-- Back to list button -->
+    <a href="{{ path('app_produit_index') }}" class="button">Back to list</a>
 
     <script>
         // Écouter les changements sur la catégorie

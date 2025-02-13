@@ -603,25 +603,37 @@ body {
 	
 }
 
-/* Table Styling */
-.produit-table {
-    width: 70%;
-    border-collapse: collapse;
-    margin: 50px 0;
-    background: var(--light);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Container to center the table */
+.produit-table-container {
+    display: flex;
+    justify-content: center; /* Centers the table horizontally */
+    align-items: flex-start; /* Aligns the table to the top */
+    width: 100%;
+    padding: 20px;
 }
+
+/* Table wrapper for styling */
 .produit-table-wrapper {
     background: var(--light);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 80%; /* Adjust width for better centering */
-    max-width: 1200px; /* Prevents it from getting too wide */
+    width: 100%;
+    max-width: 1200px; /* Prevents the table from being too wide */
+    margin: 0 auto; /* This ensures the table is horizontally centered */
 }
 
+/* Table Styling */
+.produit-table {
+    width: 100%; /* Ensures the table takes up full width */
+    border-collapse: collapse;
+    background: var(--light);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table cells styling */
 .produit-table th, 
 .produit-table td {
     padding: 16px 12px;
@@ -638,24 +650,41 @@ body {
     text-transform: uppercase;
 }
 
+/* Product image styling */
 .produit-table td img.produit-image {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
+    width: 100px; /* Image width */
+    height: 100px; /* Image height */
+    object-fit: cover; /* Ensures the image does not distort */
     border-radius: 8px;
     border: 1px solid var(--grey);
 }
-.produit-table-container {
-    display: flex;
-    justify-content: center; /* Centers horizontally */
-    align-items: center; /* Centers vertically if needed */
-    width: 100%;
-    padding: 20px;
-}
 
+/* Remove border for last row */
 .produit-table tr:last-child td {
     border-bottom: none;
 }
+
+/* Center the "Ajouter un nouveau produit" button */
+a.btn {
+    display: block;
+    text-align: center; /* Center the button */
+    width: 100%; /* Ensures it takes full width */
+    max-width: 200px; /* Prevents the button from becoming too large */
+    margin: 20px auto 0 auto; /* Centers it and adds some space above */
+    padding: 10px 20px;
+    background-color: #28a745; /* Green button */
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+}
+
+a.btn:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
 
 /* Action Buttons Styling */
 .produit-actions {
@@ -770,11 +799,65 @@ button:hover {
 }
 
 
-/* For the modal image */
+/* Modal Image */
 .modal-body img {
     width: 100%;
-    height: auto; /* This ensures the image doesn't stretch vertically */
-    max-width: 400px; /* You can adjust this to control the maximum width in the modal */
+    height: auto;
+    max-width: 400px;
     display: block;
-    margin: 0 auto; /* Centers the image */
+    margin: 0 auto;
+}
+
+/* Input Fields and Select Styling */
+input, select, textarea {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Button Styling */
+button {
+	padding: 12px 20px;
+	background-color: #2d6a4f; /* Green Background */
+	color: white; /* White text */
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1rem; /* Make font size consistent */
+	transition: background-color 0.3s, transform 0.3s; /* Add transition for smooth effects */
+}
+
+/* On hover, the button will change color and have a slight grow effect */
+button:hover {
+	background-color: #1f4d38; /* Darker green */
+	transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+/* Add some space between the form and the "back to list" button */
+a.btn {
+	padding: 12px 20px;
+	background-color: #2d6a4f; /* Green background */
+	color: white;
+	text-decoration: none;
+	border-radius: 5px;
+	font-weight: bold;
+	font-size: 1rem; /* Consistent font size */
+	transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Hover effect for the link button */
+a.btn:hover {
+	background-color: #1f4d38; /* Darker green on hover */
+	transform: scale(1.05); /* Slightly enlarge */
+}
+
+/* Card Image Styling */
+.card-img-top {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
 }

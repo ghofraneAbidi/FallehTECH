@@ -3,6 +3,64 @@
 {% block title %}Produit Details{% endblock %}
 
 {% block body %}
+<style>
+/* Centering the table container */
+.produit-table-container {
+    display: flex;
+    justify-content: center; /* Horizontally centers the table */
+    align-items: center; /* Vertically centers if necessary */
+    width: 100%;
+    padding: 20px;
+}
+
+.produit-table-wrapper {
+    background: var(--light);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Full width of the container */
+    max-width: 1200px; /* Prevents it from being too wide */
+    margin: 0 auto; /* This will center the table */
+}
+
+.produit-table {
+    width: 100%; /* Set to 100% to utilize the full width of the container */
+    border-collapse: collapse;
+    background: var(--light);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.produit-table th, 
+.produit-table td {
+    padding: 16px 12px;
+    text-align: left;
+    font-size: 14px;
+    color: var(--dark);
+    border-bottom: 1px solid var(--grey);
+}
+
+.produit-table th {
+    background: var(--blue);
+    color: var(--light);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.produit-table td img.produit-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--grey);
+}
+
+/* Ensure last row has no bottom border */
+.produit-table tr:last-child td {
+    border-bottom: none;
+}
+</style>
     <h1 class="produit-title">Produit Details</h1>
 
     <section id="produit-details">

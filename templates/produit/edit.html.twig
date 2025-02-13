@@ -3,11 +3,104 @@
 {% block title %}Edit Produit{% endblock %}
 
 {% block body %}
+    <style>
+        /* General styling for the form */
+        .form-container {
+            background-color: #d4f4d2; /* Light green background */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #2d6a4f; /* Darker green */
+            text-align: center;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #2d6a4f; /* Darker green for the labels */
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], input[type="number"], input[type="file"], select, textarea {
+            font-size: 1rem;
+            color: #2d6a4f;
+        }
+
+       /* Add this to your existing styles */
+
+/* Button styling */
+button {
+    padding: 12px 20px; /* Increase padding for better size */
+    background-color: #2d6a4f; /* Dark Green Background */
+    color: white; /* White text */
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem; /* Make font size consistent */
+    transition: background-color 0.3s, transform 0.3s; /* Add transition for smooth effects */
+}
+
+/* On hover, the button will change color and have a slight grow effect */
+button:hover {
+    background-color: #1f4d38; /* Darker green */
+    transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+/* Specific styling for the 'Update' and 'Back to List' buttons if needed */
+button[type="submit"], .btn-primary {
+    background-color: #2d6a4f;
+    color: white;
+}
+
+button[type="submit"]:hover, .btn-primary:hover {
+    background-color: #1f4d38;
+}
+
+a.btn {
+    padding: 12px 20px;
+    background-color: #2d6a4f; /* Green background */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1rem; /* Consistent font size */
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Hover effect for the link button */
+a.btn:hover {
+    background-color: #1f4d38; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly enlarge */
+}
+
+    </style>
+
+   
+
+    <!-- Heading -->
     <h1>Edit Produit</h1>
 
-    {{ include('produit/_form.html.twig', {'button_label': 'Update'}) }}
+    <!-- Form Section -->
+    <div class="form-container">
+        {{ include('produit/_form.html.twig', {'button_label': 'Update'}) }}
+    </div>
 
-    <a href="{{ path('app_produit_index') }}">back to list</a>
+    <!-- Back to List Button -->
+    <a href="{{ path('app_produit_index') }}" class="btn-back">Back to list</a>
 
+    <!-- Delete Form Section -->
     {{ include('produit/_delete_form.html.twig') }}
 {% endblock %}
