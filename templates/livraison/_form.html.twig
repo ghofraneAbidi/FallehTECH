@@ -13,8 +13,9 @@
     </div>
 
     <div class="form-group">
+        
         {{ form_label(form.statut) }}
-        {{ form_widget(form.statut) }}
+        {{ form_widget(form.statut,{'attr': {'id': 'user-select', 'role': 'select', 'class': 'form-control custom-dropdown'}}) }}
         {% if form.statut.vars.errors|length > 0 %}
             <div class="alert alert-danger mt-2">
                 {% for error in form.statut.vars.errors %}
@@ -59,9 +60,8 @@
             </div>
         {% endif %}
     </div>
+    
+    
 
-    <div class="form-group">
-        {{ form_widget(form.submit) }}
-    </div>
-
+    
 {{ form_end(form) }}

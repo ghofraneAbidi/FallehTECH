@@ -23,14 +23,19 @@ class CommandeType extends AbstractType
                     array_column($options['users'], 'name'),
                     array_column($options['users'], 'id')
                 ),
-                'placeholder' => 'Select a User',
-                'attr' => ['class' => 'form-control'],
+                'placeholder' => 'Selectionner un utilisateur',
+                'attr' => ['class' => 'form-control',
+            'role' => 'select'
+],
                 
                 'mapped' => false, // Not mapped to an entity
             ])
             ->add('adresseLivraison', TextType::class, [
                 'label' => 'Adresse Livraison',
-                'attr' => ['class' => 'form-control'],
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Saisir votre adresse'
+                ],
             ])
             ->add('dateCreation', DateType::class, [
                 'widget' => 'single_text',
@@ -58,9 +63,9 @@ class CommandeType extends AbstractType
            
             ->add('ModePaiement', ChoiceType::class, [
                 'choices' => [
-                    'Espèce' => 'espece',
-                    'Carte bancaire' => 'carte_bancaire',
-                    'e-Dinar' => 'e_dinar',
+                    'Espèce' => 'Espèces',
+                    'Carte bancaire' => 'Carte_Bancaire',
+                    'e-Dinar' => 'e_DINAR',
                 ],
                 'data' => 'espece', // Valeur par défaut
                 'disabled' => !$isEdit,

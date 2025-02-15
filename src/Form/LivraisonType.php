@@ -25,6 +25,7 @@ class LivraisonType extends AbstractType
                 'choice_label' => 'id',
                 'label' => 'Commande associée',
                 'attr' => ['class' => 'form-control'],
+                'disabled' => true,
             ])
             ->add('statut', ChoiceType::class, [
                 'choices' => [

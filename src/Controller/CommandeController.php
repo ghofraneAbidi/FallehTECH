@@ -131,4 +131,27 @@ public function edit(Request $request, Commande $commande, EntityManagerInterfac
 
         return $this->redirectToRoute('app_commande_index', [], Response::HTTP_SEE_OTHER);
     }
+    #[Route('/{id}/annuler', name: 'app_commande_annuler', methods: ['POST'])]
+public function annuler(Request $request, Commande $commande, EntityManagerInterface $entityManager): Response
+{
+    // Check if the user confirmed the action (CSRF protection)
+    if ($this->isCsrfTokenValid('annuler'.$commande->getId(), $request->request->get('_token'))) {
+        // Set the status to "Annulée"
+        $commande->setStatus('Annulée');
+        if ($commande->getLivraison()) {
+            $livraison = $commande->getLivraison();
+            $livraison->setStatut('Annulée');
+            $entityManager->persist($livraison); // Don't forget to persist the updated Livraison entity
+        }
+    
+        // Persist changes
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Commande annulée avec succès.');
+    }
+
+    // Redirect back to the list or the edit page
+    return $this->redirectToRoute('app_commande_index');
+}
+
 }
