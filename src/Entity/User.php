@@ -46,10 +46,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(message: "Veuillez spécifier votre rôle")]
     private ?string $role = null;
 
-    #[ORM\Column(length: 255, nullable: false)]
-    #[Assert\NotBlank(message: "Veuillez votre numéro de cin")]
+    #[ORM\Column(length: 8, nullable: false)]
+    #[Assert\NotBlank(message: "Veuillez entrer votre numéro de carte d'identité")]
+    #[Assert\Length(
+        min: 8, 
+        max: 8, 
+        exactMessage: "Le numéro de carte d'identité doit contenir exactement {{ limit }} chiffres"
+    )]
+    #[Assert\Regex(
+        pattern: "/^\d{8}$/",
+        message: "Le numéro de carte d'identité ne doit contenir que des chiffres"
+    )]
     private ?string $carte_identite = null;
-    
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     #[Assert\Date(message: "La date de disponibilité doit être valide")]

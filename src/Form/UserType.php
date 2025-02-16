@@ -42,11 +42,11 @@ class UserType extends AbstractType
                 'label' => 'Numéro de CIN',
                 'attr' => [
                     'maxlength' => 8,
-                    'pattern' => '\d{8}', // Accepte seulement 8 chiffres
+                    'pattern' => '\d{8}', // Vérification HTML (8 chiffres uniquement)
                     'placeholder' => 'Entrer votre CIN',
                 ],
                 'required' => true,
-            ])
+            ])            
             ->add('disponibility', DateType::class, [
                 'widget' => 'single_text',
             ])
@@ -61,4 +61,5 @@ class UserType extends AbstractType
             'data_class' => User::class,
         ]);
     }
+    
 }
