@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -16,25 +17,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
+ 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: "Veuillez entrer votre nom")]
+    #[Assert\Length(min: 2, max: 50, minMessage: "Le nom doit comporter au moins {{ limit }} caractères", maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères")]
     private ?string $name = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: "Veuillez entrer votre prénom")]
+    #[Assert\Length(min: 2, max: 50, minMessage: "Le prénom doit comporter au moins {{ limit }} caractères", maxMessage: "Le prénom ne peut pas dépasser {{ limit }} caractères")]
     private ?string $last_name = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "Veuillez entrer votre email")]
+    #[Assert\Email(message: "L'email doit être sous la forme: exemple@exemple.exemple")]
     private ?string $email = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "Veuillez entrer votre mot de passe")]
+    #[Assert\Length(min: 8, max: 20, minMessage: "Le mot de passe doit comporter au moins {{ limit }} caractères", maxMessage: "Le mot de passe ne peut pas dépasser {{ limit }} caractères")]
     private ?string $password = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: "Veuillez spécifier votre rôle")]
     private ?string $role = null;
 
-    #[ORM\Column(type: Types::BLOB)]
-    private $carte_identite;
+    #[ORM\Column(length: 255, nullable: false)]
+    #[Assert\NotBlank(message: "Veuillez votre numéro de cin")]
+    private ?string $carte_identite = null;
+    
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\Date(message: "La date de disponibilité doit être valide")]
     private ?\DateTimeInterface $disponibility = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -108,14 +122,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCarteIdentite()
+    public function getCarteIdentite(): ?string
     {
         return $this->carte_identite;
     }
 
-    public function setCarteIdentite($carte_identite): static
+    public function setCarteIdentite(?string $carteIdentite): self
     {
-        $this->carte_identite = $carte_identite;
+        $this->carte_identite = $carteIdentite;
 
         return $this;
     }

@@ -11,7 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 
 class UserType extends AbstractType
@@ -38,11 +38,14 @@ class UserType extends AbstractType
                 'label' => 'Role',
                 'attr' => ['class' => 'role-select'],
             ])
-            ->add('carte_identite', FileType::class, [
-                'label' => 'Carte d\'identité',
-                'mapped' => false, // Permet de ne pas lier directement à l'entité User
-                'required' => false,
-                'help' => 'Veuillez télécharger une copie de votre carte d\'identité',
+            ->add('carte_identite', TextType::class, [
+                'label' => 'Numéro de CIN',
+                'attr' => [
+                    'maxlength' => 8,
+                    'pattern' => '\d{8}', // Accepte seulement 8 chiffres
+                    'placeholder' => 'Entrer votre CIN',
+                ],
+                'required' => true,
             ])
             ->add('disponibility', DateType::class, [
                 'widget' => 'single_text',

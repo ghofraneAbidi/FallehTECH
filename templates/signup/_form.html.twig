@@ -1,30 +1,37 @@
-{{ form_start(form, {'attr': {'class': 'signup-form'}}) }}
+{{ form_start(form, {'attr': {'class': 'signup-form' , 'novalidate': 'novalidate'} } ) }}
 
     <div class="input-field">
         {{ form_widget(form.name, {'attr': {'placeholder': 'Nom'}}) }}
+        {{ form_errors(form.name)}}
     </div>
     <div class="input-field">
         {{ form_widget(form.last_name, {'attr': {'placeholder': 'Prénom'}}) }}
+        {{ form_errors(form.last_name)}}
     </div>
     <div class="input-field">
         {{ form_widget(form.email, {'attr': {'placeholder': 'Email', 'type': 'email'}}) }}
+        {{ form_errors(form.email)}}
     </div>
     <div class="input-field">
         {{ form_widget(form.password, {'attr': {'placeholder': 'Mot de passe', 'type': 'password'}}) }}
+        {{ form_errors(form.password)}}
     </div>
     <div class="input-field">
         {{ form_widget(form.carte_identite, {'attr': {'placeholder': 'Carte d\'identité'}}) }}
-        <small class="form-text text-muted">Veuillez télécharger une copie de votre carte d'identité.</small>
+        {{ form_errors(form.carte_identite)}}
     </div>
     <div class="input-field">
         {{ form_widget(form.role, {'attr': {'class': 'role-select'}}) }}
+        {{ form_errors(form.role)}}
     </div>
 
     <div class="input-field ouvrier-fields" style="display: none;">
         {{ form_widget(form.disponibility, {'attr': {'placeholder': 'Disponibilité'}}) }}
+        {{ form_errors(form.disponibility)}}
     </div>
     <div class="input-field ouvrier-fields" style="display: none;">
         {{ form_widget(form.location, {'attr': {'placeholder': 'Lieu'}}) }}
+        {{ form_errors(form.location)}}
     </div>
     <div class="input-field ouvrier-fields" style="display: none;">
         {{ form_widget(form.experience, {'attr': {'placeholder': 'Expérience'}}) }}
