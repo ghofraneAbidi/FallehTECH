@@ -33,6 +33,20 @@ class Produit
 
     #[ORM\Column(length: 255)]
     private ?string $image = null;
+    #[ORM\Column(type: 'boolean')]
+private bool $isFavorite = false;
+
+public function getIsFavorite(): bool
+{
+    return $this->isFavorite;
+}
+
+public function setIsFavorite(bool $isFavorite): static
+{
+    $this->isFavorite = $isFavorite;
+    return $this;
+}
+
 
     // Getters and setters...
 
@@ -106,4 +120,5 @@ class Produit
 
         return $this;
     }
+    
 }

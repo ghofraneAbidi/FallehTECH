@@ -1,0 +1,45 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Mes Favoris{% endblock %}
+
+{% block body %}
+<h1>Mes Produits Favoris</h1>
+
+<div class="row">
+    <!-- This is where the products will be shown -->
+</div>
+
+<!-- Modal for displaying favorites -->
+<div class="modal fade" id="favoritesModal" tabindex="-1" aria-labelledby="favoritesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="favoritesModalLabel">Mes Favoris</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Produit Favoris</th>
+                            <th>Prix Unitaire</th>
+                            <th>État du stock</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="favorites-list">
+                        <!-- Dynamically populated rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- The button that opens the modal -->
+<button id="showFavoritesBtn" class="btn btn-success">
+    Mes Favoris
+</button>
+
+<script src="{{ asset('js/favorites.js') }}"></script>
+{% endblock %}

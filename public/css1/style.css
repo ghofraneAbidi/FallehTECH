@@ -158,3 +158,53 @@
     height: 100px; /* Adjust logo size */
     width: auto;
 }
+.card {
+    position: relative;
+}
+
+.heart-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: none;
+    cursor: pointer;
+}
+
+.card:hover .heart-icon {
+    display: block;
+}
+#favorites-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#favorites-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#favorites-list img {
+    margin-right: 10px;
+    border-radius: 50%;
+}
+#favoritesSection {
+    margin-top: 20px;
+}
+
+#favoritesSection ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#favoritesSection li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+#favoritesSection img {
+    max-width: 60px;
+    margin-right: 15px;
+}
+

@@ -12,10 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\SousCategorieRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 #[Route('/produit')]
 final class ProduitController extends AbstractController
 {
+
+
     #[Route('/index',name: 'app_produit_index', methods: ['GET'])]
     public function index(ProduitRepository $produitRepository): Response
     {
@@ -169,14 +171,14 @@ public function getSousCategories(int $id, SousCategorieRepository $sousCategori
 #[Route('/produits/sous-categorie/{sousCategorie}', name: 'produits_par_souscategorie')]
 public function afficherProduitsParSousCategorie(string $sousCategorie, ProduitRepository $produitRepository, SousCategorieRepository $sousCategorieRepository): Response
 {
-    // Récupérer l'objet SousCategorie à partir du nom
+    // Retrieve the SousCategorie object based on the name
     $sousCategorieObj = $sousCategorieRepository->findOneBy(['nom' => $sousCategorie]);
 
     if (!$sousCategorieObj) {
         throw $this->createNotFoundException('Sous-catégorie introuvable.');
     }
 
-    // Récupérer les produits correspondant à la sous-catégorie
+    // Retrieve products related to the SousCategorie
     $produits = $produitRepository->findBy(['sousCategorie' => $sousCategorieObj]);
 
     if (!$produits) {
@@ -185,13 +187,38 @@ public function afficherProduitsParSousCategorie(string $sousCategorie, ProduitR
 
     return $this->render('produit_new/produits.html.twig', [
         'sousCategorie' => $sousCategorieObj,
-        'produits' => $produits,
+        'produits' => $produits, // Ensure this is passed to Twig
     ]);
 }
+#[Route('/produit/{id}/add-to-favorites', name: 'add_to_favorites')]
+public function addToFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
+{
+    if (!$produit) {
+        return new JsonResponse(['success' => false, 'message' => 'Product not found'], 404);
+    }
 
+    // Add product to favorites
+    $favoris = new Favoris();
+    $favoris->setProduit($produit);
+    $favoris->setIsFavorite(true);
+    $em->persist($favoris);
+    $em->flush();
 
-
-
-
-    
+    return new JsonResponse(['success' => true, 'message' => 'Product added to favorites']);
 }
+
+#[Route('/produit/{id}/remove-from-favorites', name: 'remove_from_favorites')]
+public function removeFromFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
+{
+    $favoris = $em->getRepository(Favoris::class)->findOneBy(['produit' => $produit]);
+    if ($favoris) {
+        $em->remove($favoris);
+        $em->flush();
+    }
+
+    return new JsonResponse(['success' => true, 'message' => 'Product removed from favorites']);
+}
+
+}
+
+
