@@ -36,6 +36,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: "Veuillez entrer votre mot de passe")]
     #[Assert\Length(min: 8, max: 20, minMessage: "Le mot de passe doit comporter au moins {{ limit }} caractères", maxMessage: "Le mot de passe ne peut pas dépasser {{ limit }} caractères")]
+    #[Assert\Regex(
+        pattern: "/^(?=.*[A-Z])(?=.*\d).+$/",
+        message: "Le mot de passe doit contenir au moins une lettre majuscule et un chiffre"
+    )]
     private ?string $password = null;
 
     #[ORM\Column(length: 20)]
