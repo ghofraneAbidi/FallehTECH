@@ -1,19 +1,20 @@
 {{ form_start(form, {'attr': {'class': 'signup-form'}}) }}
 
     <div class="input-field">
-        {{ form_widget(form.name, {'attr': {'placeholder': 'Full Name'}}) }}
+        {{ form_widget(form.name, {'attr': {'placeholder': 'Nom'}}) }}
     </div>
     <div class="input-field">
-        {{ form_widget(form.last_name, {'attr': {'placeholder': 'Last Name'}}) }}
+        {{ form_widget(form.last_name, {'attr': {'placeholder': 'Prénom'}}) }}
     </div>
     <div class="input-field">
         {{ form_widget(form.email, {'attr': {'placeholder': 'Email', 'type': 'email'}}) }}
     </div>
     <div class="input-field">
-        {{ form_widget(form.password, {'attr': {'placeholder': 'Password', 'type': 'password'}}) }}
+        {{ form_widget(form.password, {'attr': {'placeholder': 'Mot de passe', 'type': 'password'}}) }}
     </div>
     <div class="input-field">
-        {{ form_widget(form.carte_identite, {'attr': {'placeholder': 'Carte Identité'}}) }}
+        {{ form_widget(form.carte_identite, {'attr': {'placeholder': 'Carte d\'identité'}}) }}
+        <small class="form-text text-muted">Veuillez télécharger une copie de votre carte d'identité.</small>
     </div>
     <div class="input-field">
         {{ form_widget(form.role, {'attr': {'class': 'role-select'}}) }}
@@ -29,7 +30,7 @@
         {{ form_widget(form.experience, {'attr': {'placeholder': 'Expérience'}}) }}
     </div>
 
-    <button type="submit" class="btn">{{ button_label|default('Sign Up') }}</button>
-    <p class="signup-parag">You already have an account ? <a href="{{ path('app_user_login')}}" class="signup-redirect">Log into your account</a></p>
+    <button type="submit" class="btn">{{ button_label|default('S\'inscrire') }}</button>
+    <p class="signup-parag"> Vous avez deja un compte ? <a href="{{ path('app_user_login')}}" class="signup-redirect">  Se connecter</a></p>
 
 {{ form_end(form) }}

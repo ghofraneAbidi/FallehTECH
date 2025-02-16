@@ -7,6 +7,12 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+
+
 
 class UserType extends AbstractType
 {
@@ -15,8 +21,12 @@ class UserType extends AbstractType
         $builder
             ->add('name')
             ->add('last_name')
-            ->add('email')
-            ->add('password')
+            ->add('email', EmailType::class, [
+                'label' => 'Email',
+            ])
+            ->add('password', PasswordType::class, [
+                'label' => 'Mot de passe',
+            ])
             ->add('role', ChoiceType::class, [
                 'choices'  => [
                     'Agriculteur' => 'agriculteur',
@@ -28,12 +38,17 @@ class UserType extends AbstractType
                 'label' => 'Role',
                 'attr' => ['class' => 'role-select'],
             ])
-            ->add('carte_identite')
-            ->add('disponibility', null, [
+            ->add('carte_identite', FileType::class, [
+                'label' => 'Carte d\'identité',
+                'mapped' => false, // Permet de ne pas lier directement à l'entité User
+                'required' => false,
+                'help' => 'Veuillez télécharger une copie de votre carte d\'identité',
+            ])
+            ->add('disponibility', DateType::class, [
                 'widget' => 'single_text',
             ])
-            ->add('location')
-            ->add('experience')
+            ->add('location', null, ['label' => 'Lieu'])
+            ->add('experience', null, ['label' => 'Expérience']);
         ;
     }
 
