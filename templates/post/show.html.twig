@@ -6,71 +6,55 @@
 
 <style>
     .post-details-container {
-        max-width: 700px;
+        max-width: 900px;
         margin: auto;
-        padding: 30px;
+        padding: 20px;
         background: #fff;
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    .post-details h2 {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 20px;
-        color: #333;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .post-details h2 i {
-        font-size: 26px;
-        color: #9BAB10;
-    }
-
-    .details-table {
+    .table-custom {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 20px;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
     }
 
-    .details-table th, .details-table td {
-        padding: 12px;
-        border-bottom: 1px solid #ddd;
-        font-size: 16px;
+    .table-custom thead {
+        background: #4CAF50;
+        color: white;
     }
 
-    .details-table th {
+    .table-custom th, .table-custom td {
+        padding: 15px;
         text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table-custom th {
         font-weight: bold;
-        color: #555;
-        width: 30%;
     }
 
-    .details-table td {
-        color: #333;
-    }
-
-    .post-image {
-        max-width: 100%;
-        height: auto;
+    .table-custom img {
+        max-width: 200px;
         border-radius: 8px;
-        margin-top: 10px;
+        object-fit: cover;
     }
 
     .btn-container {
         display: flex;
         justify-content: space-between;
         gap: 10px;
-        width: 100%;
+        margin-top: 20px;
     }
 
     .btn-action {
         flex: 1;
-        padding: 12px 15px;
+        padding: 12px;
         border-radius: 6px;
-        font-weight: 600;
+        font-weight: bold;
         text-align: center;
         text-decoration: none;
         transition: all 0.3s ease;
@@ -83,17 +67,17 @@
     }
 
     .btn-primary {
-        background-color: #9BAB10;
+        background-color: #4CAF50;
         color: white;
     }
 
     .btn-primary:hover {
-        background-color: #016537;
+        background-color: #388E3C;
     }
 
     .btn-secondary {
         background-color: #eeeeee;
-        color: #342E37;
+        color: #333;
     }
 
     .btn-secondary:hover {
@@ -107,15 +91,6 @@
 
     .btn-danger:hover {
         background-color: #c82333;
-    }
-
-    .delete-form {
-        flex: 1;
-        display: flex;
-    }
-
-    .delete-form button {
-        width: 100%;
     }
 
     .comments-section {
@@ -150,20 +125,24 @@
         color: #333;
         margin-top: 5px;
     }
-
 </style>
 
 <div class="container mt-4">
     <div class="post-details-container">
-        <h2><i class="bx bx-file"></i> Post Details</h2>
+        <h2 class="text-center" style="color: #4CAF50;"><i class="bx bx-file"></i> Post Details</h2>
 
-        <table class="details-table">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th colspan="2" class="text-center">Post Information</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
-                    <th></th>
+                    <th>Image</th>
                     <td>
                         {% if post.image %}
-                            <img src="{{ asset('uploads/posts/' ~ post.image) }}" class="card-img-top" alt="{{ post.titre }}" style="height: 200px; object-fit: cover;">
+                            <img src="{{ asset('uploads/posts/' ~ post.image) }}" alt="{{ post.titre }}">
                         {% else %}
                             <span class="text-muted">No Image</span>
                         {% endif %}
@@ -189,7 +168,6 @@
                     <th>Likes</th>
                     <td>❤️ {{ post.likes|length }}</td>
                 </tr>
-                
             </tbody>
         </table>
 
@@ -197,14 +175,14 @@
             <a href="{{ path('app_post_index') }}" class="btn-action btn-secondary">
                 <i class="bx bx-arrow-back"></i> Back to List
             </a>
-            
+
             <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="btn-action btn-primary">
                 <i class="bx bx-edit"></i> Edit Post
             </a>
 
             <form method="post" action="{{ path('app_post_delete', {'id': post.id}) }}" 
                 onsubmit="return confirm('Are you sure you want to delete this post?');"
-                class="delete-form">
+                style="flex: 1;">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
                 <button type="submit" class="btn-action btn-danger">
                     <i class="bx bx-trash"></i> Delete

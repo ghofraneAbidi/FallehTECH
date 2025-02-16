@@ -20,10 +20,22 @@ class Post
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Title cannot be blank.")]
+    #[Assert\Length(
+        min: 5,
+        minMessage: "The title cannot be less than 5 characters.",
+        max: 255,
+        maxMessage: "The title cannot be longer than 255 characters."
+    )]
     private ?string $titre = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Content cannot be blank.")]
+    #[Assert\Length(
+        min: 10,
+        minMessage: "The content must be at least 10 characters long.",
+        max: 255,
+        maxMessage: "The content cannot be longer than 255 characters."
+    )]
     private ?string $contenu = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
