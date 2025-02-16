@@ -169,13 +169,32 @@ class PostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $imageFile */
+            $imageFile = $form->get('imageFile')->getData();
+
+            if ($imageFile) {
+                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('post_images_directory'), // Directory where images are stored
+                        $newFilename
+                    );
+                    $post->setImage($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Failed to upload image: ' . $e->getMessage());
+                    return $this->redirectToRoute('app_post_edit', ['id' => $post->getId()]);
+                }
+            }
+
             $entityManager->flush();
-            return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Post updated successfully!');
+            return $this->redirectToRoute('app_post_index');
         }
 
-        return $this->renderForm('post/edit.html.twig', [
+        return $this->render('post/edit.html.twig', [
             'post' => $post,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
