@@ -36,6 +36,9 @@ class Produit
     #[ORM\Column(type: 'boolean')]
 private bool $isFavorite = false;
 
+#[ORM\Column(type: 'string', length: 100)]
+private ?string $stock = null;
+
 public function getIsFavorite(): bool
 {
     return $this->isFavorite;
@@ -120,5 +123,15 @@ public function setIsFavorite(bool $isFavorite): static
 
         return $this;
     }
+    public function getStock(): ?string
+{
+    return $this->stock;
+}
+
+public function setStock(string $stock): static
+{
+    $this->stock = $stock;
+    return $this;
+}
     
 }

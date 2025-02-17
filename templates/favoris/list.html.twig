@@ -1,26 +1,44 @@
-<!-- favorites/list.html.twig -->
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Mes Favoris{% endblock %}
+
 {% block body %}
-    <h1>Mes Favoris</h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Produit Favoris</th>
-                <th>Prix Unitaire</th>
-                <th>État du stock</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="favorites-list">
-            <!-- Dynamically populated rows -->
-            {% for favoris in favorisList %}
-                <tr>
-                    <td><img src="{{ asset('img/' ~ favoris.image) }}" style="width: 50px; height: 50px;"></td>
-                    <td>{{ favoris.name }}</td>
-                    <td>{{ favoris.price }} €</td>
-                    <td>{{ favoris.stock }}</td>
-                    <td><button class="btn btn-danger btn-sm">Retirer</button></td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<h1>Mes Favoris</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Produit Favoris</th>
+            <th>Prix Unitaire</th>
+            <th>État du stock</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="favorites-list">
+        {% for favoris in favorisList %}
+        <tr>
+            <td><img src="{{ asset('img/' ~ favoris.produit.image) }}" alt="{{ favoris.produit.nom }}" style="width: 50px; height: 50px;"></td>
+            <td>{{ favoris.produit.nom }}</td>
+            <td>{{ favoris.produit.prix }} €</td>
+            <td>{{ favoris.produit.stock }}</td>
+            <td>
+                <button class="btn btn-danger btn-sm" onclick="removeFromFavorites({{ favoris.produit.id }})">Retirer</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    // Remove product from favorites
+    function removeFromFavorites(productId) {
+        fetch('/favoris/remove/' + productId, { method: 'POST' })
+            .then(response => response.json())
+            .then(() => {
+                // Reload the list after removing
+                location.reload();
+            });
+    }
+</script>
+
 {% endblock %}

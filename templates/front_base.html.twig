@@ -16,8 +16,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <!-- Libraries Stylesheet -->
     <link href="{{ asset('lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
@@ -52,12 +55,9 @@
             </div>
         </div>
 
-        <!-- ✅ Single Favorites Icon in Navbar -->
-        <div class="favorites-icon" style="position: relative; margin-left: auto; cursor: pointer;">
-            <a href="#" id="favorites-icon" class="nav-link" data-bs-toggle="modal" data-bs-target="#favoritesModal">
-                <i class="fa fa-heart"></i> <span id="favorites-count">0</span> Favoris
-            </a>
-        </div>
+       <!-- In base.html.twig (or a common template that is included on all pages) -->
+<a href="{{ path('favoris_list') }}" class="btn btn-success" id="showFavoritesBtn">Mes Favoris</a>
+
     </nav>
     <!-- ✅ NAVBAR END -->
 
@@ -107,6 +107,7 @@
         </div>
     </footer>
     <!-- Footer End -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

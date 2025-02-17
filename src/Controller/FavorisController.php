@@ -3,66 +3,60 @@ namespace App\Controller;
 
 use App\Entity\Favoris;
 use App\Entity\Produit;
-use App\Repository\FavorisRepository;
-use App\Repository\ProduitRepository;
-use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\FavorisRepository;
+use Symfony\Component\HttpFoundation\Response;
 
 class FavorisController extends AbstractController
 {
-    #[Route('/favoris/add/{id}', name: 'add_favoris')]
-    public function addFavoris(Produit $produit, ProduitRepository $produitRepo, UserRepository $userRepo, FavorisRepository $favorisRepo): Response
-    {
-        // Get the current user
-        $user = $this->getUser();
+    // Route pour ajouter un produit aux favoris
+    // FavorisController.php
 
-        // Check if the product is already in the favorites
-        $existingFavoris = $favorisRepo->findOneBy(['produit' => $produit, 'user' => $user]);
-
-        if (!$existingFavoris) {
-            // Create a new favoris entity and add it to the database
-            $favoris = new Favoris();
-            $favoris->setProduit($produit);
-            $favoris->setUser($user);
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($favoris);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Produit ajouté aux favoris!');
-        } else {
-            $this->addFlash('warning', 'Ce produit est déjà dans vos favoris!');
-        }
-
-        return $this->redirectToRoute('product_list');  // Change to your product list page
-    }
-
-    #[Route('/favoris/remove/{id}', name: 'remove_favoris')]
-    public function removeFavoris(Favoris $favoris, FavorisRepository $favorisRepo): Response
-    {
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->remove($favoris);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Produit retiré des favoris!');
-        return $this->redirectToRoute('product_list');  // Change to your product list page
-    }
-
-    #[Route('/favoris/list', name: 'favoris_list')]
-public function favorisList(FavorisRepository $favorisRepo): Response
+#[Route('/produit/{id}/add-to-favorites', name: 'add_to_favorites', methods: ['POST'])]
+public function addToFavorites(Produit $produit, EntityManagerInterface $em, Request $request): JsonResponse
 {
-    // Get current user
-    $user = $this->getUser();
+    // Check if product exists
+    if (!$produit) {
+        return new JsonResponse(['success' => false, 'message' => 'Product not found'], 404);
+    }
 
-    // Fetch favorites for the logged-in user
-    $favorisList = $favorisRepo->findBy(['user' => $user]);
+    // Check if the product is already in favorites
+    $existingFavoris = $em->getRepository(Favoris::class)->findOneBy(['produit' => $produit, 'isFavorite' => true, 'userId' => 1]);
+    if ($existingFavoris) {
+        return new JsonResponse(['success' => false, 'message' => 'Product is already in favorites']);
+    }
 
-    // Return the favorites data to the view
-    return $this->render('favoris/list.html.twig', [
-        'favorisList' => $favorisList,
-    ]);
+    // Create a new favoris entry
+    $favoris = new Favoris();
+    $favoris->setProduit($produit);
+    $favoris->setIsFavorite(true);
+    $favoris->setUserId(1);  // Static user ID (can be dynamic based on the logged-in user)
+
+    // Persist and flush the changes
+    $em->persist($favoris);
+    $em->flush();
+
+    return new JsonResponse(['success' => true, 'message' => 'Product added to favorites']);
 }
 
+    // Get all favorites for the static user
+    #[Route('/favoris/list', name: 'favoris_list')]
+    public function showFavoris(FavorisRepository $favorisRepo): Response
+    {
+        // Static userId for simplicity
+        $userId = 1;
+
+        // Fetch favoris for the static user
+        $favorisList = $favorisRepo->findFavoritesByUser($userId);
+
+        // Render the view and pass the favoris list to Twig
+        return $this->render('favoris/list.html.twig', [
+            'favorisList' => $favorisList,
+        ]);
+    }
 }
+

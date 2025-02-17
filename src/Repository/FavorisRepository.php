@@ -12,11 +12,11 @@ class FavorisRepository extends ServiceEntityRepository
         parent::__construct($registry, Favoris::class);
     }
 
-    // Custom queries can be added here if needed, for example:
+    // Method to find all favorites for a given user
     public function findFavoritesByUser(int $userId)
     {
         return $this->createQueryBuilder('f')
-            ->where('f.userId = :userId')
+            ->andWhere('f.userId = :userId')
             ->setParameter('userId', $userId)
             ->getQuery()
             ->getResult();

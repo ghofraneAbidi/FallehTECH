@@ -8,89 +8,185 @@
 <div class="row">
     {% for produit in produits %}
     <div class="col-md-4 mb-4">
-        <div class="card" style="width: 18rem;" data-product-id="{{ produit.id }}" data-product-name="{{ produit.nom }}" data-product-image="{{ asset('img/' ~ produit.image) }}" data-product-price="{{ produit.prix }}">
+        <div class="card" style="width: 18rem;" 
+             data-product-id="{{ produit.id }}" 
+             data-product-name="{{ produit.nom }}" 
+             data-product-image="{{ asset('img/' ~ produit.image) }}" 
+             data-product-price="{{ produit.prix }}" 
+             data-product-stock="{{ produit.stock }}" 
+             data-product-description="{{ produit.description }}">
+             
             <img src="{{ asset('img/' ~ produit.image) }}" alt="{{ produit.nom }}" class="card-img-top" style="height: 200px; object-fit: cover;">
             <div class="card-body">
                 <h5 class="card-title">{{ produit.nom }}</h5>
                 <p class="card-text">{{ produit.description }}</p>
                 <p><strong>Prix:</strong> {{ produit.prix }} €</p>
-
-                <!-- "Voir les détails" button triggers the modal -->
                 <button class="btn btn-primary btn-details" data-bs-toggle="modal" data-bs-target="#productModal">
                     Voir les détails
                 </button>
             </div>
 
-            <!-- Heart icon for adding to favorites (visible on hover) -->
-             <div class="heart-icon" style="font-size: 1.5rem; cursor: pointer;">
-        <i class="fa fa-heart"></i>
-    </div>
+            <!-- Heart icon for adding to favorites -->
+            <div class="heart-icon" data-product-id="{{ produit.id }}" style="font-size: 1.5rem; cursor: pointer; color: grey;">
+                <i class="fa fa-heart"></i>
+            </div>
         </div>
     </div>
     {% endfor %}
 </div>
 
-<!-- Modal for Product Details -->
+<!-- Modal -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <!-- Modal Header -->
             <div class="modal-header">
-                <h5 class="modal-title" id="productModalLabel">Détails du Produit</h5>
+                <h5 class="modal-title" id="productModalLabel">Product Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
             </div>
-            <!-- Modal Body -->
             <div class="modal-body">
+                <img id="productImage" src="" alt="Product Image" class="img-fluid" style="max-width: 100%; height: auto;">
                 <h3 id="productName"></h3>
-                <img id="productImage" class="card-img-top mb-3" alt="" style="max-width: 100%;">
                 <p id="productDescription"></p>
-                <p><strong>Prix:</strong> <span id="productPrice"></span> €</p>
+                <p><strong>Price:</strong> <span id="productPrice"></span> €</p>
+                <p><strong>Stock:</strong> <span id="productStock"></span></p>
             </div>
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                <button type="button" class="btn btn-primary">Ajouter au Panier</button>
-            </div>
+           
         </div>
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let favorites = [];
 
-<!-- The modal or section to display favorites -->
-<div id="favoritesSection" style="display:none;">
-    <h3>Mes Produits Favoris</h3>
-    <ul id="favorites-list">
-        <!-- This will be populated dynamically -->
-    </ul>
-</div>
+        // Update the favorites count in the navbar
+        function updateFavoritesCount() {
+            const favoritesCount = document.getElementById('favorites-count');
+            if (favoritesCount) {
+                favoritesCount.textContent = favorites.length;
+            }
+        }
 
-<!-- Favorites Modal -->
-<div id="favoritesModal" class="modal fade" tabindex="-1" aria-labelledby="favoritesModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="favoritesModalLabel">Mes Favoris</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Produit Favoris</th>
-                            <th>Prix Unitaire</th>
-                            <th>État du stock</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="favorites-list">
-                        <!-- Dynamically populated rows will appear here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+        // Heart icon functionality
+        function initializeHeartIcons() {
+            document.querySelectorAll('.heart-icon').forEach(icon => {
+                icon.addEventListener('click', function (event) {
+                    const card = this.closest('.card');
+                    const productId = card.dataset.productId;
+                    const productName = card.dataset.productName;
+                    const productImage = card.dataset.productImage;
+                    const productPrice = card.dataset.productPrice;
 
+                    // Check if the heart icon is already red (i.e., in favorites)
+                    if (this.classList.contains('text-danger')) {
+                        alert("Produit déjà dans les favoris!");
+                        return;
+                    }
 
-<script src="{{ asset('js/favorites.js') }}"></script>
+                    // Add the product to the favorites array
+                    const product = { id: productId, name: productName, image: productImage, price: productPrice };
+                    favorites.push(product);
+
+                    // Add to favoris (API request)
+                    fetch('/favoris/add/' + productId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            productId: productId,
+                            isFavorite: true,
+                            userId: 1  // Assurez-vous d'utiliser l'id utilisateur correct
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Produit ajouté aux favoris!");
+                            this.classList.add('text-danger'); // Color the heart red to show it's added
+                            updateFavoritesCount();
+                        } else {
+                            alert("Erreur lors de l'ajout aux favoris. Veuillez réessayer.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Erreur :", error);
+                        alert("Une erreur est survenue. Veuillez réessayer.");
+                    });
+                });
+            });
+        }
+
+        // Initialize the heart icons whenever the page loads
+        initializeHeartIcons();
+
+        // Modal Product Details Functionality
+        document.querySelectorAll('.btn-details').forEach(button => {
+            button.addEventListener('click', function () {
+                const productId = this.closest('.card').dataset.productId;
+                const productName = this.closest('.card').dataset.productName;
+                const productImage = this.closest('.card').dataset.productImage;
+                const productPrice = this.closest('.card').dataset.productPrice;
+                const productDescription = this.closest('.card').dataset.productDescription;
+                const productStock = this.closest('.card').dataset.productStock;
+
+                // Set product data in modal
+                document.getElementById('productName').textContent = productName;
+                document.getElementById('productDescription').textContent = productDescription;
+                document.getElementById('productPrice').textContent = productPrice;
+                document.getElementById('productImage').src = productImage;
+                document.getElementById('productStock').textContent = productStock;
+
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('productModal'));
+                modal.show();
+            });
+        });
+
+        // Closing the modal
+        const closeButtons = document.querySelectorAll('[data-bs-dismiss="modal"]');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const modal = new bootstrap.Modal(document.getElementById('productModal'));
+                modal.hide();
+            });
+        });
+    });
+document.addEventListener('DOMContentLoaded', function () {
+    function removeModalBackdrop() {
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open'); // Remove Bootstrap's modal-open class
+        document.body.style.overflow = ''; // Restore scrolling
+        document.body.style.paddingRight = ''; // Fix any added padding
+    }
+
+    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(closeBtn => {
+        closeBtn.addEventListener('click', function () {
+            const modalElement = document.getElementById('productModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+
+            if (modal) {
+                modal.hide();
+            }
+
+            setTimeout(removeModalBackdrop, 100); // Give Bootstrap some time before cleanup
+        });
+    });
+
+    document.getElementById('productModal').addEventListener('hidden.bs.modal', removeModalBackdrop);
+
+    // Remove dark overlay if the modal is closed by clicking outside
+    document.getElementById('productModal').addEventListener('click', function (event) {
+        if (event.target === this) {
+            const modal = bootstrap.Modal.getInstance(this);
+            if (modal) {
+                modal.hide();
+            }
+            setTimeout(removeModalBackdrop, 100);
+        }
+    });
+});
+</script>
+
 {% endblock %}

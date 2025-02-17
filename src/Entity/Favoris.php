@@ -2,25 +2,21 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Produit; // Import the Produit entity
-use App\Entity\User; // If User entity is involved
 
 #[ORM\Entity]
 class Favoris
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    // Correcting ManyToOne Relationship to Produit
     #[ORM\ManyToOne(targetEntity: Produit::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Produit $produit = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]  // Ensure this references User entity
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    #[ORM\Column(type: 'integer')]
+    private ?int $userId = null; // Static user ID field
 
     public function getId(): ?int
     {
@@ -32,22 +28,20 @@ class Favoris
         return $this->produit;
     }
 
-    public function setProduit(?Produit $produit): static
+    public function setProduit(?Produit $produit): self
     {
         $this->produit = $produit;
-
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUserId(): ?int
     {
-        return $this->user;
+        return $this->userId;
     }
 
-    public function setUser(?User $user): static
+    public function setUserId(int $userId): self
     {
-        $this->user = $user;
-
+        $this->userId = $userId;
         return $this;
     }
 }

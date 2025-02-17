@@ -191,33 +191,48 @@ public function afficherProduitsParSousCategorie(string $sousCategorie, ProduitR
     ]);
 }
 #[Route('/produit/{id}/add-to-favorites', name: 'add_to_favorites')]
-public function addToFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
-{
-    if (!$produit) {
-        return new JsonResponse(['success' => false, 'message' => 'Product not found'], 404);
-    }
 
-    // Add product to favorites
-    $favoris = new Favoris();
-    $favoris->setProduit($produit);
-    $favoris->setIsFavorite(true);
-    $em->persist($favoris);
-    $em->flush();
+    public function addToFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
+    {
+        // Check if product exists
+        if (!$produit) {
+            return new JsonResponse(['success' => false, 'message' => 'Product not found'], 404);
+        }
 
-    return new JsonResponse(['success' => true, 'message' => 'Product added to favorites']);
-}
+        // Check if the product is already in favorites
+        $existingFavoris = $em->getRepository(Favoris::class)->findOneBy(['produit' => $produit, 'isFavorite' => true]);
+        if ($existingFavoris) {
+            return new JsonResponse(['success' => false, 'message' => 'Product is already in favorites']);
+        }
 
-#[Route('/produit/{id}/remove-from-favorites', name: 'remove_from_favorites')]
-public function removeFromFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
-{
-    $favoris = $em->getRepository(Favoris::class)->findOneBy(['produit' => $produit]);
-    if ($favoris) {
-        $em->remove($favoris);
+        // Create a new favoris entry
+        $favoris = new Favoris();
+        $favoris->setProduit($produit);
+        $favoris->setIsFavorite(true);
+        $favoris->setUserId(1);  // Static user ID (can be dynamic based on the logged-in user)
+
+        // Persist and flush the changes
+        $em->persist($favoris);
         $em->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Product added to favorites']);
     }
 
-    return new JsonResponse(['success' => true, 'message' => 'Product removed from favorites']);
-}
+    // Route to remove product from favorites
+    #[Route('/produit/{id}/remove-from-favorites', name: 'remove_from_favorites', methods: ['POST'])]
+    public function removeFromFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
+    {
+        // Find the favorite entry for the product
+        $favoris = $em->getRepository(Favoris::class)->findOneBy(['produit' => $produit, 'isFavorite' => true]);
+        
+        if ($favoris) {
+            $em->remove($favoris);
+            $em->flush();
+            return new JsonResponse(['success' => true, 'message' => 'Product removed from favorites']);
+        }
+
+        return new JsonResponse(['success' => false, 'message' => 'Product not in favorites']);
+    }
 
 }
 
