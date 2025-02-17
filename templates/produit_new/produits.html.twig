@@ -1,55 +1,50 @@
 {% extends 'front_base.html.twig' %}
 
-
+{% block title %}Produits{% endblock %}
 
 {% block body %}
 <section class="container my-5">
-    <!-- Breadcrumb Navigation -->
-   <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-            <a href="{{ path('produits_front') }}">Accueil</a>
-        </li>
+    <h1 class="text-center text-primary mb-4">Nos {{ sousCategorie.nom }}</h1>
 
-        <li class="breadcrumb-item">
-            <a href="{{ path('categorie_details', {'categorie': sousCategorie.categorie.nom}) }}">
-                {{ sousCategorie.categorie.nom }}
-            </a>
-        </li>
-
-        <li class="breadcrumb-item active" aria-current="page">
-            {{ sousCategorie.nom }}
-        </li>
-    </ol>
-</nav>
-
-
-
-    <h1 class="text-center text-primary mb-4"> Nos {{ sousCategorie.nom }}</h1>
+    <!-- ✅ Notification de succès -->
+    <div id="cartNotification" class="alert alert-success d-none position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg"
+         style="z-index: 1050; width: 300px; text-align: center;">
+        <i class="fa fa-check-circle"></i> Produit ajouté au panier !
+    </div>
 
     <div class="row">
         {% for produit in produits %}
         <div class="col-md-4 mb-4">
-            <div class="card product-card" style="width: 18rem;" 
-                 data-product-id="{{ produit.id }}" 
-                 data-product-name="{{ produit.nom }}" 
-                 data-product-image="{{ asset('uploads/' ~ produit.image) }}" 
-                 data-product-price="{{ produit.prix }}" 
-                 data-product-stock="{{ produit.stock }}" 
-                 data-product-description="{{ produit.description }}">
+            <div class="card product-card" style="width: 18rem;"
+                 data-product-id="{{ produit.id }}"
+                 data-product-name="{{ produit.nom }}"
+                 data-product-image="{{ asset('uploads/' ~ produit.image) }}"
+                 data-product-price="{{ produit.prix }}"
+                 data-product-stock="{{ produit.stock }}">
 
-                <!-- Heart Icon in Top-Right Corner -->
+                <!-- ❤️ Heart Icon for Favorites -->
                 <div class="heart-icon-container">
                     <i class="fa fa-heart heart-icon {% if produit.isFavorite %}favorite{% endif %}" data-product-id="{{ produit.id }}"></i>
                 </div>
 
+                <!-- Product Image -->
                 <img src="{{ asset('uploads/' ~ produit.image) }}" alt="{{ produit.nom }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+
                 <div class="card-body">
                     <h5 class="card-title">{{ produit.nom }}</h5>
                     <p class="card-text">{{ produit.description }}</p>
-                    <p><strong>Prix:</strong> {{ produit.prix }} €</p>
-                    <button class="btn btn-primary btn-details" data-bs-toggle="modal" data-bs-target="#productModal">
-                        Voir les détails
+                    <p><strong>Prix:</strong> {{ produit.prix }} DT</p>
+
+                    <!-- Quantity Selection -->
+                    <div class="input-group mb-2">
+                        <button class="btn btn-outline-secondary decreaseQty" data-id="{{ produit.id }}">-</button>
+                        <input type="text" class="form-control text-center product-quantity" id="quantity-{{ produit.id }}" value="1" readonly>
+                        <button class="btn btn-outline-secondary increaseQty" data-id="{{ produit.id }}">+</button>
+                    </div>
+
+                    <!-- Add to Cart Button -->
+                    <button class="btn btn-primary addToCartBtn" data-id="{{ produit.id }}">
+                        Ajouter au panier
                     </button>
                 </div>
             </div>
@@ -58,23 +53,77 @@
     </div>
 </section>
 
-<!-- Modal -->
-<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="productModalLabel">Product Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <img id="productImage" src="" alt="Product Image" class="img-fluid" style="max-width: 100%; height: auto;">
-                <h3 id="productName"></h3>
-                <p id="productDescription"></p>
-                <p><strong>Prix:</strong> <span id="productPrice"></span> Dt</p>
-                <p><strong>Stock:</strong> <span id="productStock"></span></p>
-            </div>
-        </div>
-    </div>
-</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function showNotification() {
+        const notification = document.getElementById('cartNotification');
+        notification.classList.remove('d-none'); // Show the notification
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+            notification.classList.add('d-none');
+        }, 3000);
+    }
+
+    function updateCartView() {
+        fetch('/cart')
+            .then(response => response.json())
+            .then(data => {
+                const cart = data.cart;
+                const cartCounter = document.getElementById('cartCounter');
+                let totalItems = 0;
+
+                Object.values(cart).forEach(item => {
+                    totalItems += item.quantity;
+                });
+
+                // Update cart counter
+                cartCounter.textContent = totalItems;
+            });
+    }
+
+    // ✅ Handle Add to Cart Click
+    document.querySelectorAll('.addToCartBtn').forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.dataset.id;
+            const quantity = parseInt(document.getElementById('quantity-' + productId).value);
+
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity })
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      showNotification(); // ✅ Show notification
+                      updateCartView(); // ✅ Update cart icon
+                  }
+              });
+        });
+    });
+
+    // ✅ Handle Quantity Increase
+    document.querySelectorAll('.increaseQty').forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.dataset.id;
+            let quantityInput = document.getElementById('quantity-' + productId);
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+        });
+    });
+
+    // ✅ Handle Quantity Decrease
+    document.querySelectorAll('.decreaseQty').forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.dataset.id;
+            let quantityInput = document.getElementById('quantity-' + productId);
+            if (parseInt(quantityInput.value) > 1) {
+                quantityInput.value = parseInt(quantityInput.value) - 1;
+            }
+        });
+    });
+
+    updateCartView();
+});
+</script>
 
 {% endblock %}

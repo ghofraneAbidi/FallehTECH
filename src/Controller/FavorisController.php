@@ -15,42 +15,49 @@ class FavorisController extends AbstractController
 {
     #[Route('/produit/{id}/add-to-favorites', name: 'add_to_favorites', methods: ['POST'])]
     public function addToFavorites(Produit $produit, EntityManagerInterface $em, Request $request): JsonResponse
-    {
-        try {
-            // Debugging: Log the request data
-            $data = json_decode($request->getContent(), true);
-            $userId = $data['userId'] ?? 1; // Change to dynamic user ID if authentication is available
-    
-            // Debugging: Log received data
-            error_log("Received favorite request for Produit ID: " . $produit->getId() . " by User ID: " . $userId);
-    
-            // Check if the product is already in favorites
-            $existingFavoris = $em->getRepository(Favoris::class)->findOneBy([
-                'produit' => $produit,
-                'userId' => $userId,
+{
+    try {
+        $data = json_decode($request->getContent(), true);
+        $userId = $data['userId'] ?? 1; // Change to dynamic user ID if authentication is available
+
+        error_log("Received favorite request for Produit ID: " . $produit->getId() . " by User ID: " . $userId);
+
+        // Check if the product is already in favorites
+        $existingFavoris = $em->getRepository(Favoris::class)->findOneBy([
+            'produit' => $produit,
+            'userId' => $userId,
+        ]);
+
+        if ($existingFavoris) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Produit déjà dans les favoris',
+                'notification' => 'error'
             ]);
-    
-            if ($existingFavoris) {
-                error_log("Produit already in favorites.");
-                return new JsonResponse(['success' => false, 'message' => 'Produit déjà dans les favoris']);
-            }
-    
-            // Create a new favorite entry
-            $favoris = new Favoris();
-            $favoris->setProduit($produit);
-            $favoris->setUserId($userId);
-    
-            $em->persist($favoris);
-            $em->flush();
-    
-            error_log("Produit successfully added to favorites.");
-    
-            return new JsonResponse(['success' => true, 'message' => 'Produit ajouté aux favoris']);
-        } catch (\Exception $e) {
-            error_log("Error adding to favorites: " . $e->getMessage());
-            return new JsonResponse(['error' => 'Une erreur est survenue.', 'details' => $e->getMessage()], 500);
         }
+
+        // Create a new favorite entry
+        $favoris = new Favoris();
+        $favoris->setProduit($produit);
+        $favoris->setUserId($userId);
+
+        $em->persist($favoris);
+        $em->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Produit ajouté aux favoris',
+            'notification' => 'success'
+        ]);
+    } catch (\Exception $e) {
+        return new JsonResponse([
+            'error' => 'Une erreur est survenue.',
+            'details' => $e->getMessage(),
+            'notification' => 'error'
+        ], 500);
     }
+}
+
 
     // Get all favorites for the static user
     #[Route('/favoris/list', name: 'favoris_list')]
@@ -106,5 +113,12 @@ public function favorisDashboard(FavorisRepository $favorisRepo): Response
         'favorisList' => $favorisList,
     ]);
 }
+#[Route('/favorites/count', name: 'favorites_count', methods: ['GET'])]
+public function countFavorites(SessionInterface $session): JsonResponse
+{
+    $favorites = $session->get('favorites', []);
+    return new JsonResponse(['count' => count($favorites)]);
+}
+
 
 }

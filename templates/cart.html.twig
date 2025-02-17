@@ -1,0 +1,103 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Mon Panier{% endblock %}
+
+{% block body %}
+<section class="container my-5">
+    <h1 class="text-center text-primary mb-4">
+        <i class="fa fa-shopping-cart"></i> Mon Panier
+    </h1>
+
+    <!-- 🔙 Button to go back -->
+    <button class="btn btn-secondary mb-3" onclick="history.back()">
+        <i class="fa fa-arrow-left"></i> Retour
+    </button>
+
+    {% if cart is empty %}
+        <p class="text-center text-muted">Votre panier est vide.</p>
+    {% else %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Nom</th>
+                    <th>Prix (DT)</th>
+                    <th>Quantité</th>
+                    <th>Total (DT)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                <tr>
+                    <td><img src="{{ asset('uploads/' ~ item.image) }}" style="width: 50px;"></td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary decreaseQty" data-id="{{ item.id }}">-</button>
+                        <span class="cart-qty">{{ item.quantity }}</span>
+                        <button class="btn btn-sm btn-outline-secondary increaseQty" data-id="{{ item.id }}">+</button>
+                    </td>
+                    <td>{{ (item.price * item.quantity)|number_format(2) }} DT</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm remove-from-cart" data-id="{{ item.id }}">
+                            <i class="fa fa-trash"></i> <!-- 🗑 Trash Icon -->
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Total Price -->
+        <p><strong>Total :</strong> {{ cart|reduce((carry, item) => carry + (item.price * item.quantity), 0)|number_format(2) }} DT</p>
+
+        <!-- Action Buttons -->
+        <button class="btn btn-danger" id="clearCartBtn">
+            <i class="fa fa-trash"></i> Vider le panier
+        </button>
+        <button class="btn btn-success" id="checkoutBtn">
+            <i class="fa fa-check"></i> Commander ✅
+        </button>
+    {% endif %}
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function updateCart(action, id) {
+        fetch(`/cart/update/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity: action === 'increase' ? 1 : -1 })
+        }).then(() => location.reload());
+    }
+
+    document.querySelectorAll('.increaseQty').forEach(btn => {
+        btn.addEventListener('click', function () {
+            updateCart('increase', this.dataset.id);
+        });
+    });
+
+    document.querySelectorAll('.decreaseQty').forEach(btn => {
+        btn.addEventListener('click', function () {
+            updateCart('decrease', this.dataset.id);
+        });
+    });
+
+    document.querySelectorAll('.remove-from-cart').forEach(btn => {
+        btn.addEventListener('click', function () {
+            fetch(`/cart/remove/${this.dataset.id}`, { method: 'POST' }).then(() => location.reload());
+        });
+    });
+
+    document.getElementById('clearCartBtn').addEventListener('click', function () {
+        fetch(`/cart/clear`, { method: 'POST' }).then(() => location.reload());
+    });
+
+    document.getElementById('checkoutBtn').addEventListener('click', function () {
+        alert('Commande confirmée ✅');
+        fetch(`/cart/clear`, { method: 'POST' }).then(() => location.reload());
+    });
+});
+</script>
+{% endblock %}
