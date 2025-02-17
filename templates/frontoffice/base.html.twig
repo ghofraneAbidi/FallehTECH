@@ -67,14 +67,22 @@
                     </div>
                 </div>
                 <a href="contact.html" class="nav-item nav-link">Contact</a>
-                {% if app.user and app.user.name %}
-				    <h6> {{ app.user.name }} </h6>
-                {% endif %}
-                <a href="{{path('app_user_profilefront')}}" class="profile">
-                    <img src="{{asset('frontoffice/img/avatar.jpg') }}" alt="Illustration" style="width: 36px ; height: 36px; object-fit: cover; border-radius: 50%">
-                </a>
             </div>
         </div>
+
+        <!-- Profile -->
+        <div class="d-flex flex-row justify-content-center align-items-center">
+            {% if app.user and app.user.name %}
+                <h6 class="px-3"> {{ app.user.name }} </h6>
+            {% endif %}
+            <a href="{{path('app_user_profilefront')}}" class="profile">
+                <img src="{{asset('frontoffice/img/avatar.jpg') }}" alt="Illustration" style="width: 36px ; height: 36px; object-fit: cover; border-radius: 50%">
+            </a>
+            <a href="{{path('app_user_logout')}}" class="px-3">
+                <img src="{{asset('frontoffice/img/logout.png') }}" alt="Illustration" style="width: 36px ; height: 36px; object-fit: cover;">
+            </a>
+        </div>
+
     </nav>
     
     <!-- Navbar End -->    
