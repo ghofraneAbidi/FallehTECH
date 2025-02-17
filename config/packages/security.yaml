@@ -23,15 +23,20 @@ security:
                 username_parameter: _email   # Match the input field name from your form
                 password_parameter: _password  # Match the input field name from your form
 
-            #logout:
-            #    path: app_user_logout  # Logout route
-            #    target: app_user_login  # Redirect after logout
+            logout:
+                path: app_user_logout  # Logout route
+                target: app_user_login  # Redirect after logout
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/profile, roles: ROLE_USER }
+        # Seuls les utilisateurs ayant ROLE_ADMIN peuvent accéder aux pages du backoffice
+        - { path: ^/back_office, roles: ROLE_ADMIN }
+        # Seuls les utilisateurs authentifiés (avec ROLE_USER par exemple) peuvent accéder aux pages frontoffice
+        - { path: ^/front_office, roles: ROLE_USER }
+        # Les pages de login restent accessibles à tous
+        #- { path: ^/user/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
 
 when@test:
     security:

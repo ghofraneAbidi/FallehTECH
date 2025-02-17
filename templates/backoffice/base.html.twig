@@ -75,9 +75,9 @@
 				</a>
 			</li>
 			<li>
-				<a href="#" class="logout">
+				<a href="{{ path('app_user_logout') }}" class="logout">
 					<i class='bx bxs-log-out-circle' ></i>
-					<span class="text">Logout</span>
+					<span class="text">Déconnexion</span>
 				</a>
 			</li>
 		</ul>
@@ -102,8 +102,10 @@
 				<i class='bx bxs-bell' ></i>
 				<span class="num">8</span>
 			</a>
-			<h6> {{ app.user.name }} </h6>
-			<a href="#" class="profile">
+			{% if app.user and app.user.name %}
+				<h6> {{ app.user.name }} </h6>
+			{% endif %}
+			<a href="{{path('app_user_profile')}}" class="profile">
 				<img src="{{asset('backoffice/img/avatar.jpg') }}" alt="Illustration">
 			</a>
 		</nav>
@@ -116,7 +118,7 @@
 					<h1>Utilisateurs</h1>
 					<ul class="breadcrumb">
 						<li>
-							<a href="#">Utilisateurs</a>
+							<a href="#">{% block title %}{% endblock %}</a>
 						</li>
 						<li><i class='bx bx-chevron-right' ></i></li>
 						<li>

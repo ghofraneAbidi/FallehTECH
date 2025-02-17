@@ -24,6 +24,19 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('app_user_login');
     }
 
+    #[Route('/logout', name: 'app_user_logout')]
+    public function logout(): void
+    {
+        // Cette méthode ne sera jamais appelée, Symfony intercepte la route.
+        throw new \Exception('Cette méthode ne sera jamais exécutée');
+    }
+
+    #[Route('/profile', name: 'app_user_profile')]
+    public function profile(): Response
+    {
+        return $this->render('backoffice/profile.html.twig');
+    }
+
     #[Route('/signup', name: 'app_user_signup', methods: ['GET', 'POST'])]
     public function signup(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -118,4 +131,6 @@ final class UserController extends AbstractController
 
         return $this->redirectToRoute('app_back_office', [], Response::HTTP_SEE_OTHER);
     }
+
+
 }
