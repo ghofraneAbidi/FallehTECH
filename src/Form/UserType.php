@@ -26,6 +26,7 @@ class UserType extends AbstractType
             ])
             ->add('password', PasswordType::class, [
                 'label' => 'Mot de passe',
+                'required' => !$options['is_edit'],
             ])
             ->add('role', ChoiceType::class, [
                 'choices'  => [
@@ -49,9 +50,13 @@ class UserType extends AbstractType
             ])            
             ->add('disponibility', DateType::class, [
                 'widget' => 'single_text',
+                'required' => false,
             ])
-            ->add('location', null, ['label' => 'Lieu'])
-            ->add('experience', null, ['label' => 'Expérience']);
+            ->add('location', null, [
+                'label' => 'Lieu',
+                'required' => false,
+                ])
+            ->add('experience', null, ['label' => 'Expérience', 'required' => false,]);
         ;
     }
 
@@ -59,6 +64,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'is_edit' => false, // Par défaut, on suppose que c'est une création
         ]);
     }
     

@@ -37,6 +37,13 @@ final class UserController extends AbstractController
         return $this->render('backoffice/profile.html.twig');
     }
 
+    #[Route('/profilefront', name: 'app_user_profilefront')]
+    public function profilefront(): Response
+    {
+        return $this->render('frontoffice/profile.html.twig');
+    }
+
+
     #[Route('/signup', name: 'app_user_signup', methods: ['GET', 'POST'])]
     public function signup(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -106,7 +113,8 @@ final class UserController extends AbstractController
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -116,6 +124,31 @@ final class UserController extends AbstractController
         }
 
         return $this->render('backoffice/edit.html.twig', [
+            'user' => $user,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}/editFront', name: 'app_user_edit_front', methods: ['GET', 'POST'])]
+    public function editFront(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newPassword = $form->get('password')->getData();
+
+            if ($newPassword && $newPassword !== "") {
+                $user->setPassword($newPassword);
+            }
+            
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_front_office', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('frontoffice/edit.html.twig', [
             'user' => $user,
             'form' => $form,
         ]);

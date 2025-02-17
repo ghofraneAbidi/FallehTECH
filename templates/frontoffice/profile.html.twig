@@ -1,0 +1,82 @@
+{% extends 'frontoffice/index.html.twig' %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white text-center">
+            <h2 class="mb-0">Mon Profil</h2>
+        </div>
+        <div class="card-body">
+            {% if app.user %}
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Nom :</div>
+                    <div class="col-md-8">{{ app.user.name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Prénom :</div>
+                    <div class="col-md-8">{{ app.user.getLastName() }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Email :</div>
+                    <div class="col-md-8">{{ app.user.email }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Mot de passe :</div>
+                    <div class="col-md-8">{{ app.user.password}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Numéro de CIN :</div>
+                    <div class="col-md-8">{{ app.user.carteIdentite }}</div>
+                </div>
+
+                {% if app.user.role == 'ouvrier' %}
+                    <hr>
+                    <h4 class="text-primary">Informations supplémentaires</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Disponibilité :</div>
+                        <div class="col-md-8">
+                            {% if app.user.disponibility %}
+                                {{ app.user.disponibility|date('d/m/Y') }}
+                            {% else %}
+                                Non renseignée
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Lieu :</div>
+                        <div class="col-md-8">
+                            {% if app.user.location %}
+                                {{ app.user.location }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Expérience :</div>
+                        <div class="col-md-8">
+                            {% if app.user.experience %}
+                                {{ app.user.experience }}
+                            {% else %}
+                                Non renseignée
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="text-center mt-4">
+                    <a href="{{ path('app_user_edit_front', {'id': app.user.id}) }}" class="btn btn-warning">
+                        Modifier mes informations
+                    </a>
+                </div>
+            {% else %}
+                <div class="alert alert-danger text-center">
+                    Vous n'êtes pas connecté. Veuillez vous connecter pour consulter votre profil.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

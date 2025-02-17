@@ -1,0 +1,11 @@
+{% extends 'frontoffice/base.html.twig' %}
+
+{% block body %}
+    <h1>Edit User</h1>
+
+    {{ include('frontoffice/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_user_profilefront') }}">Revenir au profil</a>
+
+    {{ include('backoffice/_delete_form.html.twig') }}
+{% endblock %}
