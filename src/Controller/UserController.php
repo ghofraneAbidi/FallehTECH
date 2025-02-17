@@ -82,6 +82,30 @@ final class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/deleteFront', name: 'app_user_delete_front', methods: ['POST'])]
+    public function deleteFront(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        // Récupérer l'utilisateur connecté
+        /** @var \App\Entity\User|null $user */
+        $user = $this->getUser();
+    
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté pour supprimer votre compte.');
+        }
+    
+        // Vérifier le token CSRF
+        if ($this->isCsrfTokenValid('delete_account' , $request->request->get('token'))) {
+            $entityManager->remove($user);
+            $entityManager->flush();
+    
+            // Déconnecter l'utilisateur : vider le token et invalider la session
+            $this->container->get('security.token_storage')->setToken(null);
+            $request->getSession()->invalidate();
+        }
+    
+        return $this->redirectToRoute('app_user_signup');
+    }
+
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -163,7 +187,7 @@ final class UserController extends AbstractController
         }
 
         return $this->redirectToRoute('app_back_office', [], Response::HTTP_SEE_OTHER);
-    }
+    }    
 
 
 }
