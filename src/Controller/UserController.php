@@ -106,6 +106,21 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('app_user_signup');
     }
 
+    #[Route('/{id}/toggle-active', name: 'admin_user_toggle_active', methods: ['POST'])]
+    public function toggleActive(User $user, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('toggle_active' . $user->getId(), $request->request->get('_token'))) {
+            // Inverse l'état actif
+            $user->setActive(!$user->isActive());
+            $entityManager->flush();
+            
+            $this->addFlash('success', 'L\'utilisateur a été ' . ($user->isActive() ? 'activé' : 'bloqué') . '.');
+        }
+        
+        return $this->redirectToRoute('app_user_show', ['id' => $user->getId()]);
+    }
+
+
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {

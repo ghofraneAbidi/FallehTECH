@@ -50,8 +50,10 @@
             </div>
         </div>
 
-        <div class="text-center">
+        <div class="d-flex justify-content-between pt-3 px-5">
+            <a href="{{ path('app_user_profilefront') }}" class="btn custom-btn-bg">Revenir au profil</a>
             <button type="submit" class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+            {{ include('frontoffice/_delete_form.html.twig') }}
         </div>
         
         {{ form_end(form) }}

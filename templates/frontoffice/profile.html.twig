@@ -67,7 +67,8 @@
                 {% endif %}
 
                 <div class="text-center mt-4">
-                    <a href="{{ path('app_user_edit_front', {'id': app.user.id}) }}" class="btn btn-warning">
+                    <a href="{{ path('app_front_office') }}" class="btn text-dark me-5">Revenir à la page d'accueil</a>
+                    <a href="{{ path('app_user_edit_front', {'id': app.user.id}) }}" class="btn text-warning ms-5">
                         Modifier mes informations
                     </a>
                 </div>

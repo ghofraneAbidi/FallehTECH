@@ -69,6 +69,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $experience = null;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $active = true;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -179,6 +182,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->experience = $experience;
 
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
         return $this;
     }
 

@@ -2,7 +2,15 @@
 
 
 {% block body %}
-    <h1>User</h1>
+
+<form method="post" action="{{ path('admin_user_toggle_active', {'id': user.id}) }}" class="text-end">
+    <input type="hidden" name="_token" value="{{ csrf_token('toggle_active' ~ user.id) }}">
+    {% if user.active %}
+        <button type="submit" class="btn btn-danger m-3">Bloquer l'utilisateur</button>
+    {% else %}
+        <button type="submit" class="btn btn-success m-3">Activer l'utilisateur</button>
+    {% endif %}
+</form>
 
     <table class="table">
         <tbody>
