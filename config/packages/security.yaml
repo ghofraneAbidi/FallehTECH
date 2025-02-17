@@ -19,7 +19,7 @@ security:
             form_login:
                 login_path: app_user_login  # The route for the login page
                 check_path: app_user_login  # The route Symfony will check for login submissions
-                default_target_path: app_front_office # Redirect after login (change this if needed)
+                success_handler: App\Security\LoginSuccessHandler
                 username_parameter: _email   # Match the input field name from your form
                 password_parameter: _password  # Match the input field name from your form
 
@@ -30,8 +30,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/profile, roles: ROLE_USER }
 
 when@test:
     security:

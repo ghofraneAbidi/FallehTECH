@@ -185,15 +185,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     // Implementing the `getRoles` method from `UserInterface`
     public function getRoles(): array
     {
-        // Ensure the roles are returned as an array
-        // Default role is "ROLE_USER"
         $roles = [$this->role];
-
-        // You can add other roles here if needed, for example:
-        // if ($this->role === 'admin') {
-        //     $roles[] = 'ROLE_ADMIN';
-        // }
-
+    
+        if ($this->role === 'admin') {  // Si ton rôle admin est stocké comme "admin"
+            $roles[] = 'ROLE_ADMIN';
+        } else {
+            $roles[] = 'ROLE_USER';
+        }
+    
         return array_unique($roles);
     }
 
