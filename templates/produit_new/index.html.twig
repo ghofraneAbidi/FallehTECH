@@ -2,6 +2,14 @@
 
 {% block body %}
 <section class="container my-5">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('produits_front') }}">Accueil</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Nos Catégories</li>
+        </ol>
+    </nav>
+
     <h1 class="text-center text-primary mb-4">Nos Catégories</h1>
 
     <div class="row">
@@ -11,11 +19,8 @@
                     <!-- Afficher l'image de la catégorie -->
                     <img src="{{ categorie.image }}" class="card-img-top img-fluid" alt="{{ categorie.nom }}">
                     <div class="card-body">
-                        
                         <a href="{{ path('categorie_details', {'categorie': categorie.nom}) }}">
-    {{ categorie.nom }}
-</a>
-
+                           {{ categorie.nom }}
                         </a>
                     </div>
                 </div>
@@ -24,4 +29,3 @@
     </div>
 </section>
 {% endblock %}
-

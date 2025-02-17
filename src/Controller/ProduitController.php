@@ -13,18 +13,31 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\SousCategorieRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Knp\Component\Pager\PaginatorInterface; 
+
 #[Route('/produit')]
 final class ProduitController extends AbstractController
 {
 
 
-    #[Route('/index',name: 'app_produit_index', methods: ['GET'])]
-    public function index(ProduitRepository $produitRepository): Response
-    {
-        return $this->render('produit/index.html.twig', [
-            'produits' => $produitRepository->findAll(),
-        ]);
-    }
+   
+    #[Route('/index', name: 'app_produit_index')]
+public function index(ProduitRepository $produitRepository, PaginatorInterface $paginator, Request $request): Response
+{
+    $query = $produitRepository->findAll(); // Fetch all products
+    
+    // Paginate the results (8 per page)
+    $produits = $paginator->paginate(
+        $query, // Query to paginate
+        $request->query->getInt('page', 1), // Current page (default: 1)
+        8 // Number of results per page
+    );
+
+    return $this->render('produit/index.html.twig', [
+        'produits' => $produits, // Pass paginated data
+    ]);
+}
     #[Route('/index_front',name: 'app_produit_index1', methods: ['GET'])]
     public function index1(ProduitRepository $produitRepository): Response
     {
@@ -34,25 +47,57 @@ final class ProduitController extends AbstractController
     }
 
     #[Route('/new', name: 'app_produit_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $produit = new Produit();
         $form = $this->createForm(ProduitType::class, $produit);
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($produit);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_produit_index', [], Response::HTTP_SEE_OTHER);
+    
+        if ($form->isSubmitted()) {
+            dump($form->getData()); // Debug form data
+            dump($form->get('imageFile')->getData()); // Debug image file data
+    
+            if ($form->isValid()) {
+                $imageFile = $form->get('imageFile')->getData();
+    
+                if ($imageFile) {
+                    dump("File received: " . $imageFile->getClientOriginalName()); // Check if file is received
+                    
+                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+    
+                    // Move file
+                    try {
+                        $imageFile->move(
+                            $this->getParameter('images_directory'), // Use the correct parameter
+                            $newFilename
+                        );
+                        
+                        dump("File moved successfully!"); // Debug message
+                    } catch (FileException $e) {
+                        dump("Error moving file: " . $e->getMessage());
+                        throw new \Exception('Error uploading file.');
+                    }
+    
+                    $produit->setImage($newFilename);
+                } else {
+                    dump("No file uploaded!"); // Debug if no file is received
+                }
+    
+                $entityManager->persist($produit);
+                $entityManager->flush();
+    
+                return $this->redirectToRoute('app_produit_index');
+            } else {
+                dump("Form is not valid!"); // Debug validation errors
+            }
         }
-
+    
         return $this->render('produit/new.html.twig', [
-            'produit' => $produit,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
-
     #[Route('/{id}', name: 'app_produit_show', methods: ['GET'])]
     public function show(Produit $produit): Response
     {
@@ -190,49 +235,28 @@ public function afficherProduitsParSousCategorie(string $sousCategorie, ProduitR
         'produits' => $produits, // Ensure this is passed to Twig
     ]);
 }
-#[Route('/produit/{id}/add-to-favorites', name: 'add_to_favorites')]
-
-    public function addToFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
-    {
-        // Check if product exists
-        if (!$produit) {
-            return new JsonResponse(['success' => false, 'message' => 'Product not found'], 404);
-        }
-
-        // Check if the product is already in favorites
-        $existingFavoris = $em->getRepository(Favoris::class)->findOneBy(['produit' => $produit, 'isFavorite' => true]);
-        if ($existingFavoris) {
-            return new JsonResponse(['success' => false, 'message' => 'Product is already in favorites']);
-        }
-
-        // Create a new favoris entry
+#[Route('/favoris/add/{id}', name: 'add_favoris', methods: ['POST'])]
+public function addToFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
+{
+    try {
+        // Crée une instance de la classe Favoris
         $favoris = new Favoris();
         $favoris->setProduit($produit);
-        $favoris->setIsFavorite(true);
-        $favoris->setUserId(1);  // Static user ID (can be dynamic based on the logged-in user)
+        $favoris->setUserId(1);  // ID de l'utilisateur statique, ici 1
+        $favoris->setIsFavorite(true);  // Optionnel, si tu veux indiquer qu'il est ajouté aux favoris
 
-        // Persist and flush the changes
+        // Sauvegarde dans la base de données
         $em->persist($favoris);
         $em->flush();
 
-        return new JsonResponse(['success' => true, 'message' => 'Product added to favorites']);
+        return new JsonResponse(['success' => true, 'message' => 'Produit ajouté aux favoris']);
+    } catch (\Exception $e) {
+        return new JsonResponse(['error' => 'Une erreur est survenue. Veuillez réessayer.'], 500);
     }
+}
 
-    // Route to remove product from favorites
-    #[Route('/produit/{id}/remove-from-favorites', name: 'remove_from_favorites', methods: ['POST'])]
-    public function removeFromFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
-    {
-        // Find the favorite entry for the product
-        $favoris = $em->getRepository(Favoris::class)->findOneBy(['produit' => $produit, 'isFavorite' => true]);
-        
-        if ($favoris) {
-            $em->remove($favoris);
-            $em->flush();
-            return new JsonResponse(['success' => true, 'message' => 'Product removed from favorites']);
-        }
 
-        return new JsonResponse(['success' => false, 'message' => 'Product not in favorites']);
-    }
+   
 
 }
 

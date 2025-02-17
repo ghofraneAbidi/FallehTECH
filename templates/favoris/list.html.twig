@@ -3,42 +3,112 @@
 {% block title %}Mes Favoris{% endblock %}
 
 {% block body %}
-<h1>Mes Favoris</h1>
+    <style>
+    
+    /* Use the colors and fonts you provided */
+:root {
+    --primary-color: #9BAB10; /* Custom Green */
+    --success-color: #CFE8FF; /* Light Blue */
+    --text-color: #333; /* Darker Text */
+    --background-color: #F9F9F9; /* Light Background */
+    --border-color: #AAAAAA; /* Dark Grey */
+    --hover-darken: rgba(0, 0, 0, 0.1);
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Produit Favoris</th>
-            <th>Prix Unitaire</th>
-            <th>État du stock</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody id="favorites-list">
-        {% for favoris in favorisList %}
-        <tr>
-            <td><img src="{{ asset('img/' ~ favoris.produit.image) }}" alt="{{ favoris.produit.nom }}" style="width: 50px; height: 50px;"></td>
-            <td>{{ favoris.produit.nom }}</td>
-            <td>{{ favoris.produit.prix }} €</td>
-            <td>{{ favoris.produit.stock }}</td>
-            <td>
-                <button class="btn btn-danger btn-sm" onclick="removeFromFavorites({{ favoris.produit.id }})">Retirer</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    --font-primary: 'Poppins', sans-serif;
+    --font-secondary: 'Lato', sans-serif;
+}
 
-<script>
-    // Remove product from favorites
-    function removeFromFavorites(productId) {
-        fetch('/favoris/remove/' + productId, { method: 'POST' })
-            .then(response => response.json())
-            .then(() => {
-                // Reload the list after removing
-                location.reload();
-            });
-    }
-</script>
+/* Container to align buttons */
+.buttons-container {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
 
+/* Custom Button Base */
+.custom-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    font-family: var(--font-primary);
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: uppercase;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+/* Primary Button (Favorites List) */
+.primary-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.primary-btn:hover {
+    background-color: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 4px 10px var(--hover-darken);
+}
+
+/* Success Button (Add Product) */
+.success-btn {
+    background-color: var(--success-color);
+    color: #333;
+    border-color: var(--success-color);
+}
+
+.success-btn:hover {
+    background-color: white;
+    color: var(--success-color);
+    border: 2px solid var(--success-color);
+    box-shadow: 0 4px 10px var(--hover-darken);
+}
+</style>
+<div class="container my-5">
+    <h1 class="text-center text-primary mb-4">Ma wishlist ❤️</h1>
+
+    {% if favorisList is empty %}
+        <p class="text-center text-muted">Aucun produit en favoris.</p>
+    {% else %}
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Produit</th>
+                    <th>Nom</th>
+                    <th>Prix (dt)</th>
+                    <th>Stock</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="favorites-list">
+                {% for favoris in favorisList %}
+                <tr id="favoris-{{ favoris.produit.id }}">
+                    <td>
+                        <img src="{{ asset('uploads/' ~ favoris.produit.image) }}" 
+                             alt="{{ favoris.produit.nom }}" 
+                             class="img-thumbnail" 
+                             style="width: 70px; height: 70px;">
+                    </td>
+                    <td>{{ favoris.produit.nom }}</td>
+                    <td>{{ favoris.produit.prix }} €</td>
+                    <td>{{ favoris.produit.stock }}</td>  {# ✅ Now, this only shows "En stock" #}
+                    <td>
+                        <form action="{{ path('remove_from_favorites', {'id': favoris.produit.id}) }}" method="post">
+                            <input type="hidden" name="_token" value="{{ csrf_token('remove' ~ favoris.produit.id) }}">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Retirer
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
 {% endblock %}

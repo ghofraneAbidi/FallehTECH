@@ -2,7 +2,17 @@
 
 {% block body %}
 <section class="container my-5">
-    <h1 class="text-center text-primary mb-4">types de {{ categorie }}</h1>
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('produits_front') }}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('produits_front') }}">Nos Catégories</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Types de {{ categorie }}</li>
+        </ol>
+    </nav>
+
+    <h1 class="text-center text-primary mb-4">Nos {{ categorie }}</h1>
+    
     <div class="row">
         {% for sousCategorie in sousCategories %}
             <div class="col-lg-4 col-md-6 mb-4">
@@ -13,7 +23,6 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">{{ sousCategorie.nom }}</h5>
                         <a href="{{ path('produits_par_souscategorie', {sousCategorie: sousCategorie.nom}) }}" class="btn btn-success mt-3">Voir les Produits</a>
-
                     </div>
                 </div>
             </div>

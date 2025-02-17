@@ -197,8 +197,8 @@ body {
 /* CONTENT */
 #content {
 	position: relative;
-	width: calc(100% - 280px);
-	left: 280px;
+	width: 80%;
+	left: 200px;
 	transition: .3s ease;
 }
 #sidebar.hide ~ #content {
@@ -338,17 +338,21 @@ body {
 }
 
 #content main .table-data {
-    padding: 24px;
+    padding: 16px;
+	margin-top: 10px;
+	margin-bottom: 10px;
     border-radius: 20px;
     background: var(--light);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	
 }
 
 #content main .table-data .head {
     display: flex;
     align-items: center;
     grid-gap: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 2px;
+	margin-left: 340px;
 }
 
 #content main .table-data .head h3 {

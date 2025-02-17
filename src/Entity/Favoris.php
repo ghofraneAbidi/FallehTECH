@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -12,11 +13,11 @@ class Favoris
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Produit::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")] // Deletes favoris if produit is deleted
     private ?Produit $produit = null;
 
     #[ORM\Column(type: 'integer')]
-    private ?int $userId = null; // Static user ID field
+    private ?int $userId = null; // Removed default value
 
     public function getId(): ?int
     {

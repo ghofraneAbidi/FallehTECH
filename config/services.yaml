@@ -15,3 +15,5 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+parameters:
+    images_directory: '%kernel.project_dir%/public/uploads'

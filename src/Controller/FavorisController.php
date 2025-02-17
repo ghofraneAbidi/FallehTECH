@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller;
 
-use App\Entity\Favoris;
+use App\Entity\Favoris; // ✅ Add this line
 use App\Entity\Produit;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,35 +13,44 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FavorisController extends AbstractController
 {
-    // Route pour ajouter un produit aux favoris
-    // FavorisController.php
-
-#[Route('/produit/{id}/add-to-favorites', name: 'add_to_favorites', methods: ['POST'])]
-public function addToFavorites(Produit $produit, EntityManagerInterface $em, Request $request): JsonResponse
-{
-    // Check if product exists
-    if (!$produit) {
-        return new JsonResponse(['success' => false, 'message' => 'Product not found'], 404);
+    #[Route('/produit/{id}/add-to-favorites', name: 'add_to_favorites', methods: ['POST'])]
+    public function addToFavorites(Produit $produit, EntityManagerInterface $em, Request $request): JsonResponse
+    {
+        try {
+            // Debugging: Log the request data
+            $data = json_decode($request->getContent(), true);
+            $userId = $data['userId'] ?? 1; // Change to dynamic user ID if authentication is available
+    
+            // Debugging: Log received data
+            error_log("Received favorite request for Produit ID: " . $produit->getId() . " by User ID: " . $userId);
+    
+            // Check if the product is already in favorites
+            $existingFavoris = $em->getRepository(Favoris::class)->findOneBy([
+                'produit' => $produit,
+                'userId' => $userId,
+            ]);
+    
+            if ($existingFavoris) {
+                error_log("Produit already in favorites.");
+                return new JsonResponse(['success' => false, 'message' => 'Produit déjà dans les favoris']);
+            }
+    
+            // Create a new favorite entry
+            $favoris = new Favoris();
+            $favoris->setProduit($produit);
+            $favoris->setUserId($userId);
+    
+            $em->persist($favoris);
+            $em->flush();
+    
+            error_log("Produit successfully added to favorites.");
+    
+            return new JsonResponse(['success' => true, 'message' => 'Produit ajouté aux favoris']);
+        } catch (\Exception $e) {
+            error_log("Error adding to favorites: " . $e->getMessage());
+            return new JsonResponse(['error' => 'Une erreur est survenue.', 'details' => $e->getMessage()], 500);
+        }
     }
-
-    // Check if the product is already in favorites
-    $existingFavoris = $em->getRepository(Favoris::class)->findOneBy(['produit' => $produit, 'isFavorite' => true, 'userId' => 1]);
-    if ($existingFavoris) {
-        return new JsonResponse(['success' => false, 'message' => 'Product is already in favorites']);
-    }
-
-    // Create a new favoris entry
-    $favoris = new Favoris();
-    $favoris->setProduit($produit);
-    $favoris->setIsFavorite(true);
-    $favoris->setUserId(1);  // Static user ID (can be dynamic based on the logged-in user)
-
-    // Persist and flush the changes
-    $em->persist($favoris);
-    $em->flush();
-
-    return new JsonResponse(['success' => true, 'message' => 'Product added to favorites']);
-}
 
     // Get all favorites for the static user
     #[Route('/favoris/list', name: 'favoris_list')]
@@ -58,5 +67,44 @@ public function addToFavorites(Produit $produit, EntityManagerInterface $em, Req
             'favorisList' => $favorisList,
         ]);
     }
+
+    #[Route('/remove/{id}', name: 'remove_from_favorites', methods: ['POST'])]
+    public function removeFromFavorites(int $id, EntityManagerInterface $em, Request $request): Response
+    {
+        // Validate CSRF token
+        if (!$this->isCsrfTokenValid('remove' . $id, $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('favoris_list');
+        }
+    
+        try {
+            $favoris = $em->getRepository(Favoris::class)->findOneBy(['produit' => $id]);
+    
+            if (!$favoris) {
+                $this->addFlash('warning', 'Produit non trouvé dans les favoris.');
+                return $this->redirectToRoute('favoris_list');
+            }
+    
+            $em->remove($favoris);
+            $em->flush();
+    
+            $this->addFlash('success', 'Produit retiré des favoris.');
+            return $this->redirectToRoute('favoris_list');
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Erreur lors de la suppression.');
+            return $this->redirectToRoute('favoris_list');
+        }
+    }
+
+    #[Route('/favoris/dashboard', name: 'favoris_dashboard')]
+public function favorisDashboard(FavorisRepository $favorisRepo): Response
+{
+    $userId = 1; // Example: Static user ID
+    $favorisList = $favorisRepo->findFavoritesByUser($userId);
+
+    return $this->render('produit/favoris_dashboard.html.twig', [
+        'favorisList' => $favorisList,
+    ]);
 }
 
+}

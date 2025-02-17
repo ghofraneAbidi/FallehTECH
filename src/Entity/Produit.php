@@ -5,8 +5,12 @@ namespace App\Entity;
 use App\Repository\ProduitRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProduitRepository::class)]
+#[Vich\Uploadable]  // <-- Required for VichUploader
 class Produit
 {
     #[ORM\Id]
@@ -31,27 +35,21 @@ class Produit
     #[ORM\JoinColumn(nullable: false)]
     private ?SousCategorie $sousCategorie = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $image = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;  // Image filename stored in the database
+
+    #[Vich\UploadableField(mapping: 'produit_images', fileNameProperty: 'image')]
+    #[Assert\Image(maxSize: "2M", mimeTypes: ["image/jpeg", "image/png"])]
+    private ?File $imageFile = null;  // This handles the actual file upload
+
     #[ORM\Column(type: 'boolean')]
-private bool $isFavorite = false;
+    private bool $isFavorite = false;
 
-#[ORM\Column(type: 'string', length: 100)]
-private ?string $stock = null;
+    #[ORM\Column(type: 'string', length: 100)]
+    private ?string $stock = null;
 
-public function getIsFavorite(): bool
-{
-    return $this->isFavorite;
-}
-
-public function setIsFavorite(bool $isFavorite): static
-{
-    $this->isFavorite = $isFavorite;
-    return $this;
-}
-
-
-    // Getters and setters...
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;  // Required for VichUploader to track changes
 
     public function getId(): ?int
     {
@@ -107,11 +105,25 @@ public function setIsFavorite(bool $isFavorite): static
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    public function setImage(?string $image): static
     {
         $this->image = $image;
         return $this;
     }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+        if ($imageFile) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
     public function getCategorie(): ?Categorie
     {
         return $this->categorie;
@@ -120,18 +132,28 @@ public function setIsFavorite(bool $isFavorite): static
     public function setCategorie(?Categorie $categorie): self
     {
         $this->categorie = $categorie;
-
         return $this;
     }
-    public function getStock(): ?string
-{
-    return $this->stock;
-}
 
-public function setStock(string $stock): static
-{
-    $this->stock = $stock;
-    return $this;
-}
-    
+    public function getStock(): ?string
+    {
+        return $this->stock;
+    }
+
+    public function setStock(string $stock): static
+    {
+        $this->stock = $stock;
+        return $this;
+    }
+
+    public function getIsFavorite(): bool
+    {
+        return $this->isFavorite;
+    }
+
+    public function setIsFavorite(bool $isFavorite): static
+    {
+        $this->isFavorite = $isFavorite;
+        return $this;
+    }
 }

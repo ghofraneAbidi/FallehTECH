@@ -79,9 +79,15 @@
     <h1 class="button">Create new Produit</h1>
 
     <!-- Form Section -->
-    <div class="form-container">
-        {{ include('produit/_form.html.twig') }}
-    </div>
+  <!-- Form Section -->
+<div class="form-container">
+    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+        {{ form_errors(form) }} {# Display form-level errors #}
+        {{ form_widget(form) }} {# Render all fields #}
+        <button type="submit">Save</button>
+    {{ form_end(form) }}
+</div>
+
 
     <!-- Back to list button -->
     <a href="{{ path('app_produit_index') }}" class="button">Back to list</a>
