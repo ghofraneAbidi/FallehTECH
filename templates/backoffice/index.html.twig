@@ -1,0 +1,30 @@
+{% extends 'backoffice/base.html.twig' %}
+
+{% block title %} Utilisateurs {% endblock %}
+
+{% block body %}
+
+    <div class="container mt-4">
+        <div class="row">
+            {% for user in users %}
+                {% if user.role != "ROLE_ADMIN" %}
+                    <div class="col-md-4">
+                        <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+                            <div class="card-body text-center">
+                                <img src="{{ asset('frontoffice/img/avatar.jpg') }}" alt="Avatar de {{ user.name }}" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                <h5 class="card-title">Nom: {{ user.name }} <br> Prénom: {{ user.getLastName() }}</h5>
+                                <p class="card-text text-muted">Email: {{ user.email }}</p>
+                                <hr>
+                                <a href="{{ path('app_user_show', {'id': user.id}) }}" class="btn btn-success">Consulter détails</a>
+                                <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-primary">Modifier</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p class="text-center">Aucun utilisateur trouvé.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+{% endblock %}

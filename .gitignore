@@ -1,0 +1,32 @@
+###> symfony/framework-bundle ###
+# Keep environment variables but allow .env files if needed
+!/.env.local
+!/.env.*.local
+!/config/secrets/prod/prod.decrypt.private.php
+
+# Ignore cache and logs but keep necessary files
+/var/cache/
+/var/log/
+
+# Keep public assets
+!/public/bundles/
+!/public/assets/
+
+# Vendor directory (optional, remove if you want to push vendor files)
+/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> symfony/asset-mapper ###
+!/public/assets/
+!/assets/vendor/
+###< symfony/asset-mapper ###

@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Se Connecter{% endblock %}
+
+{% block body %}
+
+{% if error %}
+    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+{% endif %}
+
+
+<!-- Login Form -->
+<div class="signup-container">
+    <h2 style="text-align: center; color: #333;"> Connectez-vous </h2>
+    <form action="{{ path('app_user_login') }}" method="post">
+        <div class="input-field">
+            <input type="email" id="email" name="_email" placeholder="Email" value="{{ last_email }}" required>
+        </div>
+        <div class="input-field">
+            <input type="password" id="password" name="_password" placeholder="Mot de passe" required>
+        </div>
+        <button type="submit" class="btn">Se connecter</button>
+        <p class="signup-parag">Vous n'avez pas un compte ? <a href="{{ path('app_user_signup')}}" class="signup-redirect">  Inscrivez-vous ! </a></p>
+    </form>
+</div>
+
+
+{% endblock %}
