@@ -208,3 +208,35 @@
     margin-right: 15px;
 }
 
+/* ✅ Style des titres principaux (h1) */
+h1 {
+    font-size: 2rem; /* Taille équilibrée */
+    font-weight: 600; /* Semi-bold pour un look élégant */
+    color: #3a3a3a; /* Gris foncé doux pour un meilleur contraste */
+    text-align: center;
+    text-transform: capitalize; /* Plus naturel */
+    letter-spacing: 1px;
+    margin-bottom: 25px;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #4CAF50, #2E8B57); /* Dégradé vert chic */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; /* Effet de texte dégradé */
+}
+
+/* ✅ Style des sous-titres h2 */
+h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #4CAF50; /* Vert plus clair */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* ✅ Style des petits titres h3 */
+h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #2E8B57; /* Vert forêt */
+    text-align: left;
+    margin-bottom: 15px;
+}

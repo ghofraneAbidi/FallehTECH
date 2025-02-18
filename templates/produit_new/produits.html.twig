@@ -171,5 +171,231 @@ document.addEventListener('DOMContentLoaded', function () {
     updateFavoritesCount();
 });
 </script>
+<style>/* ✅ Styles généraux */
+body {
+    font-family: 'Lato', sans-serif;
+    background-color: #f5f5f0; /* Fond doux inspiré de la nature */
+    color: #343a40;
+}
 
+/* ✅ Titre principal */
+h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2d6a4f; /* Vert nature */
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* ✅ Conteneur principal */
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* ✅ Cartes des produits */
+.product-card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    background: #fff;
+}
+
+/* Effet au survol */
+.product-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ Image produit */
+.product-card img {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* ✅ Corps de la carte */
+.product-card .card-body {
+    padding: 15px;
+    text-align: center;
+}
+
+/* ✅ Nom du produit */
+.product-card .card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2d6a4f;
+}
+
+/* ✅ Texte de description */
+.product-card .card-text {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* ✅ Prix */
+.product-card p strong {
+    color: #17532b; /* Vert foncé */
+}
+
+/* ✅ Bouton Ajouter au panier */
+.addToCartBtn {
+    width: 100%;
+    background-color: #2d6a4f;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* Effet au survol */
+.addToCartBtn:hover {
+    background-color: #1f4d38;
+}
+
+/* ✅ Sélection de la quantité */
+.input-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-group button {
+    background: #2d6a4f;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.input-group button:hover {
+    background: #17532b;
+}
+
+/* ✅ Icône des favoris */
+.heart-icon {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+/* Si favori activé */
+.heart-icon.favorite {
+    color: red;
+}
+
+/* ✅ Notifications */
+.alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    width: 300px;
+    text-align: center;
+    padding: 15px;
+    font-weight: bold;
+}
+
+/* ✅ Animation de notification */
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; display: none; }
+}
+
+.d-none {
+    animation: fadeOut 3s forwards;
+}
+/* ✅ Style des titres principaux (h1) */
+h1 {
+    font-size: 2rem; /* Taille équilibrée */
+    font-weight: 600; /* Semi-bold pour un look élégant */
+    color: #3a3a3a; /* Gris foncé doux pour un meilleur contraste */
+    text-align: center;
+    text-transform: capitalize; /* Plus naturel */
+    letter-spacing: 1px;
+    margin-bottom: 25px;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #4CAF50, #2E8B57); /* Dégradé vert chic */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; /* Effet de texte dégradé */
+}
+
+/* ✅ Style des sous-titres h2 */
+h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #4CAF50; /* Vert plus clair */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* ✅ Style des petits titres h3 */
+h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #2E8B57; /* Vert forêt */
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+/* ✅ Style des titres principaux (h1) */
+h1 {
+    font-size: 2.2rem; /* Ajusté pour plus de lisibilité */
+    font-weight: 700; /* Un peu plus épais mais pas trop */
+    color: #2E7D32; /* Un vert naturel et doux */
+    text-align: center;
+    text-transform: capitalize; /* Plus naturel et élégant */
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif; /* Une police moderne et lisible */
+}
+
+/* ✅ Style des sous-titres h2 */
+h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #388E3C; /* Vert plus vif mais doux */
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* ✅ Style des petits titres h3 */
+h3 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #4CAF50; /* Un vert clair */
+    text-align: left;
+    margin-bottom: 12px;
+}
+
+/* ✅ Ajout d'un effet de soulignement léger pour plus d'élégance */
+h1::after, h2::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: #4CAF50;
+    margin: 8px auto;
+    border-radius: 5px;
+}
+
+/* ✅ Style pour les titres avec un effet subtil */
+h1 span {
+    background: linear-gradient(to right, #2E7D32, #81C784);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+</style>
 {% endblock %}
