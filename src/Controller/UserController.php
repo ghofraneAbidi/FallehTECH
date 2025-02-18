@@ -132,7 +132,7 @@ final class UserController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_back_office', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('backoffice/new.html.twig', [
@@ -141,6 +141,7 @@ final class UserController extends AbstractController
         ]);
     }
 
+    
     #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
     public function show(User $user): Response
     {
@@ -156,7 +157,7 @@ final class UserController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
             $entityManager->flush();
 
             return $this->redirectToRoute('app_back_office', [], Response::HTTP_SEE_OTHER);
@@ -174,18 +175,22 @@ final class UserController extends AbstractController
         $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
 
         $form->handleRequest($request);
+        
+        if ($form->isSubmitted()) {
+            dump('Form is submitted and valid!');
 
-        if ($form->isSubmitted() && $form->isValid()) {
             $newPassword = $form->get('password')->getData();
-
+            dump($newPassword);
             if ($newPassword && $newPassword !== "") {
                 $user->setPassword($newPassword);
+                dump($user);
             }
             
             $entityManager->flush();
 
             return $this->redirectToRoute('app_front_office', [], Response::HTTP_SEE_OTHER);
         }
+        dump('Form not submitted or invalid!');
 
         return $this->render('frontoffice/edit.html.twig', [
             'user' => $user,
