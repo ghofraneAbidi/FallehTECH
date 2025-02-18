@@ -7,11 +7,15 @@ use App\Entity\Categorie;
 use App\Entity\SousCategorie;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+
+
+
 
 class ProduitType extends AbstractType
 {
@@ -19,7 +23,17 @@ class ProduitType extends AbstractType
     {
         $builder
             ->add('nom')
-            ->add('prix')
+            ->add('prix', NumberType::class, [
+                'label' => 'Prix (DT)',
+                'scale' => 2, // Allows two decimal places
+                'html5' => true, // Enables number input validation
+                'attr' => [
+                    'step' => '0.01', // Allows decimal values
+                    'min' => '1', // Ensures price is greater than 1
+                    'placeholder' => 'Entrez le prix en dinars'
+                ],
+                'required' => true
+            ])
             ->add('description')
             ->add('imageFile', FileType::class, [
                 'label' => 'Upload Image',
@@ -54,7 +68,20 @@ class ProduitType extends AbstractType
                 'data' => 'En stock', // Set default value
                 'label' => 'Stock',
             ])
+            ->add('imageFile', FileType::class, [
+                'label' => 'Upload Image',
+                'mapped' => false, // This is handled separately by VichUploader
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => ['image/jpeg', 'image/png'],
+                        'mimeTypesMessage' => 'Please upload a valid image file (JPEG or PNG).',
+                    ])
+                ],
+            ])
             ;
+            
     }
 
     public function configureOptions(OptionsResolver $resolver): void

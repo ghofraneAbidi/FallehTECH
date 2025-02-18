@@ -107,21 +107,48 @@ public function index(ProduitRepository $produitRepository, PaginatorInterface $
     }
 
     #[Route('/{id}/edit', name: 'app_produit_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Produit $produit, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(ProduitType::class, $produit);
-        $form->handleRequest($request);
+    public function edit(Request $request, Produit $produit, EntityManagerInterface $em, SluggerInterface $slugger): Response
+{
+    $form = $this->createForm(ProduitType::class, $produit);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
+        // Gestion de l'image
+        $imageFile = $form->get('imageFile')->getData();
+        if ($imageFile) {
+            $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
 
-            return $this->redirectToRoute('app_produit_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $imageFile->move(
+                    $this->getParameter('produit_images_directory'),
+                    $newFilename
+                );
+            } catch (FileException $e) {
+                throw new \Exception('Erreur lors du téléchargement de l\'image.');
+            }
+
+            // Supprime l'ancienne image si une nouvelle est ajoutée
+            if ($produit->getImage()) {
+                $oldImagePath = $this->getParameter('produit_images_directory').'/'.$produit->getImage();
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            $produit->setImage($newFilename);
         }
 
-        return $this->render('produit/edit.html.twig', [
-            'produit' => $produit,
-            'form' => $form,
-        ]);
+        $em->flush();
+
+        return $this->redirectToRoute('app_produit_index');
+    }
+
+    return $this->render('produit/edit.html.twig', [
+        'form' => $form->createView(),
+        'produit' => $produit,
+    ]);
     }
     #[Route('/{id}', name: 'app_produit_delete', methods: ['POST'])]
     public function delete(Request $request, Produit $produit, EntityManagerInterface $entityManager): Response
@@ -140,7 +167,7 @@ public function index(ProduitRepository $produitRepository, PaginatorInterface $
         $categories = [
             ['nom' => 'Matériel Agricole', 'image' => '/img/materiel_agricole.jpg'],
             ['nom' => 'Produits Agricoles', 'image' => '/img/produits_agricoles.jpg'],
-            ['nom' => 'Produits Transformés', 'image' => '/img/produits_transformes.jpg'],
+            ['nom' => 'Produits Transformés', 'image' => '/img/produits_transformes.jpeg'],
         ];
     
         return $this->render('produit_new/index.html.twig', [

@@ -13,50 +13,45 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FavorisController extends AbstractController
 {
-    #[Route('/produit/{id}/add-to-favorites', name: 'add_to_favorites', methods: ['POST'])]
-    public function addToFavorites(Produit $produit, EntityManagerInterface $em, Request $request): JsonResponse
-{
-    try {
-        $data = json_decode($request->getContent(), true);
-        $userId = $data['userId'] ?? 1; // Change to dynamic user ID if authentication is available
-
-        error_log("Received favorite request for Produit ID: " . $produit->getId() . " by User ID: " . $userId);
-
-        // Check if the product is already in favorites
-        $existingFavoris = $em->getRepository(Favoris::class)->findOneBy([
-            'produit' => $produit,
-            'userId' => $userId,
-        ]);
-
-        if ($existingFavoris) {
+    #[Route('/favoris/add/{id}', name: 'favoris_add', methods: ['POST'])]
+    public function addToFavorites(Produit $produit, EntityManagerInterface $em): JsonResponse
+    {
+        try {
+            $userId = 1; // Static user ID (hardcoded)
+    
+            // ✅ Check if the product is already in favorites
+            $existingFavoris = $em->getRepository(Favoris::class)->findOneBy([
+                'produit' => $produit,
+                'userId' => $userId,
+            ]);
+    
+            if ($existingFavoris) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Produit déjà dans les favoris'
+                ]);
+            }
+    
+            // ✅ Add the product to favorites
+            $favoris = new Favoris();
+            $favoris->setProduit($produit);
+            $favoris->setUserId($userId);
+    
+            $em->persist($favoris);
+            $em->flush();
+    
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Produit ajouté aux favoris'
+            ]);
+        } catch (\Exception $e) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Produit déjà dans les favoris',
-                'notification' => 'error'
-            ]);
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // Create a new favorite entry
-        $favoris = new Favoris();
-        $favoris->setProduit($produit);
-        $favoris->setUserId($userId);
-
-        $em->persist($favoris);
-        $em->flush();
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Produit ajouté aux favoris',
-            'notification' => 'success'
-        ]);
-    } catch (\Exception $e) {
-        return new JsonResponse([
-            'error' => 'Une erreur est survenue.',
-            'details' => $e->getMessage(),
-            'notification' => 'error'
-        ], 500);
     }
-}
+    
 
 
     // Get all favorites for the static user

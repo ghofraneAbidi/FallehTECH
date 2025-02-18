@@ -6,10 +6,16 @@
 <section class="container my-5">
     <h1 class="text-center text-primary mb-4">Nos {{ sousCategorie.nom }}</h1>
 
-    <!-- ✅ Notification de succès -->
+    <!-- ✅ Notification de succès pour le panier -->
     <div id="cartNotification" class="alert alert-success d-none position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg"
          style="z-index: 1050; width: 300px; text-align: center;">
         <i class="fa fa-check-circle"></i> Produit ajouté au panier !
+    </div>
+
+    <!-- ✅ Notification de succès pour les favoris -->
+    <div id="favoritesNotification" class="alert alert-info d-none position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg"
+         style="z-index: 1050; width: 300px; text-align: center;">
+        <i class="fa fa-heart"></i> Produit ajouté aux favoris !
     </div>
 
     <div class="row">
@@ -55,8 +61,8 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    function showNotification() {
-        const notification = document.getElementById('cartNotification');
+    function showNotification(type) {
+        const notification = type === 'cart' ? document.getElementById('cartNotification') : document.getElementById('favoritesNotification');
         notification.classList.remove('d-none'); // Show the notification
 
         // Hide after 3 seconds
@@ -82,6 +88,18 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
+    function updateFavoritesCount() {
+        fetch('/favorites/count')  // Ensure this route exists in Symfony
+            .then(response => response.json())
+            .then(data => {
+                const favoritesCount = document.getElementById('favorites-count');
+                if (favoritesCount) {
+                    favoritesCount.textContent = data.count; // Update UI with correct count
+                }
+            })
+            .catch(error => console.error('Erreur mise à jour des favoris:', error));
+    }
+
     // ✅ Handle Add to Cart Click
     document.querySelectorAll('.addToCartBtn').forEach(button => {
         button.addEventListener('click', function () {
@@ -95,10 +113,37 @@ document.addEventListener('DOMContentLoaded', function () {
             }).then(response => response.json())
               .then(data => {
                   if (data.success) {
-                      showNotification(); // ✅ Show notification
+                      showNotification('cart'); // ✅ Show notification
                       updateCartView(); // ✅ Update cart icon
                   }
               });
+        });
+    });
+
+    // ✅ Handle Add to Favorites Click
+    document.querySelectorAll('.heart-icon').forEach(icon => {
+        icon.addEventListener('click', function () {
+            const productId = this.dataset.productId;
+
+            fetch(`/favoris/add/${productId}`, {  // Ensure the correct Symfony route exists
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId: productId, userId: 1 })  // Static user, make dynamic if needed
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('favorites');
+                    this.classList.toggle('text-danger');  // Toggle heart color
+                    updateFavoritesCount();
+                } else {
+                    alert(data.message || 'Erreur, veuillez réessayer');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue. Veuillez réessayer.');
+            });
         });
     });
 
@@ -123,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     updateCartView();
+    updateFavoritesCount();
 });
 </script>
 

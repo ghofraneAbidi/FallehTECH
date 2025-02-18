@@ -6,7 +6,7 @@
     <style>
         /* General styling for the form */
         .form-container {
-            background-color: #d4f4d2; /* Light green background */
+            background-color: #d4f4d2;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -16,13 +16,13 @@
 
         h1 {
             font-size: 2rem;
-            color: #2d6a4f; /* Darker green */
+            color: #2d6a4f;
             text-align: center;
         }
 
         label {
             font-size: 1rem;
-            color: #2d6a4f; /* Darker green for the labels */
+            color: #2d6a4f;
         }
 
         input, select, textarea {
@@ -33,103 +33,179 @@
             margin-bottom: 15px;
         }
 
-        input[type="text"], input[type="number"], input[type="file"], select, textarea {
+        button {
+            padding: 12px 20px;
+            background-color: #2d6a4f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
             font-size: 1rem;
-            color: #2d6a4f;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
-       /* Add this to your existing styles */
+        button:hover {
+            background-color: #1f4d38;
+            transform: scale(1.05);
+        }
 
-/* Button styling */
-button {
-    padding: 12px 20px; /* Increase padding for better size */
-    background-color: #2d6a4f; /* Dark Green Background */
-    color: white; /* White text */
-    border: none;
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1rem; /* Make font size consistent */
-    transition: background-color 0.3s, transform 0.3s; /* Add transition for smooth effects */
-}
+        a.btn {
+            padding: 12px 20px;
+            background-color: #2d6a4f;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: background-color 0.3s, transform 0.3s;
+        }
 
-/* On hover, the button will change color and have a slight grow effect */
-button:hover {
-    background-color: #1f4d38; /* Darker green */
-    transform: scale(1.05); /* Slightly enlarge the button */
-}
+        a.btn:hover {
+            background-color: #1f4d38;
+            transform: scale(1.05);
+        }
 
-/* Specific styling for the 'Update' and 'Back to List' buttons if needed */
-button[type="submit"], .btn-primary {
-    background-color: #2d6a4f;
-    color: white;
-}
-
-button[type="submit"]:hover, .btn-primary:hover {
-    background-color: #1f4d38;
-}
-
-a.btn {
-    padding: 12px 20px;
-    background-color: #2d6a4f; /* Green background */
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: 1rem; /* Consistent font size */
-    transition: background-color 0.3s, transform 0.3s;
-}
-
-/* Hover effect for the link button */
-a.btn:hover {
-    background-color: #1f4d38; /* Darker green on hover */
-    transform: scale(1.05); /* Slightly enlarge */
-}
-
+        /* Error Messages */
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+        }
     </style>
 
-   
-
-    <!-- Heading -->
     <h1>Edit Produit</h1>
 
-    <!-- Form Section -->
     <div class="form-container">
-        {{ include('produit/_form.html.twig', {'button_label': 'Update'}) }}
-    </div>
+        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
 
-    <!-- Back to List Button -->
-    <a href="{{ path('app_produit_index') }}" class="btn-back">Back to list</a>
+        <!-- Nom Field -->
+        <div>
+            <label for="{{ form.nom.vars.id }}">Nom du Produit</label>
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom du produit'}}) }}
+            <small id="nomError" class="error-message"></small>
+        </div>
+
+        <!-- Prix Field -->
+        <div>
+            <label for="{{ form.prix.vars.id }}">Prix (DT)</label>
+            {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le prix en dinars'}}) }}
+            <small id="prixError" class="error-message"></small>
+        </div>
+
+        <!-- Description Field -->
+        <div>
+            <label for="{{ form.description.vars.id }}">Description</label>
+            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Ajoutez une description...', 'rows': 4}}) }}
+            <small id="descriptionError" class="error-message"></small>
+        </div>
+
+        <!-- Image Field -->
+        <div>
+            <label for="{{ form.imageFile.vars.id }}">Image du Produit</label>
+            {% if produit.image %}
+                <img src="{{ asset('uploads/' ~ produit.image) }}" alt="Produit Image" style="max-width: 200px; margin-bottom: 10px;">
+            {% endif %}
+            {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+            <small id="imageError" class="error-message"></small>
+        </div>
+
+        <!-- Category -->
+        <div>
+            <label for="{{ form.categorie.vars.id }}">Catégorie</label>
+            {{ form_widget(form.categorie, {'attr': {'class': 'form-control', 'id': 'produit_categorie'}}) }}
+            <small id="categorieError" class="error-message"></small>
+        </div>
+
+        <!-- Sub-Category -->
+        <div>
+            <label for="{{ form.sousCategorie.vars.id }}">Sous-Catégorie</label>
+            {{ form_widget(form.sousCategorie, {'attr': {'class': 'form-control', 'id': 'produit_sousCategorie'}}) }}
+            <small id="sousCategorieError" class="error-message"></small>
+        </div>
+
+        <!-- Stock Selection -->
+        <div>
+            <label for="{{ form.stock.vars.id }}">Stock</label>
+            {{ form_widget(form.stock, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <!-- Submit & Back Buttons -->
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{{ path('app_produit_index') }}" class="btn btn-secondary">⬅ Back to list</a>
+            <button type="submit" id="submitBtn" class="btn btn-success">Update</button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
 
     <!-- Delete Form Section -->
     {{ include('produit/_delete_form.html.twig') }}
-    <script>
-        // Écouter les changements sur la catégorie
-        document.getElementById('produit_categorie').addEventListener('change', function () {
-            const categorieId = this.value; // ID de la catégorie sélectionnée
-            const sousCategorieSelect = document.getElementById('produit_sousCategorie');
 
-            if (categorieId) {
-                // Effectuer une requête AJAX pour obtenir les sous-catégories
-                fetch(`/produit/get-souscategories/${categorieId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Réinitialiser les options du champ sous-catégorie
-                        sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
-                        
-                        // Ajouter les nouvelles options pour les sous-catégories
-                        data.forEach(sousCategorie => {
-                            const option = document.createElement('option');
-                            option.value = sousCategorie.id;
-                            option.textContent = sousCategorie.nom;
-                            sousCategorieSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Erreur lors de la récupération des sous-catégories :', error));
-            } else {
-                // Réinitialiser le champ sous-catégorie si aucune catégorie n'est sélectionnée
-                sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // ✅ Re-added the AJAX script for sous-catégories
+            document.getElementById('produit_categorie').addEventListener('change', function () {
+                const categorieId = this.value;
+                const sousCategorieSelect = document.getElementById('produit_sousCategorie');
+
+                if (categorieId) {
+                    fetch(`/produit/get-souscategories/${categorieId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+                            data.forEach(sousCategorie => {
+                                const option = document.createElement('option');
+                                option.value = sousCategorie.id;
+                                option.textContent = sousCategorie.nom;
+                                sousCategorieSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Erreur lors de la récupération des sous-catégories:', error));
+                } else {
+                    sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+                }
+            });
+
+            // ✅ Re-added validation logic
+            const nomInput = document.getElementById("{{ form.nom.vars.id }}");
+            const prixInput = document.getElementById("{{ form.prix.vars.id }}");
+            const descriptionInput = document.getElementById("{{ form.description.vars.id }}");
+            const submitBtn = document.getElementById("submitBtn");
+
+            function validateNom() {
+                if (nomInput.value.trim().length < 3) {
+                    document.getElementById("nomError").textContent = "Le nom doit contenir au moins 3 caractères.";
+                    submitBtn.disabled = true;
+                } else {
+                    document.getElementById("nomError").textContent = "";
+                    submitBtn.disabled = false;
+                }
             }
+
+            function validatePrix() {
+                const prixValue = parseFloat(prixInput.value.trim());
+                if (isNaN(prixValue) || prixValue < 1) {
+                    document.getElementById("prixError").textContent = "Le prix doit être supérieur à 1 DT.";
+                    submitBtn.disabled = true;
+                } else {
+                    document.getElementById("prixError").textContent = "";
+                    submitBtn.disabled = false;
+                }
+            }
+
+            function validateDescription() {
+                if (descriptionInput.value.trim().length < 10) {
+                    document.getElementById("descriptionError").textContent = "La description doit contenir au moins 10 caractères.";
+                    submitBtn.disabled = true;
+                } else {
+                    document.getElementById("descriptionError").textContent = "";
+                    submitBtn.disabled = false;
+                }
+            }
+
+            nomInput.addEventListener("input", validateNom);
+            prixInput.addEventListener("input", validatePrix);
+            descriptionInput.addEventListener("input", validateDescription);
         });
     </script>
 {% endblock %}

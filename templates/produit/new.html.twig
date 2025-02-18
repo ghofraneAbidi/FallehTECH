@@ -1,12 +1,10 @@
-
-
-   {% extends 'base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}New Produit{% endblock %}
 
 {% block body %}
     <style>
-        /* Body styling */
+        /* General Styling */
         body {
             font-family: 'Lato', sans-serif;
             background-color: #f8f9fa;
@@ -14,99 +12,169 @@
             padding: 20px;
         }
 
-        /* Text Styling */
-       h1 {
-            font-size: 2rem;
-            color: #2d6a4f; /* Darker green */
+        /* Page Title */
+        h1 {
+            font-size: 2.5rem;
+            color: #2d6a4f;
             text-align: center;
-        }
-        /* Container for the form */
-        .form-container {
-            background: #e3f2e1;  /* Light green background */
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
 
-        /* Form inputs styling */
+        /* Centered Form Container */
+        .page-container {
+            display: flex;
+            justify-content: center; /* Centers horizontally */
+            align-items: center; /* Centers vertically */
+            min-height: 100vh; /* Full height */
+        }
+
+        /* Form Box */
+        .form-container {
+            background: #e3f2e1; /* Light green */
+            padding: 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            width: 60%; /* Increase width for larger form */
+            max-width: 700px;
+        }
+
+        /* Form Inputs */
         input, select, textarea {
-            padding: 10px;
+            padding: 12px;
             width: 100%;
             border-radius: 5px;
             border: 1px solid #ccc;
             margin-bottom: 15px;
+            font-size: 1.1rem; /* Bigger text */
         }
 
-        /* Button Styling */
+        /* Labels */
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* Submit Button */
         button {
-            padding: 12px 20px;
-            background-color: #2d6a4f; /* Green Background */
-            color: white; /* White text */
+            padding: 15px;
+            background-color: #2d6a4f;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1rem; /* Make font size consistent */
-            transition: background-color 0.3s, transform 0.3s; /* Add transition for smooth effects */
+            font-size: 1.2rem;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
-        /* On hover, the button will change color and have a slight grow effect */
+        /* Button Hover */
         button:hover {
-            background-color: #1f4d38; /* Darker green */
-            transform: scale(1.05); /* Slightly enlarge the button */
+            background-color: #1f4d38;
+            transform: scale(1.05);
         }
 
-        /* Add some space between the form and the "back to list" button */
-        a.btn {
-            padding: 12px 20px;
-            background-color: #2d6a4f; /* Green background */
+        /* Back Button */
+        .back-btn {
+            padding: 12px 15px;
+            background-color: #2d6a4f;
             color: white;
             text-decoration: none;
             border-radius: 5px;
             font-weight: bold;
-            font-size: 1rem; /* Consistent font size */
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center;
             transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
         }
 
-        /* Hover effect for the link button */
-        a.btn:hover {
-            background-color: #1f4d38; /* Darker green on hover */
-            transform: scale(1.05); /* Slightly enlarge */
+        .back-btn:hover {
+            background-color: #1f4d38;
+            transform: scale(1.05);
         }
     </style>
 
+    <h1>Create New Produit</h1>
 
-    <h1 class="button">Create new Produit</h1>
-
-    <!-- Form Section -->
-  <!-- Form Section -->
-<div class="form-container">
+    <div class="page-container">
+        <div class="form-container">
+    <!-- Start the Form -->
     {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
-        {{ form_errors(form) }} {# Display form-level errors #}
-        {{ form_widget(form) }} {# Render all fields #}
-        <button type="submit">Save</button>
+
+    <!-- Nom Field -->
+    <div>
+        <label for="{{ form.nom.vars.id }}">Nom du Produit</label>
+        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom du produit', 'required': 'required'}}) }}
+        <small id="nomError" class="error-message"></small>
+    </div>
+
+    <!-- Prix Field -->
+    <div>
+        <label for="{{ form.prix.vars.id }}">Prix (DT)</label>
+        {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le prix en dinars', 'required': 'required'}}) }}
+        <small id="prixError" class="error-message"></small>
+    </div>
+
+    <!-- Description Field -->
+    <div>
+        <label for="{{ form.description.vars.id }}">Description</label>
+        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Ajoutez une description du produit...', 'rows': 4, 'required': 'required'}}) }}
+        <small id="descriptionError" class="error-message"></small>
+    </div>
+
+    <!-- Image Upload Field -->
+    <div>
+        <label for="{{ form.imageFile.vars.id }}">Upload Image</label>
+        {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <!-- Category and Subcategory Fields -->
+    <div>
+        <label for="{{ form.categorie.vars.id }}">Catégorie</label>
+        {{ form_widget(form.categorie, {'attr': {'class': 'form-control', 'id': 'produit_categorie'}}) }}
+    </div>
+
+    <div>
+        <label for="{{ form.sousCategorie.vars.id }}">Sous-Catégorie</label>
+        {{ form_widget(form.sousCategorie, {'attr': {'class': 'form-control', 'id': 'produit_sousCategorie'}}) }}
+    </div>
+
+    <!-- Stock Selection Field (✅ Now Added) -->
+    <div>
+        <label for="{{ form.stock.vars.id }}">Stock</label>
+        {{ form_widget(form.stock, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <!-- Display Errors -->
+    {{ form_errors(form) }}
+
+    <!-- Action Buttons (✅ Save & Back to List are Side-by-Side) -->
+    <div class="d-flex justify-content-between mt-3">
+        <a href="{{ path('app_produit_index') }}" class="btn btn-secondary">⬅ Back to list</a>
+        <button type="submit" class="btn btn-success">Save</button>
+    </div>
+
     {{ form_end(form) }}
 </div>
 
-
-    <!-- Back to list button -->
-    <a href="{{ path('app_produit_index') }}" class="button">Back to list</a>
+    </div>
 
     <script>
-        // Écouter les changements sur la catégorie
+        // Listen for changes in the category dropdown
         document.getElementById('produit_categorie').addEventListener('change', function () {
-            const categorieId = this.value; // ID de la catégorie sélectionnée
+            const categorieId = this.value;
             const sousCategorieSelect = document.getElementById('produit_sousCategorie');
 
             if (categorieId) {
-                // Effectuer une requête AJAX pour obtenir les sous-catégories
+                // Fetch the subcategories using AJAX
                 fetch(`/produit/get-souscategories/${categorieId}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Réinitialiser les options du champ sous-catégorie
                         sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
                         
-                        // Ajouter les nouvelles options pour les sous-catégories
                         data.forEach(sousCategorie => {
                             const option = document.createElement('option');
                             option.value = sousCategorie.id;
@@ -114,11 +182,145 @@
                             sousCategorieSelect.appendChild(option);
                         });
                     })
-                    .catch(error => console.error('Erreur lors de la récupération des sous-catégories :', error));
+                    .catch(error => console.error('Erreur lors de la récupération des sous-catégories:', error));
             } else {
-                // Réinitialiser le champ sous-catégorie si aucune catégorie n'est sélectionnée
                 sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
             }
         });
+      document.addEventListener("DOMContentLoaded", function () {
+    // Get form elements
+    const nomInput = document.getElementById("produit_nom");
+    const prixInput = document.getElementById("produit_prix");
+    const descriptionInput = document.getElementById("produit_description");
+    const categorieInput = document.getElementById("produit_categorie");
+    const sousCategorieInput = document.getElementById("produit_sousCategorie");
+    
+    const submitBtn = document.getElementById("submitBtn"); // ✅ Now correctly declared once
+
+    // Get error display elements
+    const nomError = document.getElementById("nomError");
+    const prixError = document.getElementById("prixError");
+    const descriptionError = document.getElementById("descriptionError");
+    const categorieError = document.getElementById("categorieError");
+    const sousCategorieError = document.getElementById("sousCategorieError");
+
+    /**
+     * ✅ Nom Validation (Only letters & spaces, min length: 3)
+     */
+    nomInput.addEventListener("input", function () {
+        const nomValue = nomInput.value.trim();
+        const regex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/; // Accepts letters & spaces
+
+        if (nomValue.length < 3) {
+            nomError.textContent = "Le nom doit contenir au moins 3 caractères.";
+            nomInput.style.borderColor = "red";
+            submitBtn.disabled = true;
+        } else if (!regex.test(nomValue)) {
+            nomError.textContent = "Le nom ne doit contenir que des lettres et des espaces.";
+            nomInput.style.borderColor = "red";
+            submitBtn.disabled = true;
+        } else {
+            nomError.textContent = "";
+            nomInput.style.borderColor = "green";
+            checkFormValidity(); // ✅ Ensure form validity before enabling submit
+        }
+    });
+
+    /**
+     * ✅ Prix Validation (Only numbers, > 1 DT)
+     */
+    prixInput.addEventListener("input", function () {
+        const prixValue = prixInput.value.trim();
+        const prixNumber = parseFloat(prixValue);
+
+        if (!/^\d+(\.\d{1,2})?$/.test(prixValue)) {
+            prixError.textContent = "Entrez un nombre valide (ex: 10.50)";
+            prixInput.style.borderColor = "red";
+            submitBtn.disabled = true;
+        } else if (prixNumber < 1) {
+            prixError.textContent = "Le prix doit être supérieur à 1 DT.";
+            prixInput.style.borderColor = "red";
+            submitBtn.disabled = true;
+        } else {
+            prixError.textContent = "";
+            prixInput.style.borderColor = "green";
+            checkFormValidity();
+        }
+    });
+
+    /**
+     * ✅ Description Validation (Min 10, Max 500 characters)
+     */
+    descriptionInput.addEventListener("input", function () {
+        const descriptionValue = descriptionInput.value.trim();
+
+        if (descriptionValue.length < 10) {
+            descriptionError.textContent = "La description doit contenir au moins 10 caractères.";
+            descriptionInput.style.borderColor = "red";
+            submitBtn.disabled = true;
+        } else if (descriptionValue.length > 500) {
+            descriptionError.textContent = "La description ne doit pas dépasser 500 caractères.";
+            descriptionInput.style.borderColor = "red";
+            submitBtn.disabled = true;
+        } else {
+            descriptionError.textContent = "";
+            descriptionInput.style.borderColor = "green";
+            checkFormValidity();
+        }
+    });
+
+    /**
+     * ✅ Category Validation (Must be selected)
+     */
+    categorieInput.addEventListener("change", function () {
+        if (categorieInput.value === "") {
+            categorieError.textContent = "Veuillez sélectionner une catégorie.";
+            categorieInput.style.borderColor = "red";
+            submitBtn.disabled = true;
+        } else {
+            categorieError.textContent = "";
+            categorieInput.style.borderColor = "green";
+            checkFormValidity();
+        }
+    });
+
+    /**
+     * ✅ Sub-Category Validation (Must be selected)
+     */
+    sousCategorieInput.addEventListener("change", function () {
+        if (sousCategorieInput.value === "") {
+            sousCategorieError.textContent = "Veuillez sélectionner une sous-catégorie.";
+            sousCategorieInput.style.borderColor = "red";
+            submitBtn.disabled = true;
+        } else {
+            sousCategorieError.textContent = "";
+            sousCategorieInput.style.borderColor = "green";
+            checkFormValidity();
+        }
+    });
+
+    /**
+     * ✅ Function to Enable Submit Button Only When Form is Valid
+     */
+    function checkFormValidity() {
+        if (
+            nomError.textContent === "" &&
+            prixError.textContent === "" &&
+            descriptionError.textContent === "" &&
+            categorieError.textContent === "" &&
+            sousCategorieError.textContent === ""
+          
+        ) {
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.disabled = true;
+        }
+    }
+});
+
+            
+        
+        
+        
     </script>
 {% endblock %}

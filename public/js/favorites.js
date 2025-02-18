@@ -1,57 +1,58 @@
 document.addEventListener('DOMContentLoaded', function () {
-    let favorites = [];  // Array to hold favorite products
+    let favorites = [];  // Store favorite products
 
-    // Update the favorites count in the navbar
+    // Function to update favorites count in the navbar
     function updateFavoritesCount() {
-        const favoritesCount = document.getElementById('favorites-count');
-        if (favoritesCount) {
-            favoritesCount.textContent = favorites.length;
-        }
+        fetch('/favorites/count')  // Make sure this route exists in your Symfony app
+            .then(response => response.json())
+            .then(data => {
+                const favoritesCount = document.getElementById('favorites-count');
+                if (favoritesCount) {
+                    favoritesCount.textContent = data.count; // Update UI with correct count
+                }
+            })
+            .catch(error => console.error('Erreur de mise à jour des favoris:', error));
     }
 
-    // Heart icon functionality for adding/removing from favorites
+    // Function to handle adding/removing favorites
+    function toggleFavorite(productId, heartIcon) {
+        fetch(`/favoris/add/${productId}`, {  // Updated correct route
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                productId: productId,
+                userId: 1  // Static user ID, change dynamically if authentication is available
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                heartIcon.classList.toggle('text-danger');  // Toggle heart color
+                alert(data.message); // Show message
+                updateFavoritesCount(); // Update counter
+            } else {
+                alert(data.message || 'Erreur, veuillez réessayer');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue. Veuillez réessayer.');
+        });
+    }
+
+    // Initialize heart icons for all products
     function initializeHeartIcons() {
         document.querySelectorAll('.heart-icon').forEach(icon => {
-            icon.addEventListener('click', function() {
+            icon.addEventListener('click', function () {
                 const productId = this.closest('.card').dataset.productId;
-
-                // Make API request to add to favorites
-                fetch(`/produit/${productId}/add-to-favorites`, {  // Update URL to match the route
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        productId: productId,
-                        isFavorite: true,
-                        userId: 1  // Static user ID (can be dynamic based on logged-in user)
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert('Produit ajouté aux favoris');
-                        this.classList.add('text-danger');  // Change heart color to red
-                        updateFavoritesCount();
-                    } else {
-                        alert('Erreur, veuillez réessayer');
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    alert('Une erreur est survenue. Veuillez réessayer.');
-                });
+                toggleFavorite(productId, this);
             });
         });
     }
 
-    // Initialize heart icons when the page loads
+    // Initialize everything
     initializeHeartIcons();
-
-    // You can call your updateFavoritesCount method if you have a way to load existing favorites at the start
+    updateFavoritesCount(); // Load initial count when page loads
 });
