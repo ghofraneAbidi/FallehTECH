@@ -1,0 +1,52 @@
+{{ form_start(form) }}
+
+<div class="form-group">
+	{{ form_label(form.user) }}
+	{{ form_widget(form.user, {'attr': {'class': 'form-control custom-dropdown', 'style': 'color: black;'}}) }}
+	{% if form.user.vars.errors|length > 0 %}
+		<div class="alert alert-danger mt-2">
+			{% for error in form.user.vars.errors %}
+				<p>{{ error.message }}</p>
+			{% endfor %}
+		</div>
+	{% endif %}
+</div>
+
+<div class="form-group">
+	{{ form_label(form.adresseLivraison) }}
+	{{ form_widget(form.adresseLivraison, {'attr': {'class': 'form-control', 'style': 'color: black;'}}) }}
+	{% if form.adresseLivraison.vars.errors|length > 0 %}
+		<div class="alert alert-danger mt-2">
+			{% for error in form.adresseLivraison.vars.errors %}
+				<p>{{ error.message }}</p>
+			{% endfor %}
+		</div>
+	{% endif %}
+</div>
+
+
+<div class="form-group">
+	{{ form_label(form.total) }}
+	{{ form_widget(form.total, {'attr': {'class': 'form-control', 'id': 'total-field','style': 'color: black;'}}) }}
+	{% if form.total.vars.errors|length > 0 %}
+		<div class="alert alert-danger mt-2">
+			{% for error in form.total.vars.errors %}
+				<p>{{ error.message }}</p>
+			{% endfor %}
+		</div>
+	{% endif %}
+</div>
+
+<div class="form-group">
+	{{ form_label(form.ModePaiement) }}
+	{{ form_widget(form.ModePaiement, {'attr': {'class': ' custom-dropdown','id': 'payment-method'}}) }}
+	{% if form.ModePaiement.vars.errors|length > 0 %}
+		<div class="alert alert-danger mt-2">
+			{% for error in form.ModePaiement.vars.errors %}
+				<p>{{ error.message }}</p>
+			{% endfor %}
+		</div>
+	{% endif %}
+</div>
+
+{{ form_end(form) }}

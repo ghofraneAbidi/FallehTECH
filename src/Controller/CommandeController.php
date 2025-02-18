@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Commande;
 use App\Form\CommandeType;
+use App\Form\CommandeClientType;
 use App\Repository\CommandeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,6 +24,45 @@ final class CommandeController extends AbstractController
         ]);
     }
 
+    #[Route(path:'/home',name: 'app_commande_front', methods: ['GET'])]
+    public function frontindex(CommandeRepository $commandeRepository): Response
+    {
+        return $this->render('commande/front_index.html.twig', [
+            'commandes' => $commandeRepository->findAll(),
+        ]);
+    }
+    #[Route('/passer', name: 'app_commande_passer', methods: ['GET', 'POST'])]
+    public function passerCommande(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $commande = new Commande();
+        $commande->setDateCreation(new \DateTime()); 
+        $commande->setStatus('En Attente'); 
+        $commande->setStatusPaiement('En Attente'); 
+    
+        $form = $this->createForm(CommandeClientType::class, $commande);
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($commande);
+            $entityManager->flush();
+    
+            // Check the selected payment method
+            $modePaiement = $commande->getModePaiement();
+    
+            if ($modePaiement === 'Espèces') {
+                return $this->redirectToRoute('app_facture', ['id' => $commande->getId()]);
+            } else {
+                return $this->redirectToRoute('app_paiement', ['id' => $commande->getId()]);
+            }
+        }
+    
+        return $this->render('commande/front_new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+    
+
+    
     #[Route('/new', name: 'app_commande_new', methods: ['GET', 'POST'])]
 public function new(Request $request, EntityManagerInterface $entityManager): Response
 {
@@ -91,6 +131,13 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
             'commande' => $commande,
         ]);
     }
+    #[Route('/Details/{id}', name: 'front_commande_show', methods: ['GET'])]
+    public function show_client(Commande $commande): Response
+    {
+        return $this->render('commande/front_show.html.twig', [
+            'commande' => $commande,
+        ]);
+    }
 
     #[Route('/{id}/edit', name: 'app_commande_edit', methods: ['GET', 'POST'])]
 public function edit(Request $request, Commande $commande, EntityManagerInterface $entityManager): Response
@@ -153,5 +200,23 @@ public function annuler(Request $request, Commande $commande, EntityManagerInter
     // Redirect back to the list or the edit page
     return $this->redirectToRoute('app_commande_index');
 }
+#[Route('/facture/{id}', name: 'app_facture')]
+public function facture(Commande $commande): Response
+{
+    return $this->render('commande/facture.html.twig', [
+        'commande' => $commande
+    ]);
+}
+
+#[Route('/paiement/{id}', name: 'app_paiement')]
+public function paiement(Commande $commande): Response
+{
+    return $this->render('commande/paiement.html.twig', [
+        'commande' => $commande
+    ]);
+}
+
+
+
 
 }
