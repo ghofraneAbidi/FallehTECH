@@ -25,13 +25,13 @@
             </form>
 
             <a href="{{ path('app_post_front') }}" class="btn btn-secondary">
-                <i class="bx bx-arrow-back"></i> Back to Posts
+                <i class="bx bx-arrow-back"></i> Retour aux Posts
             </a>
         </div>
 
         <!-- Comments Section -->
         <div class="mt-5">
-            <h4 class="mb-3">Comments</h4>
+            <h4 class="mb-3">Commentaires</h4>
             <ul class="list-group">
                 {% for comment in comments %}
                     <li class="list-group-item">
@@ -40,14 +40,14 @@
                         <small class="text-muted">Posted on {{ comment.date|date('Y-m-d') }}</small>
                     </li>
                 {% else %}
-                    <li class="list-group-item text-muted">No comments yet. Be the first to comment!</li>
+                    <li class="list-group-item text-muted">Aucun commentaire,sois le premier à répondre!</li>
                 {% endfor %}
             </ul>
         </div>
 
         <!-- Comment Form -->
         <div class="mt-4">
-            <h5 class="mb-3">Leave a Comment</h5>
+            <h5 class="mb-3">Mets un commentaire</h5>
             <div class="card p-3">
                 {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate'}}) }}
                     <div class="mb-3">
@@ -56,7 +56,7 @@
                     {% if form_errors(commentForm.contenu) %}
                         <span class="form-error">{{ form_errors(commentForm.contenu) }}</span>
                     {% endif %}
-                    <button class="btn btn-success">Post Comment</button>
+                    <button class="btn btn-success">Commentaire du post</button>
                 {{ form_end(commentForm) }}
             </div>
         </div>

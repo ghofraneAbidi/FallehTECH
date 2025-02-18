@@ -1,6 +1,6 @@
 {% extends 'base-back.html.twig' %}
 
-{% block title %}Edit Post{% endblock %}
+{% block title %}Modifier le Post{% endblock %}
 
 {% block content %}
 
@@ -100,7 +100,7 @@
 
 <div class="container mt-4">
     <div class="post-form-container">
-        <h2><i class="bx bx-edit"></i> Edit Post</h2>
+        <h2><i class="bx bx-edit"></i> Modifier le Post</h2>
 
         {{ form_start(form, {'attr': {'class': 'post-form'}}) }}
 
@@ -126,7 +126,7 @@
         {{ form_end(form) }}
 
         <a href="{{ path('app_post_index') }}" class="btn btn-secondary">
-            <i class="bx bx-arrow-back"></i> Back to List
+            <i class="bx bx-arrow-back"></i> Retourner à la List
         </a>
 
     </div>

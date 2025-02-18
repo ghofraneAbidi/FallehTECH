@@ -1,14 +1,22 @@
 {% extends 'base-back.html.twig' %}
 
-{% block title %}Post Index{% endblock %}
+{% block title %}BACKOFFICE{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="card shadow-lg p-4">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h2 class="mb-3">📌 Post Index</h2>
+            <h2 class="mb-3">📌 La liste des posts 📚 </h2>
         </div>
         <div class="card-body">
+            <!-- Description Forum -->
+            <div class="text-center mb-4">
+                <p class="text-muted">
+                    Ici, vous pouvez envoyer des posts pour aider les clients.
+                     Partagez vos conseils, expériences et solutions pour aider la communauté à résoudre leurs problèmes liés à l'agriculture et à améliorer la productivité de leurs cultures. 🌱
+                </p>
+            </div>
+
             <div class="post-container">
                 {% for post in posts %}
                     <div class="post-item">
@@ -29,10 +37,10 @@
                         <div class="post-right">
                             <span class="post-date">{{ post.date ? post.date|date('Y-m-d') : '-' }}</span>
                             <a href="{{ path('app_post_show', {'id': post.id}) }}" class="btn-action btn-show">
-                                <i class="bx bx-show"></i> Show
+                                <i class="bx bx-show"></i> Afficher
                             </a>
                             <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="btn-action btn-edit">
-                                <i class="bx bx-edit"></i> Edit
+                                <i class="bx bx-edit"></i> Modifier
                             </a>
                         </div>
                     </div>
@@ -45,7 +53,7 @@
         </div>
         <div class="text-center">
             <a href="{{ path('app_post_new') }}" class="btn-create-new">
-                <i class="bx bx-plus"></i> Create New
+                <i class="bx bx-plus"></i> Creer un nouveau
             </a>
         </div>
     </div>

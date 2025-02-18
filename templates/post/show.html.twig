@@ -1,6 +1,6 @@
 {% extends 'base-back.html.twig' %}
 
-{% block title %}Post Details{% endblock %}
+{% block title %}Les detailles des posts{% endblock %}
 
 {% block content %}
 
@@ -134,7 +134,7 @@
         <table class="table-custom">
             <thead>
                 <tr>
-                    <th colspan="2" class="text-center">Post Information</th>
+                    <th colspan="2" class="text-center">Les informations des Posts </th>
                 </tr>
             </thead>
             <tbody>
@@ -173,11 +173,11 @@
 
         <div class="btn-container">
             <a href="{{ path('app_post_index') }}" class="btn-action btn-secondary">
-                <i class="bx bx-arrow-back"></i> Back to List
+                <i class="bx bx-arrow-back"></i> Retour a la liste
             </a>
 
             <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="btn-action btn-primary">
-                <i class="bx bx-edit"></i> Edit Post
+                <i class="bx bx-edit"></i> Modifier Post
             </a>
 
             <form method="post" action="{{ path('app_post_delete', {'id': post.id}) }}" 
@@ -185,14 +185,14 @@
                 style="flex: 1;">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
                 <button type="submit" class="btn-action btn-danger">
-                    <i class="bx bx-trash"></i> Delete
+                    <i class="bx bx-trash"></i> Supprimer
                 </button>
             </form>
         </div>
 
         <!-- Comments Section -->
         <div class="comments-section">
-            <h3>📝 Comments ({{ comments|length }})</h3>
+            <h3>📝 Commentaires ({{ comments|length }})</h3>
 
             {% if comments %}
                 {% for comment in comments %}

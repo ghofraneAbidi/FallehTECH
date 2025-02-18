@@ -16,7 +16,7 @@ class Comment
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Comment cannot be blank.")]
+    #[Assert\NotBlank(message: "Le commentaire ne peut pas etre vide.")]
     private ?string $contenu = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]

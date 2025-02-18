@@ -19,22 +19,22 @@ class Post
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Title cannot be blank.")]
+    #[Assert\NotBlank(message: "Le titre ne peut pas être vide.")]
     #[Assert\Length(
         min: 5,
-        minMessage: "The title cannot be less than 5 characters.",
+        minMessage: "Le titre ne peut pas contenir moins de 5 caractères.",
         max: 255,
-        maxMessage: "The title cannot be longer than 255 characters."
+        maxMessage: "Le titre ne peut pas dépasser 255 caractères."
     )]
     private ?string $titre = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Content cannot be blank.")]
+    #[Assert\NotBlank(message: "Le contenu ne peut pas etre vide.")]
     #[Assert\Length(
         min: 10,
-        minMessage: "The content must be at least 10 characters long.",
+        minMessage: "Le Contenu ne peut pas contenir moins de 10 caractères.",
         max: 255,
-        maxMessage: "The content cannot be longer than 255 characters."
+        maxMessage: "Le Contenu ne peut pas dépasser 255 caractères."
     )]
     private ?string $contenu = null;
 
@@ -49,7 +49,7 @@ class Post
     #[Assert\Image(
         maxSize: "15M",
         mimeTypes: ["image/jpeg", "image/png", "image/gif"],
-        mimeTypesMessage: "Please upload a valid image file (JPEG, PNG, GIF)."
+        mimeTypesMessage: "SVP upload une image valide (JPEG, PNG, GIF)."
     )]
     private ?File $imageFile = null;
 
