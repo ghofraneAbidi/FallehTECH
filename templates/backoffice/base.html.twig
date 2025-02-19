@@ -35,12 +35,14 @@
 					<span class="text">Utilisateurs</span>
 				</a>
 			</li>
-			<li>
-				<a href="#">
-					<i class='bx bxs-group' ></i>
-					<span class="text">Produits</span>
-				</a>
-			</li>
+			{% if is_granted('ROLE_ADMIN') %}
+						<li>
+							<a href="{{ path('app_post_index') }}">
+								<i class='bx bxs-group' ></i>
+								<span class="text">Post Index</span>
+							</a>
+						</li>
+			{% endif %}
 			<li>
 				<a href="#">
 					<i class='bx bxs-group' ></i>
@@ -115,7 +117,7 @@
 		<main>
 			<div class="head-title">
 				<div class="left">
-					<h1>Utilisateurs</h1>
+					 
 					<ul class="breadcrumb">
 						<li>
 							<a href="#">{% block title %}{% endblock %}</a>
@@ -132,7 +134,8 @@
 				</a>
 			</div>
 
-			{% block body %}{% endblock %}
+			{% block body %}
+			{% endblock %}
 
 		</main>
 		<!-- MAIN -->

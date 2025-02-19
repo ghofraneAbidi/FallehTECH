@@ -1,0 +1,172 @@
+{% extends 'backoffice/base.html.twig' %}
+
+{% block title %}BACKOFFICE{% endblock %}
+
+{% block body %}
+<style>
+    .post-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .post-item {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .post-left {
+        position: relative;
+    }
+
+    .post-left img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .post-img {
+        width: 100%;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0f0f0;
+        font-size: 50px;
+    }
+
+    .post-info {
+        padding: 15px;
+    }
+
+    .post-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .post-content {
+        font-size: 14px;
+        color: #777;
+        margin-top: 5px;
+    }
+
+    .post-right {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .post-date {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .btn-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #fff;
+        font-weight: bold;
+        transition: background 0.3s ease;
+    }
+
+    .btn-show {
+        background: #4CAF50;
+    }
+
+    .btn-show:hover {
+        background: #388E3C;
+    }
+
+    .btn-edit {
+        background:rgb(241, 6, 6);
+    }
+
+    .btn-edit:hover {
+        background:rgb(255, 0, 0);
+    }
+
+    .btn-create-new {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #4CAF50;
+        color: #fff;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background 0.3s ease;
+    }
+
+    .btn-create-new:hover {
+        background: #388E3C;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card shadow-lg p-4">
+        <div class="card-header text-black d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">📌 La liste des posts 📚</h2>
+        </div>
+        <div class="card-body">
+            <!-- Description Forum -->
+            <div class="text-center mb-4">
+                <p class="text-muted">
+                    Ici, vous pouvez envoyer des posts pour aider les clients.
+                    Partagez vos conseils, expériences et solutions pour aider la communauté à résoudre leurs problèmes liés à l'agriculture et à améliorer la productivité de leurs cultures. 🌱
+                </p>
+            </div>
+            <div class="text-center mb-4">
+                <a href="{{ path('app_post_new') }}" class="btn-create-new">
+                    <i class="bx bx-plus"></i> Creer un nouveau
+                </a>
+            </div>
+            <div class="post-container">
+                {% for post in posts %}
+                    <div class="post-item">
+                        <!-- Left: Image & Title -->
+                        <div class="post-left">
+                            {% if post.image %}
+                                <img src="{{ asset('uploads/posts/' ~ post.image) }}" class="card-img-top" alt="{{ post.titre }}">
+                            {% else %}
+                                <div class="post-img text-muted d-flex align-items-center justify-content-center">📷</div>
+                            {% endif %}
+                            <div class="post-info">
+                                <span class="post-title">{{ post.titre }}</span>
+                                <span class="post-content">{{ post.contenu | slice(0, 50) }}...</span>
+                            </div>
+                        </div>
+
+                        <!-- Right: Date & Actions -->
+                        <div class="post-right">
+                            <span class="post-date">{{ post.date ? post.date|date('Y-m-d') : '-' }}</span>
+                            <a href="{{ path('app_post_show', {'id': post.id}) }}" class="btn-action btn-show">
+                                <i class="bx bx-show"></i> Afficher
+                            </a>
+                            {% if post.user == app.user %}
+                                <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="btn-action btn-edit">
+                                    <i class="bx bx-edit"></i> Modifier
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        No records found
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

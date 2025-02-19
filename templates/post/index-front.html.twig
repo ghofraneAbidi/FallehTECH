@@ -1,0 +1,47 @@
+{% extends 'frontoffice/base.html.twig' %}
+
+{% block title %}Les posts{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="text-center text-success">Forum des Clients - Agriculture Intelligente et Durable</h1>
+
+    <p class="text-center text-muted">
+        🌱 Le forum est un espace d’échange dédié à l’agriculture durable, où 👨‍🌾 les agriculteurs partagent leur expertise en publiant des posts pour aider les clients 🌾. 
+           Ces derniers peuvent interagir en 👍 aimant et 💬 commentant les publications, posant ainsi leurs questions ou partageant leur expérience. 
+           Cette interaction dynamique permet de créer une communauté engagée 🤝, favorisant l’échange de connaissances 📚 et la diffusion de bonnes pratiques
+                                                 pour une agriculture plus productive et respectueuse de l’environnement 🌍.
+    </p>
+
+    <h2 class="text-center text-success my-4">Tous les posts</h2>
+
+    <div class="row">
+        {% for post in posts %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-0 rounded-lg overflow-hidden">
+                <img src="{{ asset('uploads/posts/' ~ post.image) }}" class="card-img-top" alt="{{ post.titre }}" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ post.titre }}</h5>
+                    <p class="card-text text-muted">{{ post.contenu | slice(0, 100) }}...</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <form method="POST" action="{{ path('app_post_like', {'id': post.id}) }}">
+                            <button type="submit" class="btn {% if post.likes|length > 0 %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                                <i class="bx bx-heart"></i> Like ({{ post.likes|length }})
+                            </button>
+                        </form>
+                        <a href="{{ path('app_post_show_front', {'id': post.id}) }}" class="btn btn-success">
+                            <i class="bx bx-show"></i> Afficher plus
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-center py-2">
+                    <small class="text-muted">Posté le {{ post.date|date('F j, Y') }}</small>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-center text-muted">Aucun post disponible pour le moment.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

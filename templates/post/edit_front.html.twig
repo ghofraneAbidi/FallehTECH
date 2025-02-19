@@ -1,0 +1,22 @@
+{% extends 'frontoffice/base.html.twig' %}
+
+{% block title %}Edit Comment{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h2 class="mb-3 text-center">Edit Comment</h2>
+        <div class="card p-3">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                <div class="mb-3">
+                    {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'placeholder': 'Edit your comment...'}}) }}
+                </div>
+                {% if form_errors(form.contenu) %}
+                    <span class="form-error">{{ form_errors(form.contenu) }}</span>
+                {% endif %}
+                <button class="btn btn-success">Update Comment</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

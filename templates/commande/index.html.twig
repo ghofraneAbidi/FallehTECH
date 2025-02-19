@@ -1,0 +1,66 @@
+{% extends 'dashboard.html.twig' %}
+
+{% block title %}Commande index{% endblock %}
+
+{% block body %}
+    <h1>Commande index</h1>
+    <a href="{{ path('app_commande_new') }}" class="create-new-btn" style="font-size: 40px;">
+        <i class="bi bi-plus"></i>
+    </a>
+    
+    
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Date Creation</th>
+                <th>Total</th>
+                <th>statut</th>
+                <th>Adresse Livraison</th>
+                <th>Mode Paiement</th>
+                <th>Date Paiement</th>
+                <th>statut Paiement</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for commande in commandes %}
+            <tr>
+                <td>{{ commande.id }}</td>
+                <td>{{ commande.dateCreation ? commande.dateCreation|date('Y-m-d ') : '' }}</td>
+                <td>{{ commande.total }}</td>
+                <td>{{ commande.status }}</td>
+                <td>{{ commande.adresseLivraison }}</td>
+                <td>{{ commande.ModePaiement }}</td>
+                <td>{{ commande.datePaiement ? commande.datePaiement|date('Y-m-d ') : '' }}</td>
+                <td>{{ commande.statusPaiement }}</td>
+                <td class="text-center align-middle">
+                    <!-- Show (Info) Icon -->
+                    <a href="{{ path('app_commande_show', {'id': commande.id}) }}" title="View Details" class="text-primary mx-2">
+                        <i class="bi bi-info-circle fs-5"></i>
+                    </a>
+                
+                    <!-- Edit Icon -->
+                    <a href="{{ path('app_commande_edit', {'id': commande.id}) }}" title="Edit Commande" class="text-warning mx-2">
+                        <i class="bi bi-pencil-square fs-5"></i>
+                    </a>
+
+                    <a href="{{ path('app_livraison_new', {'commandeId': commande.id}) }}" class="btn btn-success btn-sm">
+                        <i class="bi bi-truck"></i> 
+                    </a>
+                  
+                </td>
+                
+                
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    
+{% endblock %}

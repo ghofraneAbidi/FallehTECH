@@ -43,7 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 20)]
-    #[Assert\NotBlank(message: "Veuillez spécifier votre rôle")]
+  //  #[Assert\NotBlank(message: "Veuillez spécifier votre rôle")]
     private ?string $role = null;
 
     #[ORM\Column(length: 8, nullable: false)]
@@ -59,8 +59,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $carte_identite = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    #[Assert\Date(message: "La date de disponibilité doit être valide")]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    //#[Assert\Date(message: "La date de disponibilité doit être valide")]
     private ?\DateTimeInterface $disponibility = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -226,4 +226,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+
+    public function __toString(): string
+    {
+        return $this->name . ' ' . $this->last_name;
+    }
+    
 }

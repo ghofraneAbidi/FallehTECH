@@ -1,0 +1,4 @@
+<form action="{{ path('app_commande_annuler', {'id': commande.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr d'annuler cette commande ?');">
+	<input type="hidden" name="_token" value="{{ csrf_token('annuler' ~ commande.id) }}">
+	<button type="submit" class="btn btn-danger mt-3">Annuler</button>
+</form>

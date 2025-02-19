@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+
+<title>Nouveau Commentaire</title>
+
+{% block body %}
+    <h1>Creer un nouveau Commentaire</h1>
+
+    {{ include('comment/_form.html.twig') }}
+
+    <a href="{{ path('app_comment_index') }}">Retour a la liste</a>
+{% endblock %}
