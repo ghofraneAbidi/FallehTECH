@@ -1,0 +1,93 @@
+{% extends 'base_agriculteur.html.twig' %}
+
+{% block title %}Modifier Produit{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h2 class="text-center text-success">Modifier le Produit</h2>
+
+        <div class="card p-4 shadow-lg">
+            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+            <!-- Nom du produit -->
+            <div class="mb-3">
+                <label for="{{ form.nom.vars.id }}" class="form-label">Nom du Produit</label>
+                {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom du produit'}}) }}
+            </div>
+
+            <!-- Prix -->
+            <div class="mb-3">
+                <label for="{{ form.prix.vars.id }}" class="form-label">Prix (DT)</label>
+                {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Prix en dinars'}}) }}
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                <label for="{{ form.description.vars.id }}" class="form-label">Description</label>
+                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Ajoutez une description', 'rows': 4}}) }}
+            </div>
+
+            <!-- Image -->
+            <div class="mb-3">
+                <label for="{{ form.imageFile.vars.id }}" class="form-label">Image du Produit</label>
+                {% if produit.image %}
+                    <img src="{{ asset('uploads/' ~ produit.image) }}" alt="Image du produit" class="img-fluid rounded mb-3" style="max-width: 200px;">
+                {% endif %}
+                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <!-- Catégorie -->
+            <div class="mb-3">
+                <label for="{{ form.categorie.vars.id }}" class="form-label">Catégorie</label>
+                {{ form_widget(form.categorie, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <!-- Sous-Catégorie -->
+            <div class="mb-3">
+                <label for="{{ form.sousCategorie.vars.id }}" class="form-label">Sous-Catégorie</label>
+                {{ form_widget(form.sousCategorie, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <!-- Stock -->
+            <div class="mb-3">
+                <label for="{{ form.stock.vars.id }}" class="form-label">Stock</label>
+                {{ form_widget(form.stock, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <!-- Boutons -->
+            <div class="d-flex justify-content-between">
+                <a href="{{ path('agriculteur_index') }}" class="btn btn-secondary">⬅ Retour</a>
+                <button type="submit" class="btn btn-success">Enregistrer</button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+<script>
+        // Listen for changes in the category dropdown
+        document.getElementById('produit_categorie').addEventListener('change', function () {
+            const categorieId = this.value;
+            const sousCategorieSelect = document.getElementById('produit_sousCategorie');
+
+            if (categorieId) {
+                // Fetch the subcategories using AJAX
+                fetch(`/produit/get-souscategories/${categorieId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+                        
+                        data.forEach(sousCategorie => {
+                            const option = document.createElement('option');
+                            option.value = sousCategorie.id;
+                            option.textContent = sousCategorie.nom;
+                            sousCategorieSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erreur lors de la récupération des sous-catégories:', error));
+            } else {
+                sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+            }
+        });
+</script>
+{% endblock %}

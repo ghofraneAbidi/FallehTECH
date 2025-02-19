@@ -15,10 +15,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Knp\Component\Pager\PaginatorInterface; 
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
 
 #[Route('/produit')]
 final class ProduitController extends AbstractController
 {
+    private $imagesDirectory;
+
+    public function __construct(ParameterBagInterface $params)
+    {
+        $this->imagesDirectory = $params->get('produit_images_directory'); // ✅ Matches services.yaml
+    }
 
 
    
@@ -70,7 +78,7 @@ public function index(ProduitRepository $produitRepository, PaginatorInterface $
                     // Move file
                     try {
                         $imageFile->move(
-                            $this->getParameter('images_directory'), // Use the correct parameter
+                            $this->getParameter('produit_images_directory'), // Use the correct parameter
                             $newFilename
                         );
                         
@@ -107,48 +115,29 @@ public function index(ProduitRepository $produitRepository, PaginatorInterface $
     }
 
     #[Route('/{id}/edit', name: 'app_produit_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Produit $produit, EntityManagerInterface $em, SluggerInterface $slugger): Response
-{
-    $form = $this->createForm(ProduitType::class, $produit);
-    $form->handleRequest($request);
+    public function edit(Request $request, Produit $produit, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(ProduitType::class, $produit);
+        $form->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        // Gestion de l'image
-        $imageFile = $form->get('imageFile')->getData();
-        if ($imageFile) {
-            $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-            $safeFilename = $slugger->slug($originalFilename);
-            $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('imageFile')->getData();
 
-            try {
-                $imageFile->move(
-                    $this->getParameter('produit_images_directory'),
-                    $newFilename
-                );
-            } catch (FileException $e) {
-                throw new \Exception('Erreur lors du téléchargement de l\'image.');
+            if ($imageFile) {
+                $newFilename = uniqid().'.'.$imageFile->guessExtension();
+                $imageFile->move($this->imagesDirectory, $newFilename);
+                $produit->setImage($newFilename);
             }
 
-            // Supprime l'ancienne image si une nouvelle est ajoutée
-            if ($produit->getImage()) {
-                $oldImagePath = $this->getParameter('produit_images_directory').'/'.$produit->getImage();
-                if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath);
-                }
-            }
-
-            $produit->setImage($newFilename);
+            $entityManager->flush();
+            return $this->redirectToRoute('app_produit_index');
         }
 
-        $em->flush();
-
-        return $this->redirectToRoute('app_produit_index');
-    }
-
-    return $this->render('produit/edit.html.twig', [
-        'form' => $form->createView(),
-        'produit' => $produit,
-    ]);
+        return $this->render('produit/edit.html.twig', [
+            'form' => $form->createView(),
+            'produit' => $produit,
+        ]);
+    
     }
     #[Route('/{id}', name: 'app_produit_delete', methods: ['POST'])]
     public function delete(Request $request, Produit $produit, EntityManagerInterface $entityManager): Response
@@ -281,6 +270,7 @@ public function addToFavorites(Produit $produit, EntityManagerInterface $em): Js
         return new JsonResponse(['error' => 'Une erreur est survenue. Veuillez réessayer.'], 500);
     }
 }
+
 
 
    

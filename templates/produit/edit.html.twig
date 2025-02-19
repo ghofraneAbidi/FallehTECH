@@ -104,6 +104,7 @@
             <label for="{{ form.imageFile.vars.id }}">Image du Produit</label>
             {% if produit.image %}
                 <img src="{{ asset('uploads/' ~ produit.image) }}" alt="Produit Image" style="max-width: 200px; margin-bottom: 10px;">
+                <input type="text" class="form-control" value="{{ produit.image }}" readonly>
             {% endif %}
             {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
             <small id="imageError" class="error-message"></small>
@@ -143,69 +144,61 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // ✅ Re-added the AJAX script for sous-catégories
-            document.getElementById('produit_categorie').addEventListener('change', function () {
-                const categorieId = this.value;
-                const sousCategorieSelect = document.getElementById('produit_sousCategorie');
+            // Fixing subcategory AJAX population
+            const categorieSelect = document.getElementById('produit_categorie');
+            const sousCategorieSelect = document.getElementById('produit_sousCategorie');
 
-                if (categorieId) {
-                    fetch(`/produit/get-souscategories/${categorieId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
-                            data.forEach(sousCategorie => {
-                                const option = document.createElement('option');
-                                option.value = sousCategorie.id;
-                                option.textContent = sousCategorie.nom;
-                                sousCategorieSelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => console.error('Erreur lors de la récupération des sous-catégories:', error));
-                } else {
-                    sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
-                }
-            });
+            if (categorieSelect) {
+                categorieSelect.addEventListener('change', function () {
+                    const categorieId = this.value;
 
-            // ✅ Re-added validation logic
-            const nomInput = document.getElementById("{{ form.nom.vars.id }}");
-            const prixInput = document.getElementById("{{ form.prix.vars.id }}");
-            const descriptionInput = document.getElementById("{{ form.description.vars.id }}");
-            const submitBtn = document.getElementById("submitBtn");
+                    if (categorieId) {
+                        fetch(`/produit/get-souscategories/${categorieId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+                                data.forEach(sousCategorie => {
+                                    const option = document.createElement('option');
+                                    option.value = sousCategorie.id;
+                                    option.textContent = sousCategorie.nom;
+                                    sousCategorieSelect.appendChild(option);
+                                });
+                            })
+                            .catch(error => console.error('Erreur lors de la récupération des sous-catégories:', error));
+                    } else {
+                        sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+                    }
+                });
+            }
 
-            function validateNom() {
-                if (nomInput.value.trim().length < 3) {
-                    document.getElementById("nomError").textContent = "Le nom doit contenir au moins 3 caractères.";
+            // Form validation
+            function validateField(field, minLength, errorMessage) {
+                if (field.value.trim().length < minLength) {
+                    document.getElementById(errorMessage).textContent = `Doit contenir au moins ${minLength} caractères.`;
                     submitBtn.disabled = true;
                 } else {
-                    document.getElementById("nomError").textContent = "";
+                    document.getElementById(errorMessage).textContent = "";
                     submitBtn.disabled = false;
                 }
             }
 
-            function validatePrix() {
-                const prixValue = parseFloat(prixInput.value.trim());
-                if (isNaN(prixValue) || prixValue < 1) {
+            document.getElementById("{{ form.nom.vars.id }}").addEventListener("input", function () {
+                validateField(this, 3, "nomError");
+            });
+
+            document.getElementById("{{ form.description.vars.id }}").addEventListener("input", function () {
+                validateField(this, 10, "descriptionError");
+            });
+
+            document.getElementById("{{ form.prix.vars.id }}").addEventListener("input", function () {
+                if (parseFloat(this.value.trim()) < 1) {
                     document.getElementById("prixError").textContent = "Le prix doit être supérieur à 1 DT.";
                     submitBtn.disabled = true;
                 } else {
                     document.getElementById("prixError").textContent = "";
                     submitBtn.disabled = false;
                 }
-            }
-
-            function validateDescription() {
-                if (descriptionInput.value.trim().length < 10) {
-                    document.getElementById("descriptionError").textContent = "La description doit contenir au moins 10 caractères.";
-                    submitBtn.disabled = true;
-                } else {
-                    document.getElementById("descriptionError").textContent = "";
-                    submitBtn.disabled = false;
-                }
-            }
-
-            nomInput.addEventListener("input", validateNom);
-            prixInput.addEventListener("input", validatePrix);
-            descriptionInput.addEventListener("input", validateDescription);
+            });
         });
     </script>
 {% endblock %}

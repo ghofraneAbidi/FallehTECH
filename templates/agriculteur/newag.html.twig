@@ -1,0 +1,22 @@
+{% extends 'base_agriculteur.html.twig' %}
+
+{% block body %}
+<div class="container">
+    <h2>✏️ Modifier Produit</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label>Nom du Produit</label>
+            <input type="text" name="nom" class="form-control" value="{{ produit.nom }}" required>
+        </div>
+        <div class="mb-3">
+            <label>Prix (DT)</label>
+            <input type="number" name="prix" class="form-control" value="{{ produit.prix }}" required>
+        </div>
+        <div class="mb-3">
+            <label>Description</label>
+            <textarea name="description" class="form-control">{{ produit.description }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-warning">Modifier</button>
+    </form>
+</div>
+{% endblock %}

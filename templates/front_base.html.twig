@@ -45,13 +45,13 @@
             <!-- ❤️ Favorites Button -->
             <a href="{{ path('favoris_list') }}" class="icon-btn position-relative">
                 <i class="fa fa-heart"></i>
-                <span class="icon-badge" id="favorisCount">0</span>
+           
             </a>
 
             <!-- 🛒 Cart Button -->
             <a href="{{ path('cart_view') }}" class="icon-btn position-relative ms-3">
                 <i class="fa fa-shopping-cart"></i>
-                <span class="icon-badge" id="cartCount">0</span>
+                
             </a>
         </div>
     </nav>
@@ -77,65 +77,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            function updateCounters() {
-                // Fetch cart count
-                fetch('/cart/count')
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('cartCount').textContent = data.count || 0;
-                    });
-
-                // Fetch favorites count
-                fetch('/favorites/count')
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('favorisCount').textContent = data.count || 0;
-                    });
-            }
-
-            function showNotification(type) {
-                const notification = type === 'cart' ? document.getElementById('cartNotification') : document.getElementById('favoritesNotification');
-                notification.classList.remove('d-none');
-                setTimeout(() => {
-                    notification.classList.add('d-none');
-                }, 3000);
-            }
-
-            // 🛒 Add to Cart
-            document.querySelectorAll('.add-to-cart').forEach(button => {
-                button.addEventListener('click', function () {
-                    const productId = this.dataset.productId;
-                    fetch(`/cart/add/${productId}`, { method: 'POST' })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                showNotification('cart');
-                                updateCounters();
-                            }
-                        });
-                });
-            });
-
-            // ❤️ Add to Favorites
-            document.querySelectorAll('.heart-icon').forEach(icon => {
-                icon.addEventListener('click', function () {
-                    const productId = this.dataset.productId;
-                    fetch(`/favorites/add/${productId}`, { method: 'POST' })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                showNotification('favorites');
-                                updateCounters();
-                            }
-                        });
-                });
-            });
-
-            updateCounters(); // Load initial counts
-        });
-    </script>
-
+    
 </body>
 </html>
