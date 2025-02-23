@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvest Challenge 🌾</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; background-color: #f5f5dc; }
+        #game-container { margin-top: 20px; display: flex; justify-content: center; flex-wrap: wrap; }
+        .crop { width: 100px; height: 100px; margin: 10px; cursor: pointer; transition: opacity 0.3s; }
+        .hidden { display: none; }
+        .button { background-color: green; color: white; padding: 15px; border: none; cursor: pointer; font-size: 18px; margin-top: 20px; }
+        .button:hover { background-color: darkgreen; }
+        #result { font-size: 22px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<h1>🌾 Harvest Challenge: Win a Discount! 🚜</h1>
+<p>Click on <strong>3 ripe crops</strong> before time runs out! 🕒</p>
+
+<div id="game-container">
+    <img src="https://cdn-icons-png.flaticon.com/512/2909/2909893.png" class="crop" onclick="harvest(this)">
+    <img src="https://cdn-icons-png.flaticon.com/512/2909/2909895.png" class="crop" onclick="harvest(this)">
+    <img src="https://cdn-icons-png.flaticon.com/512/2909/2909885.png" class="crop" onclick="harvest(this)">
+    <img src="https://cdn-icons-png.flaticon.com/512/2909/2909892.png" class="crop" onclick="harvest(this)">
+</div>
+
+<h2 id="result" class="hidden"></h2>
+
+<button class="button hidden" id="play-again" onclick="location.reload()">🔄 Play Again</button>
+
+<script>
+    let cropsHarvested = 0;
+    let timer = setTimeout(() => {
+        document.getElementById("result").innerText = "😢 You ran out of time! Try again!";
+        document.getElementById("result").classList.remove("hidden");
+        document.getElementById("play-again").classList.remove("hidden");
+    }, 10000); // 10 seconds time limit
+
+    function harvest(crop) {
+        crop.style.opacity = "0.5"; // Mark as harvested
+        crop.onclick = null;
+        cropsHarvested++;
+
+        if (cropsHarvested >= 3) {
+            clearTimeout(timer);
+            document.getElementById("result").innerText = "🎉 You won a discount!";
+
+            fetch('/generate-random-discount')
+                .then(response => response.json())
+                .then(data => {
+                    let discountText = document.createElement("h3");
+                    discountText.innerHTML = `📌 Category: <strong>${data.category}</strong> <br> 🎟️ Discount Code: <strong>${data.code}</strong>`;
+                    document.getElementById("result").appendChild(discountText);
+                });
+
+            document.getElementById("play-again").classList.remove("hidden");
+        }
+    }
+</script>
+
+</body>
+</html>

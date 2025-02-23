@@ -11,6 +11,7 @@ use App\Entity\Produit;
 use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Repository\FavorisRepository;
 
 #[Route('/agriculteur')]
 class AgriculteurController extends AbstractController

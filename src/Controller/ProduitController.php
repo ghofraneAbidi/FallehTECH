@@ -248,6 +248,7 @@ public function afficherProduitsParSousCategorie(string $sousCategorie, ProduitR
 
     return $this->render('produit_new/produits.html.twig', [
         'sousCategorie' => $sousCategorieObj,
+        
         'produits' => $produits, // Ensure this is passed to Twig
     ]);
 }
