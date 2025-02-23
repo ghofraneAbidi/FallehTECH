@@ -1,13 +1,15 @@
 <?php
 
 namespace App\Entity;
-
+use App\Entity\Favoris;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -71,6 +73,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'boolean')]
     private bool $active = true;
+    #[ORM\OneToMany(mappedBy: "user", targetEntity: Favoris::class, orphanRemoval: true)]
+    private Collection $favoris;
 
     public function getId(): ?int
     {
@@ -231,6 +235,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString(): string
     {
         return $this->name . ' ' . $this->last_name;
+    }
+    public function __construct() {
+        $this->favoris = new ArrayCollection();
+    }
+    
+    public function getFavoris(): Collection {
+        return $this->favoris;
     }
     
 }

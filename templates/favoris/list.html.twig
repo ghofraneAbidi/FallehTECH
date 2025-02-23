@@ -1,0 +1,206 @@
+{% extends 'front_base.html.twig' %}
+
+
+
+{% block body %}
+<style>
+
+/* 🌿 Palette de couleurs naturelles */
+:root {
+    --primary-green:rgb(206, 222, 202);  /* Vert doux */
+    --light-green: #A8C690;    /* Vert clair */
+    --soft-gray: #F8F8F8;      /* Fond neutre */
+    --text-dark: #2F2F2F;      /* Texte sombre */
+    --border-gray: #DDD;       /* Bordures douces */
+}
+
+/* 🌟 Style des Titres */
+h1, h2 {
+    color: var(--primary-green);
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 15px;
+    text-transform: capitalize;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* 📦 Table Styles */
+.favorites-table {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.favorites-table thead {
+    background-color: var(--primary-green);
+    color: white;
+}
+
+/* 📸 Images */
+.favorites-table img {
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+/* 🛠 Boutons Actions */
+.action-btn {
+    border: none;
+    background: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.action-btn:hover {
+    transform: scale(1.05);
+}
+
+/* 🔙 Bouton Retour */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background-color: var(--primary-green);
+    color: white;
+    font-size: 18px;
+    border-radius: 6px;
+    transition: 0.3s;
+    border: none;
+    text-decoration: none;
+}
+
+.back-button:hover {
+    background-color: white;
+    color: var(--primary-green);
+    border: 1px solid var(--primary-green);
+}
+
+/* ❤️ Titre Favoris */
+.favorites-title {
+    font-size: 26px;
+    font-weight: bold;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.favorites-title i {
+    font-size: 26px;
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+    .favorites-title {
+        font-size: 22px;
+    }
+
+    .back-button {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+}
+</style>
+
+<div class="favorites-header">
+    <!-- 🔙 Nouveau Bouton Retour aligné -->
+    <a href="javascript:history.back()" class="back-button">
+        <i class="fa fa-arrow-left"></i>
+    </a>
+
+    <h1 class="text-primary favorites-title">
+        Wishlist
+    </h1>
+</div>
+
+    {% if favorisList is empty %}
+        <p class="text-center text-muted">Aucun produit en favoris.</p>
+    {% else %}
+        <table class="table table-hover favorites-table">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Nom</th>
+                    <th>Prix (DT)</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for favoris in favorisList %}
+                <tr id="favoris-{{ favoris.produit.id }}">
+                    <td>
+                        <img src="{{ asset('uploads/' ~ favoris.produit.image) }}" alt="{{ favoris.produit.nom }}">
+                    </td>
+                    <td>{{ favoris.produit.nom }}</td>
+                    <td>{{ favoris.produit.prix }}</td>
+                    <td>{{ favoris.produit.stock }}</td>
+                    <td>
+                        <!-- 🛒 Ajouter au panier -->
+                        <button class="action-btn cart-btn addToCart" data-id="{{ favoris.produit.id }}">
+                            <i class="fa fa-shopping-cart"></i>
+                        </button>
+
+                        <!-- 🗑 Supprimer -->
+                        <form action="{{ path('remove_from_favorites', {'id': favoris.produit.id}) }}" method="post" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('remove' ~ favoris.produit.id) }}">
+                            <button type="submit" class="action-btn delete-btn">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+<!-- ✅ Notification -->
+<div id="fav-notification" class="notification"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // ✅ Fonction pour afficher la notification
+    function showNotification(message, color) {
+        let notification = document.getElementById('fav-notification');
+        notification.textContent = message;
+        notification.style.background = color;
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 2000);
+    }
+
+    // 🛒 Ajouter au panier depuis la liste des favoris
+    document.querySelectorAll('.addToCart').forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.dataset.id;
+
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: 1 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('✅ Produit ajouté au panier !', '#4CAF50');
+                } else {
+                    showNotification('⚠️ Erreur : ' + data.message, 'red');
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+        });
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,328 @@
+{% extends 'base_agriculteur.html.twig' %}
+
+{% block body %}
+<div class="container">
+    <h2 class="text-center text-success my-4">
+        <i class="fas fa-seedling"></i> Mes Produits
+    </h2>
+      <!-- ✅ PRODUCT MANAGEMENT BUTTONS -->
+        <div class="d-flex">
+           <!-- ✅ Bouton "+" qui ouvre le formulaire en modal -->
+<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ajoutProduitModal">
+    <i class="fas fa-plus"></i>
+</button>
+
+           
+        </div>
+
+    
+    <!-- Affichage sous forme de Cards -->
+    <div class="row">
+        {% for produit in produits %}
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    {% if produit.image %}
+                        <img src="{{ asset('uploads/' ~ produit.image) }}" class="card-img-top" alt="{{ produit.nom }}">
+                    {% else %}
+                        <img src="{{ asset('img/default-product.jpg') }}" class="card-img-top" alt="Image non disponible">
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ produit.nom }}</h5>
+                        <p class="card-text">{{ produit.description|slice(0, 100) }}...</p>
+                        <p><strong>Prix:</strong> {{ produit.prix }} DT</p>
+                         <!-- 📌 Catégorie et Sous-Catégorie -->
+                        <p><strong>Catégorie:</strong> {{ produit.categorie.nom }}</p>
+                        <p><strong>Sous-Catégorie:</strong> {{ produit.sousCategorie.nom }}</p>
+
+
+                        <!-- Stock -->
+                        <p>
+                            {% if produit.stock == 'En stock' %}
+                                <span class="badge bg-success">En stock</span>
+                            {% else %}
+                                <span class="badge bg-danger">Rupture de stock</span>
+                            {% endif %}
+                        </p>
+
+                        <!-- Favori -->
+                        <p>
+                            {% if produit.isFavorite %}
+                                <i class="fa fa-heart text-danger"></i> Favori
+                            {% else %}
+                                <i class="fa fa-heart text-muted"></i> Non favori
+                            {% endif %}
+                        </p>
+
+                        <!-- Boutons Actions -->
+                        <div class="d-flex justify-content-between">
+                        
+                        <a href="{{ path('agriculteur_produit_edit', {'id': produit.id}) }}" class="btn btn-warning">
+    ✏ Modifier
+</a>
+
+
+<!-- Edit Modal -->
+
+
+
+                            <form action="{{ path('agriculteur_produit_delete', {'id': produit.id}) }}" method="POST">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <p class="text-center text-muted">Aucun produit trouvé.</p>
+            </div>
+        {% endfor %}
+      <!-- ✅ Ajout de la pagination avec un meilleur format -->
+<div class="pagination-wrapper d-flex justify-content-center mt-4">
+    {{ knp_pagination_render(produits) }}
+</div>
+
+    </div>
+</div>
+<!-- ✅ Modal d'ajout de produit -->
+<div class="modal fade" id="ajoutProduitModal" tabindex="-1" aria-labelledby="ajoutProduitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ajoutProduitModalLabel">Ajouter un produit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+                <div>
+                    <label for="{{ form.nom.vars.id }}">Nom du Produit</label>
+                    {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+                </div>
+
+                <div>
+                    <label for="{{ form.prix.vars.id }}">Prix (DT)</label>
+                    {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
+                </div>
+
+                <div>
+                    <label for="{{ form.description.vars.id }}">Description</label>
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                </div>
+
+                <div>
+                    <label for="{{ form.imageFile.vars.id }}">Image du Produit</label>
+                    {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+                </div>
+
+                <div>
+                    <label for="{{ form.categorie.vars.id }}">Catégorie</label>
+                    {{ form_widget(form.categorie, {'attr': {'class': 'form-control', 'id': 'produit_categorie'}}) }}
+                </div>
+
+                <div>
+                    <label for="{{ form.sousCategorie.vars.id }}">Sous-Catégorie</label>
+                    {{ form_widget(form.sousCategorie, {'attr': {'class': 'form-control', 'id': 'produit_sousCategorie'}}) }}
+                </div>
+
+                <div>
+                    <label for="{{ form.stock.vars.id }}">Stock</label>
+                    {{ form_widget(form.stock, {'attr': {'class': 'form-control'}}) }}
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Ajouter</button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ✅ Notification pour succès -->
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg"
+         role="alert" style="z-index: 1050; width: 350px; text-align: center;">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+
+
+<style> /* 🌿 Styles généraux */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f5f2; /* Douce teinte beige pour l'ambiance agricole */
+    color: #3a3a3a;
+}
+
+/* ✅ Centrer le titre et lui donner un style naturel */
+h1 {
+    font-size: 2.5rem;
+    color: #2d6a4f; /* Vert foncé naturel */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* 🥖 Style du fil d'Ariane (breadcrumb) */
+.breadcrumb {
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.breadcrumb-item a {
+    color: #2d6a4f;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+/* 📦 Cartes des catégories */
+.card {
+   margin-bottom: 30px; /* Ajoute un espace en bas de chaque carte */
+    padding: 10px; /* Ajoute un peu d'espace interne */
+     display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 450px; /* Ajuste cette valeur selon tes besoins */
+}
+
+.card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 🖼️ Images des catégories */
+.card img {
+    width: 100%;
+     height: 180px;;
+    object-fit: cover;
+    border-bottom: 4px solid #2d6a4f;
+}
+
+/* 📝 Contenu des cartes */
+.card-body {
+    flex-grow: 1; /* Permet au contenu de s'étendre */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Garde le texte et les boutons bien espacés */
+    min-height: 200px; /* Définit une hauteur minimale pour éviter les variations */
+    padding: 15px; /* Ajoute de l'espace interne */
+}
+
+.card-body h5 {
+    font-size: 1.1rem; /* Taille plus petite pour le titre */
+    margin-bottom: 8px;
+}
+
+.card-body p {
+    font-size: 0.9rem; /* Réduire la taille du texte */
+    margin-bottom: 5px;
+}
+.card-wrapper {
+    display: flex;
+    justify-content: center; /* Centre les cartes */
+    gap: 40px; /* Ajoute un espace horizontal entre les cartes */
+    flex-wrap: wrap; /* Permet aux cartes de s’adapter sur plusieurs lignes */
+}
+
+/* ✅ Réduire la taille des badges (Stock) */
+.badge {
+    font-size: 0.8rem;
+    padding: 5px 8px;
+}
+
+/* ✅ Assurer que les boutons restent alignés en bas */
+.card-body .d-flex {
+    margin-top: auto;
+}
+
+/* ✅ Ajuster la taille des boutons */
+.card-body .btn {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+}
+
+
+.card-body a:hover {
+    color: #17532b;
+    text-decoration: underline;
+}
+
+/* 🖥️ Responsivité */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    .card img {
+        height: 180px;
+    }
+
+    .card-body a {
+        font-size: 1.2rem;
+    }
+    /* ✅ Style du lien pour sous-catégories */
+.sous-categorie-link {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2d6a4f; /* Vert naturel */
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+}
+
+/* ✅ Effet au survol */
+.sous-categorie-link:hover {
+    color: #17532b; /* Vert plus foncé */
+    text-decoration: underline;
+}
+
+}
+</style>
+ <script>
+        // Listen for changes in the category dropdown
+        document.getElementById('produit_categorie').addEventListener('change', function () {
+            const categorieId = this.value;
+            const sousCategorieSelect = document.getElementById('produit_sousCategorie');
+
+            if (categorieId) {
+                // Fetch the subcategories using AJAX
+                fetch(`/produit/get-souscategories/${categorieId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+                        
+                        data.forEach(sousCategorie => {
+                            const option = document.createElement('option');
+                            option.value = sousCategorie.id;
+                            option.textContent = sousCategorie.nom;
+                            sousCategorieSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erreur lors de la récupération des sous-catégories:', error));
+            } else {
+                sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+            }
+        });
+      
+
+   
+
+
+         
+
+
+
+</script>
+
+
+
+{% endblock %}

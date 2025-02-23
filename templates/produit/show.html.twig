@@ -1,0 +1,204 @@
+{% extends 'backoffice/base.html.twig' %}
+
+{% block title %}Détails du Produit{% endblock %}
+
+{% block body %}
+<style>
+/* 🎨 Table & Layout */
+.produit-table-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.produit-table-wrapper {
+    background: var(--light);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto; /* Reduce space */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+.produit-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--light);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px; /* Reduce spacing at bottom */
+}
+
+.produit-table th, 
+.produit-table td {
+     padding: 12px 10px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid var(--grey);
+}
+
+.produit-table th {
+    background: #88a825;
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.produit-table td img.produit-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--grey);
+}
+
+/* 🎨 Action Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 5px; /* Reduce spacing */
+ padding: 8px 12px; /* Adjust button size */
+    font-size: 14px;
+
+}
+
+/* ⬅️ Back Button */
+.btn-back {
+    background-color: #ddd;
+    color: #333;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-back:hover {
+    background-color: #bbb;
+    color: #000;
+}
+
+/* ✏️ Edit Button */
+.btn-edit {
+    background-color: #f1c40f;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-edit:hover {
+    background-color: #d4ac0d;
+    color: #fff;
+}
+
+/* 🗑️ Delete Button */
+.btn-delete {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+    color: #fff;
+}
+
+/* 📱 Mobile Adjustments */
+@media (max-width: 600px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+
+<h1 class="text-center">Détails du Produit</h1>
+
+<section id="produit-details">
+    <div class="produit-table-container">
+        <div class="produit-table-wrapper">
+            <table class="produit-table">
+                <tbody>
+                    <tr>
+                        <th>ID</th>
+                        <td>{{ produit.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nom</th>
+                        <td>{{ produit.nom }}</td>
+                    </tr>
+                    <tr>
+                        <th>Prix</th>
+                        <td>{{ produit.prix }} DT</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ produit.description }}</td>
+                    </tr>
+                    <tr>
+                        <th>Catégorie</th>
+                        <td>{{ produit.categorie.nom }}</td>
+                    </tr>
+                    <tr>
+                        <th>Sous-catégorie</th>
+                        <td>{{ produit.souscategorie.nom }}</td>
+                    </tr>
+                    <tr>
+                        <th>Image</th>
+                        <td>
+                            <img src="{{ asset('uploads/' ~ produit.image) }}" alt="{{ produit.nom }}" class="produit-image">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<div class="produit-actions">
+    <!-- Back Button -->
+    <a href="{{ path('app_produit_index') }}" class="btn btn-back">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <!-- Edit Button -->
+    <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" class="btn btn-edit">
+        <i class="fas fa-edit"></i>
+    </a>
+
+    <!-- Delete Button -->
+    <form action="{{ path('app_produit_delete', {'id': produit.id}) }}" method="post" onsubmit="return confirm('Are you sure?');">
+        <button type="submit" class="btn btn-delete">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </form>
+</div>
+
+
+{% endblock %}

@@ -12,21 +12,25 @@ class SecurityController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        $output->writeln('-------started login checking----------');
-        // Vérifier si l'utilisateur est déjà connecté
+        // Check if the user is already logged in
         if ($this->getUser()) {
-            $output->writeln('Admin user created successfully!');
-            dump($this->getUser()->getRoles()); // Pour voir les rôles
-            dump(in_array('ROLE_ADMIN', $this->getUser()->getRoles())); // Pour vérifier si ROLE_ADMIN est présent
+            $roles = $this->getUser()->getRoles(); // Get user roles
 
-            // Si c'est un admin, redirection vers le backoffice
-            if (in_array('ROLE_ADMIN', $this->getUser()->getRoles())) {
-                return $this->redirectToRoute('app_back_office'); // votre route de backoffice
+            // If the user is an admin, redirect to the back office
+            if (in_array('ROLE_ADMIN', $roles)) {
+                return $this->redirectToRoute('app_back_office'); 
             }
-            // Sinon redirection normale pour les autres utilisateurs
-            return $this->redirectToRoute('app_front_office'); // ou autre route par défaut
+
+            // If the user is an agricultor, redirect to their dashboard
+            if (in_array('ROLE_AGRICULTEUR', $roles)) {
+                return $this->redirectToRoute('agriculteur_index'); 
+            }
+
+            // If the user is a client, redirect to the front office (produits)
+            return $this->redirectToRoute('produits_front'); 
         }
 
+        // Get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
@@ -35,11 +39,4 @@ class SecurityController extends AbstractController
             'error' => $error,
         ]);
     }
-
-    //#[Route('/logout', name: 'app_logout')]
-    //public function logout(): void
-    //{
-        // Cette méthode peut rester vide - elle sera interceptée par la configuration de sécurité
-      //  throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
-    //}
 }
