@@ -95,4 +95,51 @@ public function countCart(SessionInterface $session): JsonResponse
     return new JsonResponse(['count' => count($cart)]);
 }
 
+
+    #[Route('/panier/qrcode', name: 'panier_qrcode')]
+    public function generateQrCode(SessionInterface $session): Response
+    {
+        // Generate a unique URL for the session-based game
+        $uniqueUrl = $this->generateUrl('agriculture_game', [], true);
+
+        $qrCode = Builder::create()
+            ->writer(new PngWriter())
+            ->data($uniqueUrl)
+            ->build();
+
+        return new Response($qrCode->getString(), Response::HTTP_OK, [
+            'Content-Type' => $qrCode->getMimeType(),
+        ]);
+    }
+    #[Route('/agriculture-game', name: 'agriculture_game')]
+public function agricultureGame(SessionInterface $session): Response
+{
+    // Check if the user already won
+    if ($session->get('hasWonDiscount', false)) {
+        return $this->render('game/already_won.html.twig');
+    }
+
+    return $this->render('game/index.html.twig');
+}
+#[Route('/apply-discount', name: 'apply_discount')]
+public function applyDiscount(SessionInterface $session): Response
+{
+    // Check if the user already won
+    if ($session->get('hasWonDiscount', false)) {
+        return $this->json(['success' => false, 'message' => 'Discount already used.']);
+    }
+
+    // Set session variable to prevent multiple uses
+    $session->set('hasWonDiscount', true);
+
+    // Apply 15% discount to the session-based cart
+    $panier = $session->get('panier', []);
+    foreach ($panier as &$item) {
+        $item['price'] = $item['price'] * 0.85; // Apply 15% discount
+    }
+    $session->set('panier', $panier);
+
+    return $this->json(['success' => true, 'message' => 'Discount applied successfully.']);
+}
+
 }

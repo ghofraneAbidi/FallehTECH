@@ -43,6 +43,7 @@
                         <button class="btn btn-danger btn-sm remove-from-cart" data-id="{{ item.id }}">
                             <i class="fa fa-trash"></i> <!-- 🗑 Trash Icon -->
                         </button>
+
                     </td>
                 </tr>
                 {% endfor %}
@@ -59,6 +60,13 @@
         <button class="btn btn-success" id="checkoutBtn">
             <i class="fa fa-check"></i> Commander ✅
         </button>
+       <img src="{{ asset('qr_codes/game_qr.png') }}" alt="Scan to Play">
+
+{% if app.session.get('hasWonDiscount') %}
+    <p style="color: green;">🎉 15% Discount Applied! 🎉</p>
+{% endif %}
+
+
     {% endif %}
 </section>
 
