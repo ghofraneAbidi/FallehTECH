@@ -674,6 +674,10 @@ public function confirmCompletion(
     ]);
     
 }
+
+
+
+    
 #[Route('/ouvrier/accepted-offers', name: 'app_worker_accepted_offers')]
 public function acceptedOffers(EntityManagerInterface $entityManager, SessionInterface $session, Request $request): Response
 {

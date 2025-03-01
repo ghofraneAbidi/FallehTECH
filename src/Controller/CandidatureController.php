@@ -19,7 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\UtilisateurRepository;
 
 #[Route('/candidature')]
 final class CandidatureController extends AbstractController
@@ -180,6 +181,45 @@ final class CandidatureController extends AbstractController
     }
     
 
-
-
+    #[Route('/worker/profile/{id}', name: 'worker_profile', methods: ['GET'])]
+    public function getWorkerProfile(int $id, CandidatureRepository $candidatureRepository, UtilisateurRepository $workerRepository): JsonResponse
+    {
+        // ✅ Ensure we are fetching a worker using the repository
+        $worker = $workerRepository->find($id);
+        if (!$worker) {
+            return new JsonResponse(['error' => 'Worker not found'], 404);
+        }
+    
+        // ✅ Fetch all applications for the worker
+        try {
+            $applications = $candidatureRepository->findBy(['idTravailleur' => $id]);
+    
+            $totalApplications = count($applications);
+            $accepted = count(array_filter($applications, fn($app) => $app->getStatut()->value === 'acceptee'));
+            $rejected = count(array_filter($applications, fn($app) => $app->getStatut()->value === 'refusee'));
+            $pending = count(array_filter($applications, fn($app) => $app->getStatut()->value === 'en_attente'));
+            
+            // ✅ Calculate average rating safely
+            $ratings = array_map(fn($app) => $app->getRating(), $applications);
+            $validRatings = array_filter($ratings, fn($rating) => $rating !== null);
+            $averageRating = !empty($validRatings) ? array_sum($validRatings) / count($validRatings) : 'N/A';
+    
+            return new JsonResponse([
+                'total' => isset($totalApplications) ? $totalApplications : 0,
+                'accepted' => isset($accepted) ? $accepted : 0,
+                'rejected' => isset($rejected) ? $rejected : 0,
+                'pending' => isset($pending) ? $pending : 0,
+                'rating' => isset($averageRating) ? $averageRating : 'N/A',
+               
+               
+                'email' => $worker->getEmail() ?: null,
+               
+                
+            ]);
+            
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Server error: ' . $e->getMessage()], 500);
+        }
+    }
+    
 }

@@ -29,13 +29,11 @@
                         {% elseif candidature.statut.value == 'refusee' %} class="bg-rejected"
                         {% endif %}
                     >
-                        <td>
-                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#workerDetailsModal{{ candidature.id }}">
-                                {{ candidature.getIdTravailleur().nom }}
-                            </a>
-                       <input type="hidden" value="{{ candidature.getIdTravailleur().nom|default('') }}" class="data-worker-name">
-
-
+                  <td>
+    <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#workerProfileModal{{ candidature.getIdTravailleur().id }}">
+        {{ candidature.getIdTravailleur().nom }}
+    </a>
+</td>
 
                         </td>
                         <td>{{ candidature.getIdOffre().titre }}</td>
@@ -159,6 +157,51 @@
         </div>
     </div>
 </div>
+   <!-- MODAL: Worker Profile -->
+            <div class="modal fade" id="workerProfileModal{{ candidature.getIdTravailleur().id }}" tabindex="-1" aria-labelledby="workerProfileLabel{{ candidature.getIdTravailleur().id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    Worker Profile - {{ candidature.getIdTravailleur().nom }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Worker Image -->
+                    <div class="col-md-4 text-center">
+                        <img src="{{asset('img/user.jpg') }}" 
+                             class="rounded-circle img-fluid border" 
+                             style="width: 150px; height: 150px; object-fit: cover;" 
+                             alt="Worker Image">
+                        <p class="mt-2 fw-bold">{{ candidature.getIdTravailleur().nom }}</p>
+                    </div>
+
+                    <!-- Worker Details -->
+                    <div class="col-md-8">
+                        <p><strong>Phone:</strong> 9589432</p>
+                        <p><strong>Email:</strong> {{ candidature.getIdTravailleur().email ?: 'Not Available' }}</p>
+                        <p><strong>Experience:</strong> 10 years farming</p>
+                       
+                        <hr>
+
+                        <h6 class="text-primary"><i class="fas fa-chart-line"></i> Performance Overview</h6>
+                        <p><strong>Total Applications:</strong> <span id="totalApplications{{ candidature.getIdTravailleur().id }}"></span></p>
+                        <p><strong>Accepted:</strong> <span id="acceptedApplications{{ candidature.getIdTravailleur().id }}"></span></p>
+                        <p><strong>Rejected:</strong> <span id="rejectedApplications{{ candidature.getIdTravailleur().id }}"></span></p>
+                        <p><strong>Pending:</strong> <span id="pendingApplications{{ candidature.getIdTravailleur().id }}"></span></p>
+                        <p><strong>Average Rating:</strong> <span id="workerRating{{ candidature.getIdTravailleur().id }}"></span> ★</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
                 {% endfor %}
             </tbody>
         </table>
@@ -184,6 +227,11 @@
 
     </div>
 </div>
+
+
+
+
+
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -404,6 +452,48 @@ function markMessagesAsRead(workerId) {
 
 </script>
 
+ <script>
+   document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-bs-target^='#workerProfileModal']").forEach(link => {
+        link.addEventListener("click", function () {
+            let workerId = this.getAttribute("data-bs-target").replace("#workerProfileModal", "");
+
+            fetch(`/candidature/worker/profile/${workerId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("✅ Worker Profile Data:", data); // ✅ Log API Response
+
+                    if (data.error) {
+                        console.error("❌ API Error:", data.error);
+                        return;
+                    }
+
+                    // ✅ Check if elements exist before updating UI
+                    let totalApps = document.getElementById(`totalApplications${workerId}`);
+                    let acceptedApps = document.getElementById(`acceptedApplications${workerId}`);
+                    let rejectedApps = document.getElementById(`rejectedApplications${workerId}`);
+                    let pendingApps = document.getElementById(`pendingApplications${workerId}`);
+                    let rating = document.getElementById(`workerRating${workerId}`);
+
+                    if (totalApps) totalApps.textContent = data.total;
+                    if (acceptedApps) acceptedApps.textContent = data.accepted;
+                    if (rejectedApps) rejectedApps.textContent = data.rejected;
+                    if (pendingApps) pendingApps.textContent = data.pending;
+                    if (rating) rating.textContent = data.rating;
+                })
+                .catch(error => {
+                    console.error("❌ Error fetching worker profile:", error);
+                });
+        });
+    });
+});
+
+    </script>
 
 
     <style>
