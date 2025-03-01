@@ -80,12 +80,9 @@ class Produit
     #[ORM\Column(type: 'boolean')]
     private bool $isFavorite = false;
 
-    #[ORM\Column(type: 'string', length: 100)]
-    #[Assert\Choice(
-        choices: ['En stock', 'Rupture de stock'],
-        message: "Le stock doit être 'En stock' ou 'Rupture de stock'."
-    )]
-    private ?string $stock = null;
+    #[ORM\Column(type: 'integer')]
+    private ?int $stock = null; // 📌 Nouveau champ pour la quantité en stock
+
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
@@ -118,8 +115,16 @@ class Produit
         }
     }
 
-    public function getStock(): ?string { return $this->stock; }
-    public function setStock(string $stock): self { $this->stock = $stock; return $this; }
+    public function getStock(): ?int
+    {
+        return $this->stock;
+    }
+
+    public function setStock(int $stock): self
+    {
+        $this->stock = $stock;
+        return $this;
+    }
 
     public function getIsFavorite(): bool { return $this->isFavorite; }
     public function setIsFavorite(bool $isFavorite): self { $this->isFavorite = $isFavorite; return $this; }

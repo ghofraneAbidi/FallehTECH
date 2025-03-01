@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\QrCodeGenerator;
 use App\Repository\ProduitRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -10,17 +11,42 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
+
 #[Route('/cart')]
 class CartController extends AbstractController
 {
-    // 🛒 View Cart (Renders the cart page)
+    //  View Cart (Renders the cart page)
     #[Route('/', name: 'cart_view', methods: ['GET'])]
-    public function viewCart(SessionInterface $session): Response
-    {
-        return $this->render('cart.html.twig', [
-            'cart' => $session->get('cart', [])
-        ]);
+public function viewCart(SessionInterface $session, QrCodeGenerator $qrCodeGenerator): Response
+{
+    $cart = $session->get('cart', []);
+    $discountApplied = $session->get('discount_applied', false);
+    $totalPrice = 0;
+
+    foreach ($cart as &$item) {
+        if ($discountApplied && !isset($item['discount_applied'])) {
+            $item['price'] = round($item['price'] * 0.85, 2); // Apply discount
+            $item['discount_applied'] = true;
+        }
+        $totalPrice += $item['price'] * $item['quantity'];
     }
+
+    // ✅ Ensure the cart updates correctly in session
+    if ($discountApplied) {
+        $session->set('cart', $cart);
+    }
+
+    // Generate QR code
+    $qrCode = $qrCodeGenerator->generateDiscountQrCode();
+
+    return $this->render('cart.html.twig', [
+        'cart' => $cart,
+        'cartTotal' => number_format($totalPrice, 2), // Format to 2 decimal places
+        'discountApplied' => $discountApplied,
+        'qrCode' => $qrCode,
+    ]);
+}
+
 
     // ➕ Add Product to Cart
     #[Route('/add/{id}', name: 'cart_add', methods: ['POST'])]
@@ -43,7 +69,8 @@ class CartController extends AbstractController
                 'name' => $produit->getNom(),
                 'image' => $produit->getImage(),
                 'price' => $produit->getPrix(),
-                'quantity' => $quantity
+                'quantity' => $quantity,
+                'stock' => $produit->getStock() 
             ];
         }
 
@@ -51,21 +78,8 @@ class CartController extends AbstractController
         return new JsonResponse(['success' => true, 'cart' => $cart]);
     }
 
-    // 🔄 Update Cart Quantity
-    #[Route('/update/{id}', name: 'cart_update', methods: ['POST'])]
-    public function updateCart($id, Request $request, SessionInterface $session): JsonResponse
-    {
-        $cart = $session->get('cart', []);
-        $data = json_decode($request->getContent(), true);
-        $quantity = isset($data['quantity']) ? intval($data['quantity']) : 1;
-
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity'] = max(1, $cart[$id]['quantity'] + $quantity);
-            $session->set('cart', $cart);
-        }
-
-        return new JsonResponse(['success' => true, 'cart' => $cart]);
-    }
+   
+    
 
     // ❌ Remove Product from Cart
     #[Route('/remove/{id}', name: 'cart_remove', methods: ['POST'])]
@@ -82,64 +96,96 @@ class CartController extends AbstractController
     }
 
     // 🗑 Clear Cart
-    #[Route('/clear', name: 'cart_clear', methods: ['POST'])]
-    public function clearCart(SessionInterface $session): JsonResponse
-    {
-        $session->set('cart', []);
-        return new JsonResponse(['success' => true]);
-    }
-    #[Route('/cart/count', name: 'cart_count', methods: ['GET'])]
-public function countCart(SessionInterface $session): JsonResponse
+    #[Route('/cart/checkout', name: 'cart_checkout', methods: ['POST'])]
+public function checkout(SessionInterface $session, EntityManagerInterface $entityManager, ProduitRepository $produitRepository): JsonResponse
 {
     $cart = $session->get('cart', []);
-    return new JsonResponse(['count' => count($cart)]);
+
+    if (empty($cart)) {
+        return new JsonResponse(['success' => false, 'message' => 'Le panier est vide.']);
+    }
+
+    foreach ($cart as $id => $item) {
+        $produit = $produitRepository->find($id);
+        if (!$produit) continue;
+
+        // Vérifier si le stock est suffisant
+        if ($produit->getStock() < $item['quantity']) {
+            return new JsonResponse(['success' => false, 'message' => "Stock insuffisant pour " . $produit->getNom()]);
+        }
+
+        // Mise à jour du stock
+        $produit->setStock($produit->getStock() - $item['quantity']);
+        $entityManager->persist($produit);
+    }
+
+    $entityManager->flush();
+    $session->set('cart', []); // ✅ Vide le panier après la commande
+    $session->remove('discount_applied'); // ✅ Réinitialise la réduction
+
+    return new JsonResponse(['success' => true]);
 }
 
 
-    #[Route('/panier/qrcode', name: 'panier_qrcode')]
-    public function generateQrCode(SessionInterface $session): Response
+    private function sendStockAlert($produit, MailerInterface $mailer)
     {
-        // Generate a unique URL for the session-based game
-        $uniqueUrl = $this->generateUrl('agriculture_game', [], true);
+        $email = (new Email())
+            ->from('sarafaleh76@gmail.com')
+            ->to('sarah.faleh@esprit.tn')
+            ->subject('⚠️ Stock Faible : ' . $produit->getNom())
+            ->html("<p>Attention ! Le produit <strong>{$produit->getNom()}</strong> n'a plus que 3 unités en stock.</p>");
 
-        $qrCode = Builder::create()
-            ->writer(new PngWriter())
-            ->data($uniqueUrl)
-            ->build();
-
-        return new Response($qrCode->getString(), Response::HTTP_OK, [
-            'Content-Type' => $qrCode->getMimeType(),
-        ]);
+        $mailer->send($email);
     }
-    #[Route('/agriculture-game', name: 'agriculture_game')]
-public function agricultureGame(SessionInterface $session): Response
+
+    #[Route('/cart/count', name: 'cart_count', methods: ['GET'])]
+    public function countCart(SessionInterface $session): JsonResponse
+    {
+        $cart = $session->get('cart', []);
+        return new JsonResponse(['count' => count($cart)]);
+    }
+
+    #[Route('/clear', name: 'cart_clear', methods: ['POST'])]
+public function clearCart(SessionInterface $session): JsonResponse
 {
-    // Check if the user already won
-    if ($session->get('hasWonDiscount', false)) {
-        return $this->render('game/already_won.html.twig');
-    }
-
-    return $this->render('game/index.html.twig');
+    $session->set('cart', []);
+    $session->remove('discount_applied'); // ✅ Réin
+    return new JsonResponse(['success' => true]);
 }
-#[Route('/apply-discount', name: 'apply_discount')]
+#[Route('/play-game', name: 'play_game', methods: ['GET'])]
+public function playGame(): Response
+{
+    return $this->render('game.html.twig'); // This is the game page
+}
+#[Route('/apply-discount', name: 'apply_discount', methods: ['GET'])]
 public function applyDiscount(SessionInterface $session): Response
 {
-    // Check if the user already won
-    if ($session->get('hasWonDiscount', false)) {
-        return $this->json(['success' => false, 'message' => 'Discount already used.']);
+    // ✅ Check if the discount has already been applied
+    if ($session->get('discount_applied')) {
+        return $this->redirectToRoute('cart_view'); // Redirect to cart
     }
 
-    // Set session variable to prevent multiple uses
-    $session->set('hasWonDiscount', true);
-
-    // Apply 15% discount to the session-based cart
-    $panier = $session->get('panier', []);
-    foreach ($panier as &$item) {
-        $item['price'] = $item['price'] * 0.85; // Apply 15% discount
+    // ✅ Retrieve cart from session
+    $cart = $session->get('cart', []);
+    if (empty($cart)) {
+        return $this->redirectToRoute('cart_view'); // If cart is empty, go back to cart
     }
-    $session->set('panier', $panier);
 
-    return $this->json(['success' => true, 'message' => 'Discount applied successfully.']);
+    // ✅ Apply 15% discount to each product
+    foreach ($cart as &$item) {
+        if (!isset($item['discount_applied'])) {
+            $item['price'] = round($item['price'] * 0.85, 2);
+            $item['discount_applied'] = true;
+        }
+    }
+
+    // ✅ Update session
+    $session->set('cart', $cart);
+    $session->set('discount_applied', true);
+
+    // ✅ Redirect to cart
+    return $this->redirectToRoute('cart_view');
 }
+
 
 }
