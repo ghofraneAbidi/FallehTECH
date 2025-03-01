@@ -58,17 +58,22 @@ class FavorisController extends AbstractController
     #[Route('/favoris/list', name: 'favoris_list')]
     public function showFavoris(FavorisRepository $favorisRepo): Response
     {
-        // Static userId for simplicity
-        $userId = 1;
-
-        // Fetch favoris for the static user
+        $userId = 1; // Example static user ID
+    
+        // Get user's favorite products
         $favorisList = $favorisRepo->findFavoritesByUser($userId);
-
-        // Render the view and pass the favoris list to Twig
+    
+        // Get suggested products based on categories
+        $suggestedProducts = $favorisRepo->findSuggestedProducts($userId);
+    
         return $this->render('favoris/list.html.twig', [
             'favorisList' => $favorisList,
+            'suggestedProducts' => $suggestedProducts,
         ]);
     }
+    
+
+
 
     #[Route('/remove/{id}', name: 'remove_from_favorites', methods: ['POST'])]
     public function removeFromFavorites(int $id, EntityManagerInterface $em, Request $request): Response

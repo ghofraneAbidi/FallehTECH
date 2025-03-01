@@ -4,8 +4,7 @@
 
 {% block body %}
 <style>
-
-/* 🌿 Palette de couleurs naturelles */
+/* 🌿 Styles généraux */
 :root {
     --primary-green:rgb(206, 222, 202);  /* Vert doux */
     --light-green: #A8C690;    /* Vert clair */
@@ -14,17 +13,38 @@
     --border-gray: #DDD;       /* Bordures douces */
 }
 
-/* 🌟 Style des Titres */
-h1, h2 {
-    color: var(--primary-green);
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 15px;
-    text-transform: capitalize;
+body {
     font-family: 'Poppins', sans-serif;
+    background-color: #f5f5f2; /* Douce teinte beige pour l'ambiance agricole */
+    color: #3a3a3a;
 }
 
-/* 📦 Table Styles */
+/* ✅ Centrer le titre */
+h1 {
+    font-size: 2.5rem;
+    color: #2d6a4f; /* Vert foncé naturel */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* 🥖 Style du fil d'Ariane (breadcrumb) */
+.breadcrumb {
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.breadcrumb-item a {
+    color: #2d6a4f;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+/* 📦 Table Styles (Favorites) */
 .favorites-table {
     background-color: white;
     border-radius: 8px;
@@ -37,7 +57,7 @@ h1, h2 {
     color: white;
 }
 
-/* 📸 Images */
+/* 📸 Images (Favorites Table) */
 .favorites-table img {
     width: 60px;
     height: 60px;
@@ -80,34 +100,124 @@ h1, h2 {
     border: 1px solid var(--primary-green);
 }
 
-/* ❤️ Titre Favoris */
-.favorites-title {
-    font-size: 26px;
-    font-weight: bold;
-    color: var(--text-dark);
+/* 📦 Conteneur des suggestions */
+.card-wrapper {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    justify-content: center; /* Centre les cartes */
+    gap: 40px; /* Ajoute un espace horizontal entre les cartes */
+    flex-wrap: wrap; /* Permet aux cartes de s’adapter sur plusieurs lignes */
 }
 
-.favorites-title i {
-    font-size: 26px;
+/* ✅ Cartes des suggestions (Même style que les autres produits) */
+.card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 280px; /* Largeur uniforme */
+    height: 420px; /* Hauteur uniforme */
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    transition: transform 0.3s ease-in-out;
 }
 
-/* 📱 Responsive */
+/* ✅ Effet hover */
+.card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 🖼️ Images uniformes */
+.card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-bottom: 4px solid #2d6a4f;
+}
+
+/* 📝 Contenu des cartes */
+.card-body {
+    flex-grow: 1; /* Permet au contenu de s'étendre */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Garde le texte et les boutons bien espacés */
+    padding: 15px;
+}
+
+/* ✅ Titre et texte */
+.card-body h5 {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #2d6a4f;
+}
+
+.card-body p {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: #3a3a3a;
+}
+
+/* ✅ Assurer que les boutons restent alignés en bas */
+.card-body .d-flex {
+    margin-top: auto;
+}
+
+/* ✅ Boutons */
+.card-body .btn {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+/* ✅ Bouton Favoris */
+.card-body .add-favorite-btn {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.card-body .add-favorite-btn:hover {
+    background-color: #b02a37;
+}
+
+/* 📱 Responsivité */
 @media (max-width: 768px) {
-    .favorites-title {
-        font-size: 22px;
+    h1 {
+        font-size: 2rem;
     }
 
-    .back-button {
-        width: 38px;
-        height: 38px;
-        font-size: 16px;
+    .card {
+        width: 90%;
+        height: auto;
     }
+
+    .card img {
+        height: 130px; /* Plus petit sur mobile */
+    }
+
+    .card-body a {
+        font-size: 1.2rem;
+    }
+}
+
+/* ✅ Style du lien pour sous-catégories */
+.sous-categorie-link {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2d6a4f; /* Vert naturel */
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+}
+
+/* ✅ Effet au survol */
+.sous-categorie-link:hover {
+    color: #17532b; /* Vert plus foncé */
+    text-decoration: underline;
 }
 </style>
-
 <div class="favorites-header">
     <!-- 🔙 Nouveau Bouton Retour aligné -->
     <a href="javascript:history.back()" class="back-button">
@@ -164,6 +274,30 @@ h1, h2 {
 
 <!-- ✅ Notification -->
 <div id="fav-notification" class="notification"></div>
+<h1 class="text-center">Suggestions basées sur vos favoris</h1>
+
+{% if suggestedProducts is empty %}
+    <p class="text-center text-muted">Aucune suggestion pour le moment.</p>
+{% else %}
+    <div class="card-wrapper">
+        {% for product in suggestedProducts %}
+            <div class="card">
+                <img src="{{ asset('uploads/' ~ product.image) }}" alt="{{ product.nom }}">
+                
+                <div class="card-body">
+                    <h5>{{ product.nom }}</h5>
+                    <p><strong>Prix:</strong> {{ product.prix }} DT</p>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-sm add-favorite-btn addToFavorites" data-id="{{ product.id }}">
+                            <i class="fa fa-heart"></i> Favoris
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -201,6 +335,64 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    // 🖱 Attacher un événement click sur tous les boutons "Ajouter aux favoris"
+    document.querySelectorAll('.addToFavorites').forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.dataset.id;
+
+            fetch(`/favoris/add/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('✅ Produit ajouté aux favoris !', '#4CAF50');
+
+                    // 🔄 Rafraîchir la page après 1 seconde
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showNotification('⚠️ Erreur : ' + data.message, 'red');
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+        });
+    });
+
+    // ✅ Fonction pour afficher une notification utilisateur
+    function showNotification(message, color) {
+    let notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.style.background = color;
+    notification.style.color = 'white';
+    notification.style.padding = '15px 20px';
+    notification.style.position = 'fixed';
+    notification.style.top = '50%'; // Centre verticalement
+    notification.style.left = '50%'; // Centre horizontalement
+    notification.style.transform = 'translate(-50%, -50%)'; // Ajuste pour un centrage parfait
+    notification.style.borderRadius = '8px';
+    notification.style.boxShadow = '0px 4px 10px rgba(0,0,0,0.1)';
+    notification.style.fontSize = '16px';
+    notification.style.fontWeight = 'bold';
+    notification.style.textAlign = 'center';
+    notification.style.zIndex = '1000';
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 1000); // Disparaît après 1 seconde
+}
+
+});
+
+
 </script>
 
 {% endblock %}
