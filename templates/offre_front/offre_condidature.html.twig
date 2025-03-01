@@ -1,0 +1,480 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Applications for My Job Offers{% endblock %}
+
+{% block body %}
+    <h1 class="text-center my-4">Workers Who Applied to My Job Offers</h1>
+
+    {% if applications is empty %}
+        <div class="alert alert-warning text-center">No workers have applied to your job offers yet.</div>
+    {% else %}
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Worker Name</th>
+                    <th>Job Title</th>
+                    <th>Location</th>
+                    <th>Application Date</th>
+                    <th>Status</th>
+                    <th>Chat</th>
+                    <th>Actions</th>
+                     
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidature in applications %}
+                    <tr 
+                        {% if candidature.statut.value == 'acceptee' %} class="bg-accepted"
+                        {% elseif candidature.statut.value == 'terminee' %} class="bg-completed"
+                        {% elseif candidature.statut.value == 'refusee' %} class="bg-rejected"
+                        {% endif %}
+                    >
+                        <td>
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#workerDetailsModal{{ candidature.id }}">
+                                {{ candidature.getIdTravailleur().nom }}
+                            </a>
+                       <input type="hidden" value="{{ candidature.getIdTravailleur().nom|default('') }}" class="data-worker-name">
+
+
+
+                        </td>
+                        <td>{{ candidature.getIdOffre().titre }}</td>
+                        <td>{{ candidature.getIdOffre().lieu }}</td>
+                        <td>{{ candidature.dateApplied|date("Y-m-d H:i") }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if candidature.statut == constant('App\\Enum\\StatutCandidature::EN_ATTENTE') %} bg-warning text-dark 
+                                {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::ACCEPTEE') %} bg-success 
+                                {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::TERMINEE') %} bg-primary 
+                                {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::CONFIRMEE') %} bg-info 
+                                {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::REFUSEE') %} bg-danger 
+                                {% else %} bg-secondary {% endif %}">{{ candidature.statut.label() }}</span>
+                        </td>
+    <td>
+   <td>
+    <button class="btn btn-secondary btn-sm chat-toggle" 
+        data-worker-id="{{ candidature.getIdTravailleur().id }}" 
+        data-worker-name="{{ candidature.getIdTravailleur().nom }}"
+        {% if impersonated_user %} 
+            data-user-id="{{ impersonated_user.id }}" 
+        {% else %} 
+            data-user-id="{{ app.user.id }}" 
+        {% endif %}>
+    <i class="fas fa-comment-dots"></i> Chat
+    </button>
+</td>
+
+
+                        </td>
+                        <td>
+                            {% if candidature.statut == constant('App\\Enum\\StatutCandidature::EN_ATTENTE') %}
+                                <div class="d-flex gap-2">
+                                    <!-- Accept Application -->
+                                    <button class="btn btn-success btn-sm accept-button" data-candidature-id="{{ candidature.id }}">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+
+                                    <!-- Reject Application -->
+                                    <button class="btn btn-danger btn-sm reject-button" data-candidature-id="{{ candidature.id }}">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </div>
+                            {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::TERMINEE') %}
+                                <!-- Show Popup for Completed Work -->
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#workerDetailsModal{{ candidature.id }}">
+                                    <i class="fas fa-info-circle"></i> View Details
+                                </button>
+                            {% endif %}
+                        </td>
+                        
+                    </tr>
+
+                    <!-- MODAL: Worker Details & Confirmation -->
+                    <div class="modal fade" id="workerDetailsModal{{ candidature.id }}" tabindex="-1" aria-labelledby="workerDetailsLabel{{ candidature.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="workerDetailsLabel{{ candidature.id }}">
+                                        Worker Details - {{ candidature.getIdTravailleur().nom }}
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Job Title:</strong> {{ candidature.getIdOffre().titre }}</p>
+                                    <p><strong>Location:</strong> {{ candidature.getIdOffre().lieu }}</p>
+                                    <p><strong>Application Date:</strong> {{ candidature.dateApplied|date("Y-m-d H:i") }}</p>
+                                    <p><strong>Current Status:</strong> {{ candidature.statut.label() }}</p>
+                                    <hr>
+                                    <h6>Worker Completion Details</h6>
+                                    <p>{{ candidature.rating ?: 'No additional details provided by the worker.' }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <!-- Confirm Completion & Open Review Modal -->
+                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#reviewModal{{ candidature.id }}">
+                                        <i class="fas fa-check-circle"></i> Confirm Completion & Review
+                                    </button>
+
+                                    <!-- Send Feedback Request -->
+                                    <a href="" class="btn btn-warning">
+                                        <i class="fas fa-envelope"></i> Request Feedback
+                                    </a>
+
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+<div class="modal fade" id="reviewModal{{ candidature.id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ candidature.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel{{ candidature.id }}">Review Worker Performance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ path('app_confirm_completion', {'id': candidature.id}) }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('confirm' ~ candidature.id) }}">
+
+                    <!-- Star Rating -->
+                    <label>Rate the Worker:</label>
+                    <div class="rating">
+                        {% for i in 5..1 %}
+                            <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}_{{ candidature.id }}">
+                            <label for="star{{ i }}_{{ candidature.id }}">★</label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Feedback Comment -->
+                    <label for="comment">Feedback:</label>
+                    <textarea name="comment" class="form-control" rows="3"></textarea>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-circle"></i> Confirm & Submit Review
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="mb-3">
+            <button onclick="window.history.back();" class="btn btn-secondary">
+                Back to Previous Page
+            </button>
+        </div>
+    {% endif %}
+ <!-- Floating Chat Box Container -->
+      <!-- Floating Chat Box -->
+   <div id="floating-chat-container" class="floating-chat-container" style="display: none;">
+    <div class="chat-header">
+        <span id="chat-user-name">Chat</span>
+        <button id="close-chat" class="btn-close"></button>
+    </div>
+    <div class="chat-body">
+        <div id="chat-messages" class="chat-messages"></div>
+        <textarea id="chat-input" class="form-control" placeholder="Type your message..." disabled></textarea>
+        <button id="send-chat" class="btn btn-primary btn-sm mt-2" disabled>Send</button>
+      <button id="view-all-messages" class="btn btn-secondary btn-sm mt-2">View All Messages</button>
+
+    </div>
+</div>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    let viewAllMessagesBtn = document.getElementById("view-all-messages");
+    
+    if (viewAllMessagesBtn) {
+        viewAllMessagesBtn.addEventListener("click", function () {
+            console.log("View All Messages button clicked!"); // Debugging line
+            window.location.href = "/messenger"; // Ensure this URL is correct
+        });
+    } else {
+        console.error("Error: View All Messages button not found.");
+    }
+});
+
+
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Handle Accept & Reject AJAX Requests
+        document.querySelectorAll(".accept-button, .reject-button").forEach(button => {
+            button.addEventListener("click", function (e) {
+                e.preventDefault();
+
+                let candidatureId = this.getAttribute("data-candidature-id");
+                let action = this.classList.contains("accept-button") ? "accept" : "reject";
+                let actionUrl = action === "accept" 
+                    ? `/offre/emploi/farmer/application/accept/${candidatureId}`
+                    : `/offre/emploi/farmer/application/reject/${candidatureId}`;
+
+              fetch(actionUrl, {
+    method: "POST",
+    headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({})
+})
+.then(response => {
+    if (!response.ok) {
+        if (response.status === 404) {
+            throw new Error("Error 404: Route not found. Please check Symfony routes.");
+        }
+        if (response.status === 500) {
+            throw new Error("Error 500: Server error. Check Symfony logs.");
+        }
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json(); // Ensure the response is valid JSON
+})
+.then(data => {
+    if (data.status === "success") {
+        Swal.fire({
+            icon: "success",
+            title: action === "accept" ? "Application Accepted" : "Application Rejected",
+            text: data.message || "The action was successfully executed.",
+        }).then(() => {
+            location.reload(); // Reload page to update UI
+        });
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Action Failed",
+            text: data.message || "Something went wrong. Please try again.",
+        });
+    }
+})
+.catch(error => {
+    console.error("Error:", error);
+    Swal.fire({
+        icon: "error",
+        title: "An Error Occurred",
+        text: error.message || "Something went wrong. Please try again later.",
+    });
+});
+
+            });
+        });
+    });
+    </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let activeChats = {}; // Store active chat windows
+   let senderId = {{ (impersonated_user ? impersonated_user.id : app.user.id)|json_encode|raw }};
+// Get impersonated user ID or fallback to logged-in user
+
+    document.querySelectorAll(".chat-toggle").forEach(button => {
+        button.addEventListener("click", function () {
+            let workerId = this.getAttribute("data-worker-id");
+            let workerName = this.getAttribute("data-worker-name");
+
+            // Check if chat window already exists
+            if (!activeChats[workerId]) {
+                createChatWindow(workerId, workerName);
+            }
+        });
+    });
+
+    function createChatWindow(workerId, workerName) {
+        let chatContainer = document.createElement("div");
+        chatContainer.classList.add("floating-chat-container");
+        chatContainer.setAttribute("id", `chat-container-${workerId}`);
+        chatContainer.innerHTML = `
+            <div class="chat-header">
+                <span>Chat with ${workerName}</span>
+                <button class="btn-close close-chat" data-worker-id="${workerId}"></button>
+            </div>
+            <div class="chat-body">
+                <div class="chat-messages" id="chat-messages-${workerId}"></div>
+                <textarea class="form-control chat-input" id="chat-input-${workerId}" placeholder="Type your message..."></textarea>
+                <button class="btn btn-primary btn-sm mt-2 send-chat" data-worker-id="${workerId}">Send</button>
+            </div>
+        `;
+
+        document.body.appendChild(chatContainer);
+        activeChats[workerId] = chatContainer;
+
+        updateChatPositions();
+        fetchMessages(workerId);
+
+        chatContainer.querySelector(".close-chat").addEventListener("click", function () {
+            let id = this.getAttribute("data-worker-id");
+            document.body.removeChild(activeChats[id]);
+            delete activeChats[id];
+            updateChatPositions();
+        });
+
+        chatContainer.querySelector(".send-chat").addEventListener("click", function () {
+            sendMessage(workerId);
+        });
+
+        startAutoRefresh(workerId);
+    }
+
+    function fetchMessages(workerId) {
+    let chatMessages = document.getElementById(`chat-messages-${workerId}`);
+    if (!chatMessages) return;
+
+    fetch(`/messaging/conversation/${workerId}`)
+        .then(response => response.json())
+        .then(messages => {
+            chatMessages.innerHTML = "";
+
+            if (messages.length === 0) {
+                chatMessages.innerHTML = "<p>No messages yet.</p>";
+                return;
+            }
+
+            messages.forEach(msg => {
+                let msgDiv = document.createElement("div");
+                msgDiv.classList.add("message", msg.sender.id == senderId ? "sent" : "received");
+                
+                // ✅ Add read/delivered status
+                let statusIcon = "";
+                if (msg.sender.id == senderId) {
+                    statusIcon = msg.is_read === 1 ? "✔✔" : "✔"; // Double-check for read, single for sent
+                }
+
+                msgDiv.innerHTML = `<p><strong>${msg.sender.name}:</strong> ${msg.content}</p>
+                                    <small>${msg.created_at} ${statusIcon}</small>`;
+
+                chatMessages.appendChild(msgDiv);
+            });
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        })
+        .catch(error => console.error("Error loading messages:", error));
+}
+
+    function sendMessage(workerId) {
+        let chatInput = document.getElementById(`chat-input-${workerId}`);
+        if (!chatInput || chatInput.value.trim() === "") return;
+
+        fetch('/messaging/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sender_id: senderId, recipient_id: workerId, content: chatInput.value.trim() })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                fetchMessages(workerId);
+                chatInput.value = "";
+            } else {
+                alert("Error sending message.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function updateChatPositions() {
+        let chatWindows = document.querySelectorAll(".floating-chat-container");
+        chatWindows.forEach((chat, index) => {
+            chat.style.right = `${20 + (index * 420)}px`;
+        });
+    }
+
+    function startAutoRefresh(workerId) {
+        setInterval(() => {
+            if (activeChats[workerId]) {
+                fetchMessages(workerId);
+            }
+        }, 5000);
+    }
+});
+function markMessagesAsRead(workerId) {
+    fetch(`/messaging/conversation/${workerId}/read`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    }).then(() => {
+        console.log("Messages marked as read");
+    });
+}
+
+</script>
+
+
+
+    <style>
+     .floating-chat-container {
+    position: fixed;
+    bottom: 20px;
+    width: 400px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+/* Dynamically position multiple chat windows */
+.floating-chat-container:nth-child(n) {
+    right: calc(20px + (420px * (n - 1)));
+}
+
+.chat-header {
+    background: #34AD54;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.chat-body {
+    padding: 10px;
+}
+
+.chat-messages {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+.message {
+    padding: 8px;
+    border-radius: 10px;
+    max-width: 70%;
+}
+
+.sent {
+    background: #dcf8c6;
+    align-self: flex-end;
+}
+
+.received {
+    background: #e5e5ea;
+}
+#view-all-messages {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#view-all-messages:hover {
+    background: #0056b3;
+}
+
+    </style>
+ 
+{% endblock %}
+
+
+

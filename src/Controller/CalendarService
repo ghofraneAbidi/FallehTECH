@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Service;
+
+use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\OuvrierCalendrier;
+use App\Entity\Utilisateur;
+class CalendarService
+{
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
+    public function isWorkerBusy(Utilisateur $worker, \DateTime $startDate, \DateTime $endDate): bool
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+    
+        $qb->select('COUNT(oc.id)')
+            ->from(OuvrierCalendrier::class, 'oc')
+            ->where('oc.ouvrier = :worker')
+            ->andWhere(':startDate BETWEEN oc.startDate AND oc.endDate')
+            ->orWhere(':endDate BETWEEN oc.startDate AND oc.endDate')
+            ->orWhere('oc.startDate BETWEEN :startDate AND :endDate')
+            ->setParameter('worker', $worker)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
+    
+        $count = $qb->getQuery()->getSingleScalarResult();
+        
+        if ($count > 0) {
+            error_log("DEBUG: Worker {$worker->getId()} is already booked from {$startDate->format('Y-m-d')} to {$endDate->format('Y-m-d')}");
+        } else {
+            error_log("DEBUG: Worker {$worker->getId()} is AVAILABLE from {$startDate->format('Y-m-d')} to {$endDate->format('Y-m-d')}");
+        }
+    
+        return $count > 0; // If count > 0, worker is booked.
+    }
+    
+
+}

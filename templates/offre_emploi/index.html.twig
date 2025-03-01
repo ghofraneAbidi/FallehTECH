@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}OffreEmploi index{% endblock %}
+
+{% block body %}
+   <div class="container">
+    <h1>Offres d'Emploi</h1>
+
+   
+        <table class="table candidature-table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Titre</th>
+                    <th>Description</th>
+                    <th>Salaire(DT)</th>
+                    <th>Lieu</th>
+                    <th>Date Expiration</th>
+                    <th>Voir</th>
+                    <th>Modifier</th>
+                    <th>Supprimer</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for offre_emploi in offre_emplois %}
+                <tr>
+                    <td>{{ offre_emploi.id }}</td>
+                    <td>{{ offre_emploi.titre }}</td>
+                    <td>{{ offre_emploi.description }}</td>
+                    <td>{{ offre_emploi.salaire }}</td>
+                    <td>{{ offre_emploi.lieu }}</td>
+                    <td>{{ offre_emploi.dateExpiration ? offre_emploi.dateExpiration|date('Y-m-d') : '' }}</td>
+                    <td>
+                        <a href="{{ path('app_worker_offre_show_back', {'id': offre_emploi.id}) }}" class="icon-link"><i class="fas fa-eye"></i></a>
+                    </td>
+                    <td>
+                        <a href="{{ path('app_offre_emploi_edit', {'id': offre_emploi.id}) }}" class="icon-link">               <i class="fas fa-edit"></i></a>
+                    </td>
+                    <td>
+<form method="post" action="{{ path('app_offre_emploi_delete', {'id': offre_emploi.id}) }}" 
+      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette offre ?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offre_emploi.id) }}">
+    <button type="submit" class="delete-button">
+                                <i class="fas fa-trash"></i> {# Trash icon added #}
+                            </button>
+</form>
+
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="9">Aucune offre trouvée.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+   
+   
+    <a href="{{ path('app_offre_emploi_new') }}" class="create-button">Créer une Offre</a>
+
+     <style>
+        /* Delete button styling */
+        .delete-button {
+            background: none;
+            border: none;
+            color: black; /* Set icon color to black */
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .delete-button:hover {
+            color: gray; /* Change color to gray on hover */
+        }
+    </style>
+{% endblock %}

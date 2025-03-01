@@ -1,0 +1,65 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Interactive Map with Area Calculation{% endblock %}
+{% block body %}
+
+
+    <h1>Interactive Map</h1>
+    <p>Click on the map to add points. When the shape is closed, it will be saved with an area calculation.</p>
+
+    <!-- State Selection Dropdown -->
+    <div id="controls">
+        <label for="state-selecet">Select your state:</label>
+        <select id="state-select" onchange="centerMapOnState()">
+            <option value="" disabled selected>Choose a state</option>
+            <option value="36.8065,10.1815">Tunis</option>
+            <option value="35.8256,10.6084">Sousse</option>
+            <option value="33.8869,10.0972">Gabès</option>
+            <option value="36.4542,10.7353">Nabeul</option>
+            <option value="35.6744,10.1016">Monastir</option>
+            <option value="34.7333,10.7667">Sfax</option>
+            <option value="37.2744,9.8739">Bizerte</option>
+            <option value="35.1675,8.8328">Kasserine</option>
+            <option value="36.4311,8.6931">Jendouba</option>
+            <option value="35.5022,11.0606">Mahdia</option>
+            <option value="36.7809,10.2586">Ariana</option>
+            <option value="36.7256,10.2189">Manouba</option>
+            <option value="36.7211,9.1822">Béja</option>
+            <option value="35.8256,8.8333">Kairouan</option>
+            <option value="36.5029,9.8581">Le Kef</option>
+            <option value="36.4581,9.1931">Siliana</option>
+            <option value="34.4208,8.775">Gafsa</option>
+            <option value="33.6,8.4333">Tozeur</option>
+            <option value="32.9297,10.4518">Médenine</option>
+            <option value="32.4833,9.5333">Kebili</option>
+            <option value="33.3844,9.0248">Tataouine</option>
+            <option value="35.0308,9.4903">Sidi Bouzid</option>
+            <option value="36.4325,9.8411">Zaghouan</option>
+        </select>
+
+        <button onclick="removeLastPoint()">Remove Last Point</button>
+    </div>
+
+    <div id="areaInfo">Area: 0 m²</div>
+
+    <div id="map"></div>
+<table border="1" id="land-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Size (m²)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="{{ asset('/css/map.css') }}">
+   
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Turf.js for area calculation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+ <script src="{{ asset('js/map.js') }}"></script>
+   
+{% endblock %}

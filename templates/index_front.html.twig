@@ -1,0 +1,168 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Home - FarmFresh{% endblock %}
+
+{% block body %}
+    <!-- Display Impersonated User Information -->
+    {% if impersonated_user %}
+        <div class="alert alert-info text-center">
+            <strong>You are connected as:</strong> {{ impersonated_user.nom }} - 
+            {% if impersonated_user.role == 'Admin' %}
+                <span class="badge bg-primary">Admin</span>
+            {% elseif impersonated_user.role == 'Ouvrier' %}
+                <span class="badge bg-success">Ouvrier</span>
+            {% elseif impersonated_user.role == 'Agriculteur' %}
+                <span class="badge bg-warning">Agriculteur</span>
+            {% else %}
+                <span class="badge bg-secondary">Unknown Role</span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Carousel Start -->
+    <div class="container-fluid p-0">
+        <div id="header-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img class="w-100" src="{{ asset('img/carousel-1.jpg') }}" alt="Image">
+                    <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                        <div class="text-start p-5" style="max-width: 900px;">
+                            <h3 class="text-white">Organic Vegetables zied</h3>
+                            <h1 class="display-1 text-white mb-md-4">Organic Vegetables For Healthy Life</h1>
+                            <a href="" class="btn btn-primary py-md-3 px-md-5 me-3">View Job Offers</a>
+                            <a href="" class="btn btn-secondary py-md-3 px-md-5">Contact</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ <!-- Search & Sorting Bar -->
+   <!-- Search & Sorting Bar -->
+<div class="container mt-4">
+    <form method="get" action="{{ path('app_offre_emploi_index') }}" class="row g-2 justify-content-center">
+        <!-- Search Input -->
+        <div class="col-md-4">
+            <input type="text" name="q" value="{{ app.request.query.get('q') }}" class="form-control" placeholder="Search job offers..." />
+        </div>
+
+        <!-- Filter Dropdown -->
+        <div class="col-md-3">
+            <select name="filter" class="form-select">
+                <option value="">Filter by Location</option>
+                <option value="Tunis" {{ app.request.query.get('filter') == 'Tunis' ? 'selected' : '' }}>Tunis</option>
+                <option value="Sousse" {{ app.request.query.get('filter') == 'Sousse' ? 'selected' : '' }}>Sousse</option>
+                <option value="Nabeul" {{ app.request.query.get('filter') == 'Nabeul' ? 'selected' : '' }}>Nabeul</option>
+                <option value="Monastir" {{ app.request.query.get('filter') == 'Monastir' ? 'selected' : '' }}>Monastir</option>
+                <option value="Kairouan" {{ app.request.query.get('filter') == 'Kairouan' ? 'selected' : '' }}>Kairouan</option>
+            </select>
+        </div>
+
+        <!-- Sorting Dropdown -->
+        <div class="col-md-3">
+            <select name="sort" class="form-select">
+                <option value="">Sort by...</option>
+                <option value="salary_asc" {{ app.request.query.get('sort') == 'salary_asc' ? 'selected' : '' }}>Salary (Low to High)</option>
+                <option value="salary_desc" {{ app.request.query.get('sort') == 'salary_desc' ? 'selected' : '' }}>Salary (High to Low)</option>
+                <option value="start_date_asc" {{ app.request.query.get('sort') == 'start_date_asc' ? 'selected' : '' }}>Start Date (Soonest First)</option>
+                <option value="start_date_desc" {{ app.request.query.get('sort') == 'start_date_desc' ? 'selected' : '' }}>Start Date (Latest First)</option>
+                <option value="expiration_asc" {{ app.request.query.get('sort') == 'expiration_asc' ? 'selected' : '' }}>Expiration Date (Soonest First)</option>
+                <option value="expiration_desc" {{ app.request.query.get('sort') == 'expiration_desc' ? 'selected' : '' }}>Expiration Date (Latest First)</option>
+            </select>
+        </div>
+
+        <!-- Search Button -->
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+    </form>
+</div>
+
+    <!-- List Job Offers -->
+    <section class="container mt-5">
+        <h2 class="text-center mb-4">Latest Job Offers</h2>
+
+        {% if impersonated_user %}
+            <!-- Toggle Buttons -->
+            <div class="d-flex justify-content-center mb-3">
+                <a href="{{ path('app_offre_emploi_index') }}" class="btn {{ showMyOffers ? 'btn-outline-primary' : 'btn-primary' }} mx-2">
+                    <i class="fas fa-globe"></i> All Offers
+                </a>
+                <a href="{{ path('app_offre_emploi_index', {'my_offers': 1}) }}" class="btn {{ showMyOffers ? 'btn-primary' : 'btn-outline-primary' }} mx-2">
+                    <i class="fas fa-user"></i> Only My Offers
+                </a>
+            </div>
+            
+            <div class="d-flex justify-content-between mb-3">
+                <!-- Add New Offer Button -->
+                <a href="{{ path('app_worker_offre_new') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add New Offer
+                </a>
+
+                <!-- Stop Impersonation Button -->
+                <a href="{{ path('app_stop_impersonation') }}" class="btn btn-danger">
+                    <i class="fas fa-user-slash"></i> Stop Impersonation
+                </a>
+                 {# New Button to Navigate to Messaging Page #}
+       
+            </div>
+            <div>
+             <a href="{{ path('messenger') }}" class="btn btn-info mb-3">
+            <i class="fas fa-comments"></i> Go to Messenger
+        </a></div>
+        {% endif %}
+
+        <div class="row">
+    {% for offre in offres %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ offre.titre }}</h5>
+                    <p class="card-text">{{ offre.description }}</p>
+                    <p><strong>Salary:</strong> {{ offre.salaire }} TND</p>
+                    <p><strong>Location:</strong> {{ offre.lieu }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ path('app_worker_offre_show1', {'id': offre.id}) }}" class="btn custom-btn btn-sm rounded-circle p-2" title="View">
+                            <i class="fas fa-eye"></i>
+                        </a>
+
+                        {% if showMyOffers %}
+                            <a href="{{ path('app_offre_emploi_edit_front', {'id': offre.id}) }}" class="btn btn-sm rounded-circle p-3 custom-btn" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                            <form action="{{ path('app_offre_emploi_delete_front', {'id': offre.id}) }}" method="post" style="display:inline;">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offre.id) }}">
+                                <button type="submit" class="btn btn-sm rounded-circle p-3 custom-btn" title="Delete" onclick="return confirm('Are you sure?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12 text-center">
+            <p>No job offers available.</p>
+        </div>
+    {% endfor %}
+</div>
+
+    </section>
+    <style>
+    .custom-btn {
+        font-size: 1.2rem; /* Make the icons slightly bigger */
+        transition: all 0.3s ease-in-out;
+    }
+
+    .custom-btn:hover {
+        transform: scale(1.2); /* Slightly increase the size on hover */
+        background-color: rgba(0, 0, 0, 0.1); /* Light background effect */
+    }
+</style>
+{% endblock %}

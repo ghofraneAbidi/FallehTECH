@@ -1,0 +1,412 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Messenger{% endblock %}
+
+{% block body %}
+
+<!-- Display connected user -->
+        
+
+    <!-- Chat List -->
+<!-- Chat Container -->
+<div class="container">
+    <!-- Chat List -->
+    <div class="chat-list">
+        <input type="text" placeholder="Search..." class="search-bar">
+        {% for user in users %}
+            <div class="chat-item {% if user.id in unreadMessages %}unread{% endif %}" 
+     onclick="loadMessages({{ user.id }}, '{{ user.nom }}')">
+
+                <div class="avatar">
+                    <img src="{{ asset('img/user.jpg') }}" alt="User Avatar" class="user-avatar">
+                </div>
+                <div class="chat-info">
+                    <h4>{{ user.nom }}</h4>
+                    <p id="last-message-{{ user.id }}">Loading...</p>
+                </div>
+                <span class="notification-badge" id="notif-{{ user.id }}" style="display: none;">0</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window">
+        <div class="chat-header">
+            <button class="back-button" onclick="goBack()">← Back</button>
+            <h3 id="selected-user-name">Select a user</h3>
+        </div>
+
+        <div class="chat-content" id="chat-box">
+            <p class="no-chat">Select a user to start chatting.</p>
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input">
+            <input type="text" id="message" placeholder="Select a user first..." disabled>
+            <button type="button" id="send-btn" disabled>Send</button>
+        </div>
+    </div>
+</div>
+
+<style>
+  .back-button {
+    background: none;
+    border: none;
+    color: #3b4cb8;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px 10px;
+    margin-right: 10px;
+    transition: 0.3s ease;
+}
+
+.back-button:hover {
+    color: #2a3790;
+}
+
+
+    .container {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+    }
+
+    .sidebar {
+        width: 60px;
+        background: #3b4cb8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+    }
+
+    .nav-icon {
+        width: 30px;
+        height: 30px;
+        background: #ffffff33;
+        margin: 10px 0;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .nav-icon.active {
+        background: #ffffff;
+    }
+
+    .chat-list {
+        width: 300px;
+        background: #f4f4f4;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: auto;
+    }
+
+    .search-bar {
+        width: 100%;
+        padding: 10px;
+        border-radius: 20px;
+        border: none;
+        outline: none;
+        background: #fff;
+    }
+
+    .chat-item {
+        display: flex;
+        align-items: center;
+        background: #ffffff;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .chat-item:hover {
+        background: #e3e3e3;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        background: #ddd;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 10px;
+    }
+
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .chat-info {
+        flex: 1;
+    }
+
+    .chat-info h4 {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .chat-info p {
+        font-size: 12px;
+        color: #777;
+    }
+
+    .time {
+        font-size: 10px;
+        color: #888;
+    }
+
+    .notification-badge {
+        background: red;
+        color: white;
+        border-radius: 50%;
+        padding: 3px 6px;
+        font-size: 12px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: none;
+    }
+
+    .chat-window {
+        flex: 1;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid #ddd;
+    }
+
+    .chat-header {
+        padding: 15px;
+        font-size: 18px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .chat-content {
+        flex: 1;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: auto;
+    }
+
+    .message {
+        max-width: 60%;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    .message.received {
+        background: #f1f1f1;
+        align-self: flex-start;
+    }
+
+    .message.sent {
+          background: #63b524;
+        color: white;
+        align-self: flex-end;
+    }
+
+    .message-input {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+    }
+
+    .message-input input {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        outline: none;
+        background: #f4f4f4;
+        border-radius: 5px;
+    }
+
+    .message-input button {
+        margin-left: 10px;
+        padding: 10px;
+        border: none;
+        background: #63b524;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .message-input button:disabled {
+        background: #bbb;
+        cursor: not-allowed;
+    }
+    .chat-item.unread {
+    background-color: #d1d1d1; /* Darker background for unread */
+    font-weight: bold;
+}
+
+</style>
+
+
+<!-- JavaScript (Fixing Messaging Issues) -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let selectedUserId = null;
+    const sendBtn = document.getElementById("send-btn");
+    const messageInput = document.getElementById("message");
+    const chatBox = document.getElementById("chat-box");
+    const senderId = {{ testUser.id|json_encode|raw }};
+    const selectedUserName = document.getElementById("selected-user-name");
+
+    if (sendBtn) sendBtn.addEventListener("click", sendMessage);
+
+    // Function to load messages dynamically
+    window.loadMessages = function(userId, userName) {
+        selectedUserId = userId;
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.placeholder = "Type a message...";
+        selectedUserName.innerText = `Chatting with ${userName}`;
+
+        fetchMessages(); // Load messages initially
+        markMessagesAsRead(userId); // Mark messages as read for this conversation
+        startAutoRefresh(); // Start real-time updates
+
+        // Remove unread class dynamically when the user opens the chat
+        let chatItem = document.querySelector(`.chat-item[onclick="loadMessages(${userId}, '${userName}')"]`);
+        if (chatItem) {
+            chatItem.classList.remove("unread");
+        }
+    };
+
+    function fetchMessages() {
+        if (!selectedUserId) return;
+
+        fetch(`/messaging/conversation/${selectedUserId}`)
+            .then(response => response.json())
+            .then(messages => {
+                chatBox.innerHTML = ""; // Clear chat box
+
+                if (messages.length === 0) {
+                    chatBox.innerHTML = "<p>No messages yet.</p>";
+                    return;
+                }
+
+                messages.forEach(message => {
+                    let messageDiv = document.createElement("div");
+                    messageDiv.classList.add("message");
+
+                    if (message.sender.id === senderId) {
+                        messageDiv.classList.add("sent");
+                    } else {
+                        messageDiv.classList.add("received");
+                    }
+
+                    messageDiv.innerHTML = `
+                        <p><strong>${message.sender.name}:</strong> ${message.content}</p>
+                        <small>${message.createdAt}</small>
+                    `;
+                    chatBox.appendChild(messageDiv);
+                });
+
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => console.error("Error loading messages:", error));
+    }
+
+    function sendMessage() {
+        if (!selectedUserId) {
+            alert("Please select a user to chat with.");
+            return;
+        }
+
+        const message = messageInput.value.trim();
+        if (message === "") {
+            alert("Message cannot be empty!");
+            return;
+        }
+
+        const requestData = {
+            recipient_id: selectedUserId,
+            content: message
+        };
+
+        fetch('/messaging/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                fetchMessages(); // Reload messages instantly after sending
+                messageInput.value = "";
+                fetchUnreadNotifications();
+            } else {
+                alert("Error: " + (data.error || "Message failed to send!"));
+            }
+        })
+        .catch(error => {
+            console.error("Fetch Error:", error);
+            alert("An error occurred while sending the message.");
+        });
+    }
+
+    function markMessagesAsRead(userId) {
+        fetch(`/messaging/conversation/${userId}/read`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        }).then(() => {
+            let notifElement = document.getElementById(`notif-${userId}`);
+            if (notifElement) {
+                notifElement.style.display = "none";
+            }
+
+            let chatItem = document.querySelector(`.chat-item[onclick="loadMessages(${userId}, 'USER_NAME')"]`);
+            if (chatItem) {
+                chatItem.classList.remove("unread");
+            }
+        });
+    }
+
+    function fetchUnreadNotifications() {
+        fetch('/messaging/notifications/unread')
+            .then(response => response.json())
+            .then(data => {
+                document.querySelectorAll(".notification-badge").forEach(el => {
+                    el.style.display = "none";
+                });
+
+                data.forEach(notif => {
+                    let notifElement = document.getElementById(`notif-${notif.senderId}`);
+                    if (notifElement) {
+                        notifElement.textContent = notif.unreadCount;
+                        notifElement.style.display = notif.unreadCount > 0 ? "block" : "none";
+                    }
+                });
+            })
+            .catch(error => console.error("Error fetching notifications:", error));
+    }
+
+    // Auto-refresh messages and notifications every 5 seconds
+    function startAutoRefresh() {
+        setInterval(() => {
+            if (selectedUserId) {
+                fetchMessages();
+                fetchUnreadNotifications();
+            }
+        }, 5000);
+    }
+});
+
+
+
+</script>
+
+{% endblock %}

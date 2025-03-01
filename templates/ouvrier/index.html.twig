@@ -1,0 +1,43 @@
+{% extends 'ouvrier_base.html.twig' %}
+
+{% block title %}Mes Candidatures{% endblock %}
+
+{% block body %}
+    <h1>Mes Candidatures</h1>
+
+    <div class="mb-3">
+        <a href="{{ path('job_offers_list') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour aux Offres d'Emploi
+        </a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Offre d'Emploi</th>
+                <th>Entreprise</th>
+                <th>Statut</th>
+                <th>Date de Candidature</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candidature in candidatures %}
+                <tr>
+                    <td>{{ candidature.jobOffer.titre }}</td>
+                    <td>{{ candidature.jobOffer.companyName }}</td>
+                    <td>
+                        {% if candidature.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">En attente</span>
+                        {% elseif candidature.status == 'accepted' %}
+                            <span class="badge bg-success">Acceptée</span>
+                        {% else %}
+                            <span class="badge bg-danger">Rejetée</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ candidature.appliedAt|date('Y-m-d') }}</td>
+                    <td>
+                        <a href="{{ path('job_application_show', {'id': candidature.id}) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i> Voir
+                        </a>
+                    </td>

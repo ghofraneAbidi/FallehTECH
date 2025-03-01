@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une Nouvelle Candidature{% endblock %}
+
+{% block body %}
+
+    <div class="form-container">
+        <h1>Créer une Nouvelle Candidature</h1>
+ {{ include('candidature/_form.html.twig', {'button_label': 'Créer'}) }}
+  
+
+        
+
+          <div class="button-group">
+       <a href="{{ path('app_candidature_index') }}" class="btn-back">Retour à la liste</a>
+        </div
+    </div>
+{% endblock %}

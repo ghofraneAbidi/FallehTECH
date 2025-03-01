@@ -1,0 +1,77 @@
+{% extends 'front_base.html.twig' %}
+
+{% block body %}
+    <form action="" method="get">
+        <!-- Role Selection Dropdown -->
+        <label for="role-switch">Select Role:</label>
+        <select id="role-switch" class="form-select">
+            <option disabled selected>Choose Role</option>
+            <option value="Admin">Admin</option>
+            <option value="Ouvrier">Ouvrier</option>
+            <option value="Agriculteur">Agriculteur</option>
+        </select>
+
+        <br>
+
+        <!-- User Selection Dropdown -->
+        <label for="user-switch">Switch User:</label>
+        <select id="user-switch" class="form-select" onchange="location = this.value;" disabled>
+            <option disabled selected>Choose User</option>
+        </select>
+    </form>
+
+    {% if impersonated_user is defined and impersonated_user %}
+        <div class="alert alert-info text-center">
+            <strong>You are connected as:</strong> {{ impersonated_user.nom }} ({{ impersonated_user.role }})
+        </div>
+        <a href="{{ path('app_stop_impersonation') }}" class="btn btn-danger btn-sm">Stop Impersonation</a>
+    {% else %}
+        <div class="alert alert-warning text-center">
+            <strong>No user impersonation active.</strong>
+        </div>
+    {% endif %}
+
+   <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let roleSwitch = document.getElementById("role-switch");
+        let userSwitch = document.getElementById("user-switch");
+
+        roleSwitch.addEventListener("change", function() {
+            let selectedRole = this.value;
+
+            console.log("Role selected:", selectedRole); // Debugging log
+
+            fetch(`/fetch-users-by-role?role=${selectedRole}`)
+                .then(response => {
+                    console.log("Response received:", response); // Debugging log
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched users:", data); // Debugging log
+
+                    // Reset user dropdown
+                    userSwitch.innerHTML = '<option disabled selected>Choose User</option>'; 
+                    
+                    // Check if users exist
+                    if (data.length === 0) {
+                        console.warn("No users found for this role");
+                        userSwitch.disabled = true;
+                        return;
+                    }
+
+                    userSwitch.disabled = false;
+
+                    data.forEach(user => {
+                        let option = document.createElement("option");
+                        option.value = user.path;
+                        option.textContent = user.nom;
+                        userSwitch.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error fetching users:", error));
+        });
+    });
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offre d'Emploi{% endblock %}
+
+{% block body %}
+    <div class="detail-container">
+        <h1>Offre d'Emploi</h1>
+
+        <table class="detail-table">
+            <tbody>
+                <tr>
+                    <th>Id</th>
+                    <td>{{ offre_emploi.id }}</td>
+                </tr>
+                <tr>
+                    <th>Titre</th>
+                    <td>{{ offre_emploi.titre }}</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td>{{ offre_emploi.description }}</td>
+                </tr>
+                <tr>
+                    <th>Salaire</th>
+                    <td>{{ offre_emploi.salaire }} TND</td>
+                </tr>
+                <tr>
+                    <th>Lieu</th>
+                    <td>{{ offre_emploi.lieu }}</td>
+                </tr>
+                <tr>
+                    <th>Date Expiration</th>
+                    <td>{{ offre_emploi.dateExpiration ? offre_emploi.dateExpiration|date('Y-m-d') : '' }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="button-group">
+            <a href="{{ path('app_all_offers') }}" class="btn-back">Retour à la liste</a>
+            <a href="{{ path('app_offre_emploi_edit', {'id': offre_emploi.id}) }}" class="btn-edit">Modifier</a>
+         
+        </div>
+    </div>
+{% endblock %}

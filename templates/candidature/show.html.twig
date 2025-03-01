@@ -1,0 +1,151 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de la Candidature{% endblock %}
+
+{% block body %}
+    <div class="candidature-container">
+        <h1>Candidature #{{ candidature.id }}</h1>
+
+        <table class="candidature-details">
+            <tbody>
+                <tr>
+                    <th>Travailleur</th>
+                    <td>{{ candidature.idTravailleur ? candidature.idTravailleur.nom : 'Inconnu' }}</td>
+                </tr>
+                <tr>
+                    <th>Statut</th>
+                    <td>{{ candidature.statut.value }}</td>
+                </tr>
+                <tr>
+                    <th>Date Applied</th>
+                    <td>{{ candidature.dateApplied ? candidature.dateApplied|date('Y-m-d H:i:s') : 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <th>Rating</th>
+                    <td>{{ candidature.rating ?? 'Non noté' }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="candidature-actions">
+            <a href="{{ path('app_candidature_index') }}" class="btn back-btn" title="Retour à la liste">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <a href="{{ path('app_candidature_edit', {'id': candidature.id}) }}" class="btn edit-btn" title="Modifier">
+                <i class="fas fa-edit"></i>
+            </a>
+            <a href="{{ path('app_utilisateur_show', {'id': candidature.idTravailleur.id}) }}" class="btn worker-btn" title="Plus d'infos sur le travailleur">
+                <i class="fas fa-user"></i>
+            </a>
+
+            {{ include('candidature/_delete_form.html.twig') }}
+        </div>
+    </div>
+
+    <!-- FontAwesome Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <style>
+        :root {
+            --poppins: 'Poppins', sans-serif;
+            --lato: 'Lato', sans-serif;
+            --light: #F9F9F9;
+            --blue: #9BAB10;
+            --light-blue: #CFE8FF;
+            --grey: #eee;
+            --dark-grey: #AAAAAA;
+            --dark: #342E37;
+            --red: #DB504A;
+            --yellow: #FFCE26;
+        }
+
+        .candidature-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            font-family: var(--lato);
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid var(--grey);
+        }
+
+        th {
+            background: var(--light-blue);
+            color: var(--dark);
+        }
+
+        .candidature-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            transition: 0.3s ease-in-out;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn {
+            background-color: var(--dark-grey);
+        }
+
+        .edit-btn {
+            background-color: var(--blue);
+        }
+
+        .worker-btn {
+            background-color: var(--yellow);
+            color: var(--dark);
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+
+        /* Delete button */
+        form[action*="_delete_form"] button {
+            background-color: var(--red);
+            cursor: pointer;
+            padding: 10px;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            color: black;
+            transition: 0.3s ease-in-out;
+        }
+
+        form[action*="_delete_form"] button:hover {
+            background-color: var(--dark);
+            transform: scale(1.1);
+        }
+    </style>
+{% endblock %}
