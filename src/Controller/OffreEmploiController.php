@@ -294,17 +294,6 @@ public function index(EntityManagerInterface $entityManager, SessionInterface $s
                 throw new \Exception("User not found in database.");
             }
     
-            // ✅ Check if the worker already has an application for this job
-            $existingCandidature = $entityManager->getRepository(Candidature::class)
-                ->findOneBy(['idOffre' => $offre, 'idTravailleur' => $impersonatedUser]);
-    
-            if ($existingCandidature) {
-                return $this->json([
-                    'status' => 'error',
-                    'message' => 'You have already applied for this job.'
-                ], Response::HTTP_BAD_REQUEST);
-            }
-    
             // ✅ Get the job's start and end date
             $offerStartDate = $offre->getStartDate();
             $offerEndDate = $offre->getDateExpiration();
@@ -316,32 +305,8 @@ public function index(EntityManagerInterface $entityManager, SessionInterface $s
                 ], Response::HTTP_BAD_REQUEST);
             }
     
-            // ✅ Check if the worker is already booked (accepted or pending)
-            $qb = $entityManager->createQueryBuilder();
-            $qb->select('COUNT(oc.id)')
-                ->from(OuvrierCalendrier::class, 'oc')
-                ->where('oc.ouvrier = :worker')
-                ->andWhere(
-                    $qb->expr()->orX(
-                        ':startDate BETWEEN oc.startDate AND oc.endDate',
-                        ':endDate BETWEEN oc.startDate AND oc.endDate',
-                        'oc.startDate BETWEEN :startDate AND :endDate',
-                        'oc.endDate BETWEEN :startDate AND :endDate'
-                    )
-                )
-                ->andWhere('oc.status IN (:statuses)') // Only check 'accepted' and 'pending'
-                ->setParameter('worker', $impersonatedUser)
-                ->setParameter('startDate', $offerStartDate)
-                ->setParameter('endDate', $offerEndDate)
-                ->setParameter('statuses', ['acceptee', 'en_attente']);
-    
-            $conflictCount = $qb->getQuery()->getSingleScalarResult();
-            if ($conflictCount > 0) {
-                return $this->json([
-                    'status' => 'error',
-                    'message' => 'You already have an accepted or pending job during this period.'
-                ], Response::HTTP_BAD_REQUEST);
-            }
+            // ❌ Removed the condition that checks if the user already applied
+            // ❌ Removed the condition that checks for overlapping accepted/pending jobs
             
             // ✅ Create a new job application
             $candidature = new Candidature();
@@ -364,7 +329,7 @@ public function index(EntityManagerInterface $entityManager, SessionInterface $s
     
             return $this->json([
                 'status' => 'success',
-                'message' => 'Your job application has been submitted and is awaiting approval.'
+                'message' => 'Your job application has been submitted successfully.'
             ]);
     
         } catch (\Exception $e) {
