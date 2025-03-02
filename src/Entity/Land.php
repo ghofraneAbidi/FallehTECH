@@ -3,7 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\DBAL\Types\Types;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use App\Repository\LandRepository;
 
 #[ORM\Entity(repositoryClass: LandRepository::class)]
@@ -24,18 +25,20 @@ class Land
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: 'geometry', options: ['geometry_type' => 'POLYGON'])]
-    private $coordinates;
+    #[ORM\Column(type: 'float')]
+    private ?float $area = null;
 
-    public function getId(): ?int
+    #[ORM\OneToMany(mappedBy: 'land', targetEntity: Point::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $points;
+
+    public function __construct()
     {
-        return $this->id;
+        $this->points = new ArrayCollection();
     }
 
-    public function getOwner(): ?Utilisateur
-    {
-        return $this->owner;
-    }
+    public function getId(): ?int { return $this->id; }
+
+    public function getOwner(): ?Utilisateur { return $this->owner; }
 
     public function setOwner(?Utilisateur $owner): self
     {
@@ -43,10 +46,7 @@ class Land
         return $this;
     }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
+    public function getName(): ?string { return $this->name; }
 
     public function setName(string $name): self
     {
@@ -54,10 +54,7 @@ class Land
         return $this;
     }
 
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
+    public function getDescription(): ?string { return $this->description; }
 
     public function setDescription(?string $description): self
     {
@@ -65,14 +62,32 @@ class Land
         return $this;
     }
 
-    public function getCoordinates()
+    public function getArea(): ?float { return $this->area; }
+
+    public function setArea(float $area): self
     {
-        return $this->coordinates;
+        $this->area = $area;
+        return $this;
     }
 
-    public function setCoordinates($coordinates): self
+    public function getPoints(): Collection { return $this->points; }
+
+    public function addPoint(Point $point): self
     {
-        $this->coordinates = $coordinates;
+        if (!$this->points->contains($point)) {
+            $this->points->add($point);
+            $point->setLand($this);
+        }
+        return $this;
+    }
+
+    public function removePoint(Point $point): self
+    {
+        if ($this->points->removeElement($point)) {
+            if ($point->getLand() === $this) {
+                $point->setLand(null);
+            }
+        }
         return $this;
     }
 }

@@ -123,59 +123,55 @@ function showLandDetailsPopup(polygon, area, polygonData) {
 // Function to save land details and display a circular marker
 // Function to save land details and display a circular marker
 function saveLandDetails(index) {
-    var landName = document.getElementById("land-name").value || "Unnamed";
-    var workNeeded = document.getElementById("work-needed").value || "Not specified";
-    var numTrees = document.getElementById("num-trees").value || "0";
-    var soilType = document.getElementById("soil-type").value || "Unknown";
+    var landName = document.getElementById("land-name").value.trim() || "Unnamed";
 
     var polygonData = polygons[index];
 
-    // Ensure centroid is valid
-    if (!polygonData.centroid || polygonData.centroid.length < 2) {
-        console.error("❌ Invalid centroid. Marker not added.");
+    if (!polygonData) {
+        console.error("❌ Polygon data not found for index:", index);
         return;
     }
 
-    // 🌍 **Fix: Ensure correct coordinate order**
-    let lat = polygonData.centroid[1]; // Swap order for Leaflet
-    let lng = polygonData.centroid[0];
+    let coordinates = polygonData.layer.getLatLngs()[0].map(p => ({
+        latitude: p.lat,
+        longitude: p.lng
+    }));
 
-    console.log(`📍 Adding marker for Land ID: ${polygonData.id} at Lat: ${lat}, Lng: ${lng}`);
+    let landData = {
+        name: landName,
+        area: polygonData.area,
+        coordinates: coordinates // ✅ Only sending name, area, and coordinates
+    };
 
-    // 🛠 **Fix: Use a correctly formatted div icon**
-    var landLabel = L.divIcon({
-        className: 'circle-marker',
-        html: `<div class="circle-marker">${polygonData.id}</div>`,
-        iconSize: [30, 30], 
-        iconAnchor: [15, 15] // Center correctly
+    console.log("📝 Sending land data to API:", landData);
+
+    fetch('/land/create', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(landData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Server Response:", data);
+        alert(`✅ ${landName} has been saved successfully!`);
+
+        // ✅ Update popup with saved details
+        polygonData.layer.bindPopup(`
+            <strong>${landName}</strong><br>
+            📏 Area: ${polygonData.area} m²
+        `).openPopup();
+
+        loadLands(); // Reload saved lands
+    })
+    .catch(error => {
+        console.error("❌ Error saving land:", error);
+        alert("⚠️ Failed to save land. Check console for details.");
     });
-
-    // 🛠 **Fix: Ensure the marker is placed inside the correct polygon**
-    var labelMarker = L.marker([lat, lng], { icon: landLabel, zIndexOffset: 1000 }).addTo(map);
-    polygonData.label = labelMarker;
-
-    // 📌 **Ensure polygon remains on the map**
-    polygonData.layer.addTo(map);
-
-    // 🛠 **Fix: Prevent movement unless out of bounds**
-    if (!map.getBounds().contains(labelMarker.getLatLng())) {
-        map.setView([lat, lng], 10, { animate: true });
-    }
-
-    // ✅ **Add data to the table**
-    var table = document.querySelector("#land-table tbody");
-    var newRow = table.insertRow();
-    newRow.innerHTML = `
-        <td>${polygonData.id}</td>
-        <td>${landName}</td>
-        <td>${polygonData.area} m²</td>
-        <td>${workNeeded}</td>
-        <td>${numTrees}</td>
-        <td>${soilType}</td>
-    `;
-
-    alert(`✅ Land details saved for ${landName}!`);
 }
+
 
 // Function to generate a random color
 function getRandomColor() {
@@ -183,3 +179,96 @@ function getRandomColor() {
 }
 
 map.on('click', addPoint);
+function loadLands() {
+    fetch('/land/list')
+    .then(response => response.json())
+    .then(lands => {
+        lands.forEach(land => {
+            let polygon = L.polygon(land.coordinates.map(p => [p.latitude, p.longitude]), { color: 'green' })
+                .addTo(map)
+                .bindPopup(`<strong>${land.name}</strong><br>Area: ${land.area} m²`);
+        });
+    })
+    .catch(error => console.error("❌ Error loading lands:", error));
+}
+
+// 🔥 Load lands when the map is initialized
+document.addEventListener("DOMContentLoaded", loadLands);
+
+
+function saveLand() {
+    let landNameInput = document.getElementById("land-name");
+    
+    if (!landNameInput) {
+        alert("⚠️ Land name input field not found!");
+        return;
+    }
+
+    let landName = landNameInput.value.trim();
+    if (!landName) {
+        alert("⚠️ Please enter a land name.");
+        return;
+    }
+
+    if (points.length < 3) {
+        alert("⚠️ A land must have at least 3 points to form a valid polygon.");
+        return;
+    }
+
+    let area = calculateArea(points);
+    let coordinates = points.map(p => ({ latitude: p[0], longitude: p[1] }));
+
+    console.log("📝 Sending data to API:", { name: landName, area, coordinates });
+
+    fetch('/land/create', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            name: landName,
+            area: area,
+            coordinates: coordinates
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.error || "Server error"); });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("✅ Server Response:", data);
+        if (data.message) {
+            alert(`✅ ${data.message}`);
+            loadLands(); // Refresh the map
+        } else {
+            alert("⚠️ Error: " + data.error);
+        }
+    })
+    .catch(error => console.error("❌ Error saving land:", error));
+}
+
+
+function loadLands() {
+    fetch('/land/list')
+    .then(response => response.json())
+    .then(lands => {
+        lands.forEach(land => {
+            // ✅ Check if land has coordinates before trying to map them
+            if (!land.coordinates || !Array.isArray(land.coordinates) || land.coordinates.length === 0) {
+                console.error(`❌ Invalid coordinates for land ID ${land.id}`);
+                return;
+            }
+
+            let polygon = L.polygon(
+                land.coordinates.map(p => [p.latitude, p.longitude]), 
+                { color: 'green' }
+            )
+            .addTo(map)
+            .bindPopup(`<strong>${land.name}</strong><br>Area: ${land.area} m²`);
+        });
+    })
+    .catch(error => console.error("❌ Error loading lands:", error));
+}
