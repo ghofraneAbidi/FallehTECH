@@ -102,6 +102,14 @@
     border: 2px solid var(--success-color);
     box-shadow: 0 4px 10px var(--hover-darken);
 }
+html, body {
+    overflow-x: hidden; /* Désactive le scroll horizontal */
+    overflow-y: auto; /* Active le scroll uniquement si nécessaire */
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
         
     </style>
 
@@ -119,6 +127,10 @@
                     <a href="{{ path('app_produit_new') }}" class="custom-btn success-btn">
                         <i class="fas fa-plus"></i> <!-- Plus Icon -->
                     </a>
+                    <a href="{{ path('app_stats') }}" class="btn btn-primary">
+    📊 Voir les Statistiques
+</a>
+
                 </div>
             </div>
         </div>
@@ -134,6 +146,7 @@
                         <th>Categorie</th>
                         <th>Souscategorie</th>
                         <th>Image</th>
+                         <th>Stock</th> <!-- ✅ NEW COLUMN FOR STOCK -->
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -154,6 +167,17 @@
                                     <p>No image</p>
                                 {% endif %}
                             </td>
+                        <td>
+    <strong {% if produit.stock <= 5 %} style="color: red;" {% endif %}>
+        {{ produit.stock }}
+    </strong>
+    <a href="{{ path('app_mail_alert', {'id': produit.id}) }}" title="Envoyer une alerte">
+        <i class="fas fa-envelope" style="margin-left: 10px; color: #9BAB10; font-size: 18px;"></i>
+    </a>
+</td>
+
+
+
                             <td>
                                 <a href="{{ path('app_produit_show', {'id': produit.id}) }}">Show</a>
                                 <a href="{{ path('app_produit_edit', {'id': produit.id}) }}">Edit</a>

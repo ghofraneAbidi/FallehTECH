@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Knp\Component\Pager\PaginatorInterface; 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use App\Service\MailService;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 
 #[Route('/produit')]
@@ -142,13 +144,17 @@ public function index(ProduitRepository $produitRepository, PaginatorInterface $
     #[Route('/{id}', name: 'app_produit_delete', methods: ['POST'])]
     public function delete(Request $request, Produit $produit, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$produit->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$produit->getId(), $request->request->get('_token'))) {
             $entityManager->remove($produit);
             $entityManager->flush();
+            $this->addFlash('success', 'Produit supprimé avec succès.');
+        } else {
+            $this->addFlash('error', 'Échec de suppression: Token invalide.');
         }
-
+    
         return $this->redirectToRoute('app_produit_index', [], Response::HTTP_SEE_OTHER);
     }
+    
     
     #[Route('', name: 'produits_front')]
     public function afficherCategories(): Response
@@ -271,7 +277,6 @@ public function addToFavorites(Produit $produit, EntityManagerInterface $em): Js
         return new JsonResponse(['error' => 'Une erreur est survenue. Veuillez réessayer.'], 500);
     }
 }
-
 
 
    

@@ -142,11 +142,11 @@
         {{ form_widget(form.sousCategorie, {'attr': {'class': 'form-control', 'id': 'produit_sousCategorie'}}) }}
     </div>
 
-    <!-- Stock Selection Field (✅ Now Added) -->
-    <div>
-        <label for="{{ form.stock.vars.id }}">Stock</label>
-        {{ form_widget(form.stock, {'attr': {'class': 'form-control'}}) }}
-    </div>
+    <!-- Stock Input -->
+<div>
+    <label for="{{ form.stock.vars.id }}">Stock</label>
+    {{ form_widget(form.stock, {'attr': {'class': 'form-control', 'type': 'number', 'min': '0'}}) }}
+</div>
 
     <!-- Display Errors -->
     {{ form_errors(form) }}

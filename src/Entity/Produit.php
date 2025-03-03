@@ -128,4 +128,5 @@ class Produit
 
     public function getIsFavorite(): bool { return $this->isFavorite; }
     public function setIsFavorite(bool $isFavorite): self { $this->isFavorite = $isFavorite; return $this; }
+    
 }

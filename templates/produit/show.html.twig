@@ -193,12 +193,13 @@
     </a>
 
     <!-- Delete Button -->
-    <form action="{{ path('app_produit_delete', {'id': produit.id}) }}" method="post" onsubmit="return confirm('Are you sure?');">
-        <button type="submit" class="btn btn-delete">
-            <i class="fas fa-trash-alt"></i>
-        </button>
-    </form>
-</div>
+  <form action="{{ path('app_produit_delete', {'id': produit.id}) }}" method="post" onsubmit="return confirm('Are you sure?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+    <button type="submit" class="btn btn-delete">
+        🗑️ Delete
+    </button>
+</form>
+
 
 
 {% endblock %}

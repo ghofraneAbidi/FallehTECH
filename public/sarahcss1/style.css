@@ -867,3 +867,21 @@ a.btn:hover {
     max-width: 60px;
     margin-right: 15px;
 }
+/* 🗑️ Delete Button */
+.btn-delete {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+    color: #fff;
+}

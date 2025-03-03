@@ -15,7 +15,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 class ProduitType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -62,13 +62,12 @@ class ProduitType extends AbstractType
                 'required' => true,
                 'attr' => ['id' => 'produit_sousCategorie'], // ID for JavaScript script
             ])
-            ->add('stock', ChoiceType::class, [
-                'choices' => [
-                    'En stock' => 'En stock',
-                    'Rupture de stock' => 'Rupture de stock',
+            ->add('stock', IntegerType::class, [
+                'attr' => [
+                    'class' => 'form-control',
+                    'min' => 0,  // Prevent negative stock values
                 ],
-                'data' => 'En stock', // Set default value
-                'label' => 'Stock',
+                'required' => true,
             ])
             ->add('imageFile', FileType::class, [
                 'label' => 'Image du Produit',

@@ -3,18 +3,43 @@
 namespace App\Repository;
 
 use App\Entity\Produit;
+use App\Service\MailService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 
-/**
- * @extends ServiceEntityRepository<Produit>
- */
 class ProduitRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private MailService $mailService;
+
+    public function __construct(ManagerRegistry $registry, MailService $mailService)
     {
         parent::__construct($registry, Produit::class);
+        $this->mailService = $mailService;
     }
+
+    /**
+     * This function is triggered when the stock of a product is updated.
+     */
+    public function checkStockAndSendAlert(Produit $produit): void
+    {
+        if ($produit->getStock() === 5) {
+            $userEmail = 'ghofranhachana@gmail.com'; // Change this to the dynamic user email when ready
+            $this->mailService->sendStockAlertEmail($userEmail, $produit->getName());
+        }
+    }
+
+    public function countByCategorie(): array
+{
+    return $this->createQueryBuilder('p')
+        ->select('c.nom as categorie, COUNT(p.id) as nombre')
+        ->join('p.categorie', 'c')
+        ->groupBy('c.nom')
+        ->getQuery()
+        ->getResult();
+}
+
+
 
     //    /**
     //     * @return Produit[] Returns an array of Produit objects
