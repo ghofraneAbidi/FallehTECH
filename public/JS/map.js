@@ -114,7 +114,8 @@ function showLandDetailsPopup(polygon, area, polygonData) {
             <option value="clay">Clay</option>
             <option value="loamy">Loamy</option>
         </select><br>
-        <button onclick="saveLandDetails(${polygons.indexOf(polygonData)})">Save</button>
+        <button onclick="
+        (${polygons.indexOf(polygonData)})">Save</button>
     `;
 
     polygon.bindPopup(popupContent).openPopup();
@@ -179,21 +180,58 @@ function getRandomColor() {
 }
 
 map.on('click', addPoint);
+
 function loadLands() {
     fetch('/land/list')
-    .then(response => response.json())
-    .then(lands => {
-        lands.forEach(land => {
-            let polygon = L.polygon(land.coordinates.map(p => [p.latitude, p.longitude]), { color: 'green' })
-                .addTo(map)
-                .bindPopup(`<strong>${land.name}</strong><br>Area: ${land.area} m²`);
-        });
+    .then(response => response.text()) // Get raw text response
+    .then(text => {
+        console.log("🔍 Raw API Response:", text); // Log raw response
+
+        try {
+            const lands = JSON.parse(text); // Try to parse as JSON
+            console.log("🌍 Parsed Lands:", lands);
+
+            lands.forEach(land => {
+                if (!land.coordinates || !Array.isArray(land.coordinates) || land.coordinates.length === 0) {
+                    console.error(`❌ Invalid coordinates for land ID ${land.id}`, land);
+                    return;
+                }
+
+                let polygon = L.polygon(
+                    land.coordinates.map(p => [p.latitude, p.longitude]), 
+                    { color: 'green' }
+                ).addTo(map);
+
+                let offersHtml = land.offers && land.offers.length > 0 ? 
+                    land.offers.map(offer => `
+                        <li>
+                            <strong>${offer.title}</strong>: ${offer.description} <br>
+                            💰 Price: ${offer.price} TND
+                        </li>
+                    `).join('') : '<li>No offers available</li>';
+
+                let popupContent = `
+                    <h3>${land.name}</h3>
+                    <p><strong>Owner:</strong> ${land.owner}</p>
+                    <p><strong>Area:</strong> ${land.area} m²</p>
+                    <h4>Offers:</h4>
+                    <ul>${offersHtml}</ul>
+                `;
+
+                polygon.bindPopup(popupContent);
+            });
+        } catch (error) {
+            console.error("❌ Error parsing JSON:", error);
+            console.log("🔍 API Response that caused error:", text);
+        }
     })
     .catch(error => console.error("❌ Error loading lands:", error));
 }
 
-// 🔥 Load lands when the map is initialized
+
+// 🔥 Load lands when the page is ready
 document.addEventListener("DOMContentLoaded", loadLands);
+
 
 
 function saveLand() {
@@ -251,12 +289,10 @@ function saveLand() {
 }
 
 
-function loadLands() {
-    fetch('/land/list')
+fetch('/land/list')
     .then(response => response.json())
     .then(lands => {
         lands.forEach(land => {
-            // ✅ Check if land has coordinates before trying to map them
             if (!land.coordinates || !Array.isArray(land.coordinates) || land.coordinates.length === 0) {
                 console.error(`❌ Invalid coordinates for land ID ${land.id}`);
                 return;
@@ -265,10 +301,27 @@ function loadLands() {
             let polygon = L.polygon(
                 land.coordinates.map(p => [p.latitude, p.longitude]), 
                 { color: 'green' }
-            )
-            .addTo(map)
-            .bindPopup(`<strong>${land.name}</strong><br>Area: ${land.area} m²`);
+            ).addTo(map);
+
+            // ✅ Check if offers exist
+            let offersHtml = land.offers && land.offers.length > 0 ? 
+                land.offers.map(offer => `
+                    <li>
+                        <strong>${offer.title}</strong>: ${offer.description} <br>
+                        💰 Salary: ${offer.salaire} TND
+                    </li>
+                `).join('') : '<li>No offers available</li>';
+
+            // ✅ Show owner & offers in popup
+            let popupContent = `
+                <h3>${land.name}</h3>
+                <p><strong>Owner:</strong> ${land.owner}</p>
+                <p><strong>Area:</strong> ${land.area} m²</p>
+                <h4>Offers:</h4>
+                <ul>${offersHtml}</ul>
+            `;
+
+            polygon.bindPopup(popupContent);
         });
     })
     .catch(error => console.error("❌ Error loading lands:", error));
-}

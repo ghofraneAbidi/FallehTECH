@@ -1,28 +1,34 @@
 {% extends 'front_base.html.twig' %}
 
-{% block title %}Job Offers Calendar{% endblock %}
+{% block title %}Worker Job Calendar{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
-        <h1 class="text-center">Worker Job Calendar</h1>
-        
-        <!-- ✅ Add Button to Open Modal -->
-        <button class="btn btn-primary mb-3" id="addTaskBtn">Add Task</button>
+        <h1 class="text-center mb-4">Worker Job Calendar</h1>
 
-        <!-- ✅ FullCalendar -->
+        <!-- ✅ Alert Messages -->
+        <div id="alertMessage" class="alert d-none" role="alert"></div>
+
+        <!-- ✅ Add Task Button -->
+        <button class="btn btn-primary mb-3" id="addTaskBtn">
+            <i class="fas fa-plus"></i> Add Task
+        </button>
+
+        <!-- ✅ FullCalendar Display -->
         <div id="calendar"></div>
     </div>
 
-    <!-- ✅ Modal for Adding Tasks -->
+    <!-- ✅ Task Modal -->
     <div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="taskModalLabel">Add Task to Calendar</h5>
+                    <h5 class="modal-title" id="taskModalLabel">Add/Edit Task</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="taskForm">
+                        <input type="hidden" id="taskId">
                         <div class="mb-3">
                             <label for="taskTitle" class="form-label">Task Title</label>
                             <input type="text" class="form-control" id="taskTitle" required>
@@ -35,74 +41,184 @@
                             <label for="taskEnd" class="form-label">End Date</label>
                             <input type="date" class="form-control" id="taskEnd" required>
                         </div>
-                        <button type="submit" class="btn btn-success">Add Task</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Save Task
+                        </button>
+                        <button type="button" class="btn btn-danger d-none" id="deleteTaskBtn">
+                            <i class="fas fa-trash"></i> Delete Task
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ✅ Include FullCalendar via CDN -->
+    <!-- ✅ Include FullCalendar -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-    
+
     <!-- ✅ Include Bootstrap for Modal -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- ✅ FontAwesome for Icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
     <script>
-       document.addEventListener('DOMContentLoaded', function () {
+      document.addEventListener('DOMContentLoaded', function () {
     var calendarEl = document.getElementById('calendar');
+    var alertMessage = document.getElementById('alertMessage');
+    var taskIdField = document.getElementById('taskId');
+    var deleteTaskBtn = document.getElementById('deleteTaskBtn');
+    var taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
+
+    // ✅ Initialize FullCalendar
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        events: '/tasks/list',  // Load tasks from database
         editable: true,
+        eventSources: [
+            {
+                url: '/tasks/list', // ✅ Fetch user tasks
+                method: 'GET',
+                failure: function() {
+                    showAlert("Failed to load tasks", "danger");
+                }
+            },
+            {
+                  url: '/offre/emploi/travailleur/calendar',
+        method: 'GET',
+        failure: function(error) {
+            console.error("❌ Failed to load worker events:", error);
+            showAlert("Failed to load worker events", "danger");
+        }
+            }
+        ],
         eventDrop: function(info) {
-            alert('Task moved to ' + info.event.start.toISOString().split('T')[0]);
+            updateTask(info.event);
         },
         eventClick: function(info) {
-            alert('Job: ' + info.event.title + '\nStart Date: ' + info.event.start.toISOString().split('T')[0]);
+            openEditModal(info.event);
         }
     });
+
     calendar.render();
 
+    // ✅ Open Modal when "Add Task" Button is Clicked
     document.getElementById('addTaskBtn').addEventListener('click', function () {
-        var taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
+        resetForm();
         taskModal.show();
     });
 
+    // ✅ Handle Task Form Submission
     document.getElementById('taskForm').addEventListener('submit', function (e) {
         e.preventDefault();
+        saveTask();
+    });
 
-        var title = document.getElementById('taskTitle').value;
+    // ✅ Handle Task Deletion
+    deleteTaskBtn.addEventListener('click', function () {
+        deleteTask(taskIdField.value);
+    });
+
+    // ✅ Function to Save or Edit Task
+    function saveTask() {
+        var id = taskIdField.value;
+        var title = document.getElementById('taskTitle').value.trim();
         var startDate = document.getElementById('taskStart').value;
         var endDate = document.getElementById('taskEnd').value;
 
-        if (title && startDate && endDate) {
-            fetch('/tasks/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ title, start: startDate, end: endDate })
-            })
-            .then(response => response.json())
-            .then(data => {
-                calendar.addEvent({
-                    id: data.id,
-                    title: data.title,
-                    start: data.start,
-                    end: data.end,
-                    editable: true
-                });
-
-                var taskModal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
-                taskModal.hide();
-                document.getElementById('taskForm').reset();
-            })
-            .catch(error => console.error('Error:', error));
+        if (!title || !startDate || !endDate) {
+            showAlert("All fields are required!", "danger");
+            return;
         }
-    });
+
+        var url = id ? `/tasks/update/${id}` : '/tasks/add';
+        var method = id ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, start: startDate, end: endDate })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.id) {
+                if (id) {
+                    var event = calendar.getEventById(id);
+                    event.setProp('title', data.title);
+                    event.setStart(data.start);
+                    event.setEnd(data.end);
+                } else {
+                    calendar.addEvent({
+                        id: data.id,
+                        title: data.title,
+                        start: data.start,
+                        end: data.end,
+                        editable: true
+                    });
+                }
+                taskModal.hide();
+                showAlert("Task saved successfully!", "success");
+            } else {
+                showAlert("Error saving task. Please try again.", "danger");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert("Something went wrong!", "danger");
+        });
+    }
+
+    // ✅ Function to Open Edit Modal
+    function openEditModal(event) {
+        if (!event.id) return;
+
+        taskIdField.value = event.id;
+        document.getElementById('taskTitle').value = event.title;
+        document.getElementById('taskStart').value = event.start.toISOString().split('T')[0];
+        document.getElementById('taskEnd').value = event.end ? event.end.toISOString().split('T')[0] : event.start.toISOString().split('T')[0];
+
+        deleteTaskBtn.classList.remove('d-none');
+        taskModal.show();
+    }
+
+    // ✅ Function to Delete Task
+    function deleteTask(id) {
+        fetch(`/tasks/delete/${id}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                var event = calendar.getEventById(id);
+                event.remove();
+                taskModal.hide();
+                showAlert("Task deleted successfully!", "success");
+            } else {
+                showAlert("Error deleting task.", "danger");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert("Something went wrong!", "danger");
+        });
+    }
+
+    // ✅ Function to Show Alert Messages
+    function showAlert(message, type) {
+        alertMessage.textContent = message;
+        alertMessage.className = `alert alert-${type}`;
+        alertMessage.classList.remove('d-none');
+
+        setTimeout(() => {
+            alertMessage.classList.add('d-none');
+        }, 3000);
+    }
+
+    // ✅ Function to Reset Form
+    function resetForm() {
+        taskIdField.value = "";
+        document.getElementById('taskForm').reset();
+        deleteTaskBtn.classList.add('d-none');
+    }
 });
 
     </script>

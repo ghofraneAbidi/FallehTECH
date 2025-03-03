@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Utilisateur;
-
+use App\Entity\OffreEmploi;
 #[Route('/land')]
 class LandController extends AbstractController
 {
@@ -80,32 +80,62 @@ class LandController extends AbstractController
     }
     
     
-
-
     #[Route('/list', name: 'list_lands', methods: ['GET'])]
-    public function listLands(LandRepository $landRepository): JsonResponse
+    public function listLands(LandRepository $landRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $lands = $landRepository->findAll();
-        $data = [];
-
-        foreach ($lands as $land) {
-            $points = [];
-            foreach ($land->getPoints() as $point) {
-                $points[] = [
-                    'latitude' => $point->getLatitude(),
-                    'longitude' => $point->getLongitude(),
+        try {
+            $lands = $landRepository->findAll();
+            $data = [];
+    
+            foreach ($lands as $land) {
+                $owner = $land->getOwner();
+                if (!$owner) {
+                    error_log("❌ Error: Land ID " . $land->getId() . " has no owner!");
+                    continue;
+                }
+    
+                // ✅ Fetch offers using the employer ID
+                $offers = $entityManager->getRepository(OffreEmploi::class)->findBy(['id_employeur' => $owner]);
+    
+                // ✅ Format offers
+                $formattedOffers = [];
+                foreach ($offers as $offer) {
+                    $formattedOffers[] = [
+                        'id' => $offer->getId(),
+                        'title' => $offer->getTitre(),
+                        'description' => $offer->getDescription(),
+                        'salaire' => $offer->getSalaire(),
+                    ];
+                }
+    
+                // ✅ Get land coordinates
+                $points = [];
+                foreach ($land->getPoints() as $point) {
+                    $points[] = [
+                        'latitude' => $point->getLatitude(),
+                        'longitude' => $point->getLongitude(),
+                    ];
+                }
+    
+                // ✅ Ensure all required data is returned
+                $data[] = [
+                    'id' => $land->getId(),
+                    'name' => $land->getName(),
+                    'description' => $land->getDescription(),
+                    'area' => $land->getArea(),
+                    'coordinates' => $points,
+                    'owner' => $owner->getNom(), // ✅ Ensure owner is returned
+                    'offers' => $formattedOffers, // ✅ Ensure offers are included
                 ];
             }
-
-            $data[] = [
-                'id' => $land->getId(),
-                'name' => $land->getName(),
-                'description' => $land->getDescription(),
-                'area' => $land->getArea(),
-                'coordinates' => $points,
-            ];
+    
+            error_log("✅ Successfully fetched lands");
+            return new JsonResponse($data, 200, ['Content-Type' => 'application/json']);
+    
+        } catch (\Exception $e) {
+            error_log("❌ Error fetching lands: " . $e->getMessage());
+            return new JsonResponse(['error' => 'Internal Server Error: ' . $e->getMessage()], 500);
         }
-
-        return new JsonResponse($data);
     }
+    
 }
