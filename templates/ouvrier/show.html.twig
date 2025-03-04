@@ -1,0 +1,34 @@
+{% extends 'worker_base.html.twig' %}
+
+{% block title %}Détails de l'Offre - {{ offre.titre }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">{{ offre.titre }}</h1>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h4>Description</h4>
+                <p>{{ offre.description }}</p>
+
+                <h4>Informations</h4>
+                <ul class="list-group mb-3">
+                    <li class="list-group-item"><strong>Salaire:</strong> {{ offre.salaire }} TND</li>
+                    <li class="list-group-item"><strong>Lieu:</strong> {{ offre.lieu }}</li>
+                    <li class="list-group-item"><strong>Date d'Expiration:</strong> {{ offre.dateExpiration|date('Y-m-d') }}</li>
+                    <li class="list-group-item"><strong>Employeur:</strong> {{ offre.idEmployeur.nom }}</li>
+                </ul>
+
+                <div class="text-center">
+                    <a href="{{ path('ouvrier_candidatures') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour aux offres
+                    </a>
+
+                    <a href="{{ path('candidature_apply', { 'id': offre.id }) }}" class="btn btn-primary">
+                        <i class="fas fa-file-alt"></i> Postuler à cette offre
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

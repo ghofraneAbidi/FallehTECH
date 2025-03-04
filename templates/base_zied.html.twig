@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Boxicons -->
+    <link href="{{ asset('https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ asset('zie/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('zie/css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <span class="text"><img src="{{ asset('img/logo.png') }}" alt="Logo"></span>
+        </a>
+        <ul class="side-menu top">
+            <li class="active">
+                <a href="#">
+                    <i class="bx bxs-dashboard"></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_user_new')}}">
+                    <i class="bx bxs-group"></i>
+                    <span class="text">Utilisateurs</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_produit_index') }}">
+                    <i class="bx bxs-group"></i>
+                    <span class="text">Produits</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_post_index') }}">
+                    <i class="bx bxs-group"></i>
+                    <span class="text">Post Index</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="bx bxs-group"></i>
+                    <span class="text">E-commerce</span>
+                </a>
+            </li>
+              <li>
+                <a href="{{path('app_all_offers')}}">
+                    <i class="bx bxs-group"></i>
+                    <span class="text">Offres de Travail</span>
+                </a>
+            </li>
+             <li>
+                <a href="{{path('app_all_offers')}}">
+                    <i class="bx bxs-group"></i>
+                    <span class="text">Offres de Travail</span>
+                </a>
+            </li>
+           
+            <li>
+                <a href="#">
+                    <i class="bx bxs-message-dots"></i>
+                    <span class="text">Message</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="side-menu">
+            <li>
+                <a href="#">
+                    <i class="bx bxs-cog"></i>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_user_logout') }}" class="logout">
+                    <i class="bx bxs-log-out-circle"></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+    <!-- SIDEBAR -->
+
+    <!-- CONTENT -->
+    <section id="content">
+       
+       <nav>
+            <i class="bx bx-menu"></i>
+            <a href="#" class="nav-link">Categories</a>
+
+            <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button type="submit" class="search-btn"><i class="bx bx-search"></i></button>
+                </div>
+            </form>
+
+            <!-- New Dropdown for Navigating Entities -->
+            <div class="dropdown">
+                <button class="dropbtn"><i class="bx bx-grid-alt"></i> Entities</button>
+                <div class="dropdown-content">
+                    <a href="{{ path('app_all_offers') }}"><i class="bx bxs-briefcase"></i> Offres de Travail</a>
+                    <a href="{{ path('app_candidature_index') }}"><i class="bx bxs-file"></i> Candidatures</a>
+                </div>
+            </div>
+
+            <!-- Logout Button Next to Entities -->
+          
+<a href="#" class="notification" id="notification-icon">
+    <i class="bx bxs-bell"></i>
+    <span class="num" id="notification-count">0</span>
+</a>
+
+<div id="notification-dropdown" class="dropdown hidden">
+    <ul id="notification-list"></ul>
+</div>
+
+<style>
+    .dropdown {
+        position: absolute;
+        background: white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        width: 250px;
+        right: 0;
+        top: 50px;
+        border-radius: 5px;
+        padding: 10px;
+    }
+    .dropdown.hidden {
+        display: none;
+    }
+    .dropdown ul {
+        list-style: none;
+        padding: 0;
+    }
+    .dropdown li {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+    .dropdown li:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const notificationIcon = document.getElementById("notification-icon");
+    const notificationDropdown = document.getElementById("notification-dropdown");
+    const notificationList = document.getElementById("notification-list");
+    const notificationCount = document.getElementById("notification-count");
+
+    // Fetch notifications from Symfony API
+    async function fetchNotifications() {
+        try {
+            const response = await fetch("/notifications");
+            const data = await response.json();
+            notificationList.innerHTML = "";
+            notificationCount.textContent = data.length;
+
+            if (data.length > 0) {
+                data.forEach((notification) => {
+                    const li = document.createElement("li");
+                    li.textContent = notification.message;
+                    notificationList.appendChild(li);
+                });
+            } else {
+                notificationList.innerHTML = "<li>No new notifications</li>";
+            }
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+        }
+    }
+
+    // Toggle dropdown on click
+    notificationIcon.addEventListener("click", (e) => {
+        e.preventDefault();
+        notificationDropdown.classList.toggle("hidden");
+        fetchNotifications(); // Refresh notifications when clicked
+    });
+
+    // Auto-fetch notifications every 30 seconds
+    setInterval(fetchNotifications, 30000);
+});
+</script>
+
+            <a href="#" class="profile">
+                <img src="{{ asset('img/zied.jpg') }}">
+            </a>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main>
+            {% block content %}{% endblock %}
+            {% block body %}{% endblock %}
+        </main>
+    </section>
+    <!-- CONTENT -->
+
+    <script src="{{ asset('JS/script.js') }}"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

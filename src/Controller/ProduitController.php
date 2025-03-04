@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Knp\Component\Pager\PaginatorInterface; 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/produit')]
 final class ProduitController extends AbstractController
@@ -31,6 +31,7 @@ final class ProduitController extends AbstractController
 
    
     #[Route('/index', name: 'app_produit_index')]
+    #[IsGranted('ROLE_ADMIN')]
 public function index(ProduitRepository $produitRepository, PaginatorInterface $paginator, Request $request): Response
 {
     $query = $produitRepository->findAll(); // Fetch all products

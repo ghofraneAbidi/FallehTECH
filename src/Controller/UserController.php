@@ -13,11 +13,28 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+
+
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 
 
 #[Route('/user')]
 final class UserController extends AbstractController
 {
+
+    #[Route('/home', name: 'app_home_front')]
+    public function homePage(): Response
+    {
+        return $this->render('frontoffice/index.html.twig', [
+            'title' => 'Falleh Tech - Home',
+        ]);
+    }
     #[Route(name: 'app_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
@@ -45,13 +62,19 @@ final class UserController extends AbstractController
 
 
     #[Route('/signup', name: 'app_user_signup', methods: ['GET', 'POST'])]
-    public function signup(Request $request, EntityManagerInterface $entityManager): Response
+    public function signup(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $hashedPassword = $passwordHasher->hashPassword(
+                $user,
+                $user->getPassword()
+            );
+            $user->setPassword($hashedPassword);
+
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -64,23 +87,18 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/login', name: 'app_user_login')]
+      #[Route('/login', name: 'app_user_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         // Get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastEmail = $authenticationUtils->getLastUsername();
 
-
-        // Debug the error to check its content
-        dump($error);
-
-
         return $this->render('login/index.html.twig', [
             'last_email' => $lastEmail,
             'error' => $error,
         ]);
-    }
+    } 
 
     #[Route('/deleteFront', name: 'app_user_delete_front', methods: ['POST'])]
     public function deleteFront(Request $request, EntityManagerInterface $entityManager): Response
@@ -122,14 +140,20 @@ final class UserController extends AbstractController
 
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($user);
+        if ($form->isSubmitted() && $form->isValid()) {           
+            $hashedPassword = $passwordHasher->hashPassword(
+            $user,
+            $user->getPassword()
+        );
+        $user->setPassword($hashedPassword);
+
+        $entityManager->persist($user);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_back_office', [], Response::HTTP_SEE_OTHER);
@@ -151,13 +175,18 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            $hashedPassword = $passwordHasher->hashPassword(
+                $user,
+                $user->getPassword()
+            );
+            $user->setPassword($hashedPassword);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_back_office', [], Response::HTTP_SEE_OTHER);
@@ -169,7 +198,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/editFront', name: 'app_user_edit_front', methods: ['GET', 'POST'])]
+    /*#[Route('/{id}/editFront', name: 'app_user_edit_front', methods: ['GET', 'POST'])]
     public function editFront(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
@@ -196,7 +225,41 @@ final class UserController extends AbstractController
             'user' => $user,
             'form' => $form,
         ]);
+    }*/
+
+    #[Route('/{id}/editFront', name: 'app_user_edit_front', methods: ['GET', 'POST'])]
+    public function editFront(Request $request, User $user, EntityManagerInterface $entityManager,UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
+
+        $form->handleRequest($request);
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $newPassword = $form->get('password')->getData();
+            if ($newPassword && $newPassword !== "") {
+                $hashedPassword = $passwordHasher->hashPassword(
+                    $user,
+                    $newPassword                
+                );
+                $user->setPassword($hashedPassword);
+            } else {
+                // Keep the old password
+                $user->setPassword($user->getPassword());
+            }
+            
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_front_office', [], Response::HTTP_SEE_OTHER);
+        }
+        dump('Form not submitted or invalid!');
+
+        return $this->render('frontoffice/edit.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+        ]);
     }
+
 
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
@@ -207,7 +270,17 @@ final class UserController extends AbstractController
         }
 
         return $this->redirectToRoute('app_back_office', [], Response::HTTP_SEE_OTHER);
-    }    
+    }  
 
+
+
+
+
+
+
+
+
+
+    
 
 }

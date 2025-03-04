@@ -1,0 +1,90 @@
+{% extends 'base_client.html.twig' %}
+
+{% block title %}Météo en Tunisie{% endblock %}
+
+{% block body %}
+<style>
+    #map {
+        height: 600px;
+        width: 100%;
+        border-radius: 12px;
+    }
+
+    .weather-popup {
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .weather-popup img {
+        width: 50px;
+        height: 50px;
+    }
+
+    /* 🔹 Style du bouton Retour */
+    .btn-back {
+        display: block;
+        width: max-content;
+        margin: 20px auto;
+        background: linear-gradient(to right, #ff7e5f, #feb47b);
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 8px 12px;
+        transition: all 0.3s ease-in-out;
+        text-decoration: none;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .btn-back:hover {
+        background: linear-gradient(to right, #ff5733, #ff8c42);
+        transform: scale(1.05);
+    }
+
+</style>
+
+<div class="container mt-4">
+    <h1 class="text-center">🌍 Météo en Tunisie</h1>
+    <p class="text-center">Consultez la météo actuelle des principales villes de Tunisie.</p>
+    
+    <div id="map"></div>
+
+    <!-- 🔹 Bouton Retour en bas -->
+    <a href="{{ path('app_post_front') }}" class="btn-back">⬅️ Retour aux Posts</a>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const map = L.map('map').setView([34.0, 9.0], 6.3);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        fetch("{{ path('app_weather_data') }}")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(city => {
+                    const popupContent = `
+                        <div class="weather-popup">
+                            <strong>${city.name}</strong><br>
+                            🌡️ Température : ${city.temp}°C <br>
+                            ☁️ ${city.weather} <br>
+                            <img src="https://openweathermap.org/img/wn/${city.icon}.png">
+                        </div>
+                    `;
+
+                    L.marker([city.lat, city.lon])
+                        .addTo(map)
+                        .bindPopup(popupContent);
+                });
+            })
+            .catch(error => console.error("🔴 Erreur lors du chargement des données météo:", error));
+    });
+</script>
+
+<!-- Ajout de Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+{% endblock %}

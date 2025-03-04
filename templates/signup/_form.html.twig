@@ -1,43 +1,53 @@
-{{ form_start(form, {'attr': {'class': 'signup-form' , 'novalidate': 'novalidate'} } ) }}
+{{ form_start(form, {'attr': {'class': 'signup-form', 'novalidate': 'novalidate'}}) }}
 
     <div class="input-field">
         {{ form_widget(form.name, {'attr': {'placeholder': 'Nom'}}) }}
-        {{ form_errors(form.name)}}
+        <div style="color: red;">{{ form_errors(form.name) }}</div>
     </div>
+    
     <div class="input-field">
         {{ form_widget(form.last_name, {'attr': {'placeholder': 'Prénom'}}) }}
-        {{ form_errors(form.last_name)}}
+        <div style="color: red;">{{ form_errors(form.last_name) }}</div>
     </div>
+    
     <div class="input-field">
         {{ form_widget(form.email, {'attr': {'placeholder': 'Email', 'type': 'email'}}) }}
-        {{ form_errors(form.email)}}
+        <div style="color: red;">{{ form_errors(form.email) }}</div>
     </div>
+    
     <div class="input-field">
         {{ form_widget(form.password, {'attr': {'placeholder': 'Mot de passe', 'type': 'password'}}) }}
-        {{ form_errors(form.password)}}
+        <div style="color: red;">{{ form_errors(form.password) }}</div>
     </div>
+    
     <div class="input-field">
         {{ form_widget(form.carte_identite, {'attr': {'placeholder': 'Carte d\'identité'}}) }}
-        {{ form_errors(form.carte_identite)}}
+        <div style="color: red;">{{ form_errors(form.carte_identite) }}</div>
     </div>
+    
     <div class="input-field">
         {{ form_widget(form.role, {'attr': {'class': 'role-select'}}) }}
-        {{ form_errors(form.role)}}
+        <div style="color: red;">{{ form_errors(form.role) }}</div>
     </div>
 
     <div class="input-field ouvrier-fields" style="display: none;">
+        <label for="disponibility">Disponibilité</label>
         {{ form_widget(form.disponibility, {'attr': {'placeholder': 'Disponibilité'}}) }}
-        {{ form_errors(form.disponibility)}}
+        <div style="color: red;">{{ form_errors(form.disponibility) }}</div>
     </div>
+    
     <div class="input-field ouvrier-fields" style="display: none;">
         {{ form_widget(form.location, {'attr': {'placeholder': 'Lieu'}}) }}
-        {{ form_errors(form.location)}}
+        <div style="color: red;">{{ form_errors(form.location) }}</div>
     </div>
+    
     <div class="input-field ouvrier-fields" style="display: none;">
         {{ form_widget(form.experience, {'attr': {'placeholder': 'Expérience'}}) }}
+        <div style="color: red;">{{ form_errors(form.experience) }}</div>
     </div>
 
     <button type="submit" class="btn">{{ button_label|default('S\'inscrire') }}</button>
-    <p class="signup-parag"> Vous avez deja un compte ? <a href="{{ path('app_user_login')}}" class="signup-redirect">  Se connecter</a></p>
+    
+    <p class="signup-parag"> Vous avez déjà un compte ? <a href="{{ path('app_user_login') }}" class="signup-redirect">Se connecter</a></p>
 
 {{ form_end(form) }}

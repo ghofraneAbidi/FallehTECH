@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}FarmFresh - Organic Farm{% endblock %}</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Organic Farming" name="keywords">
+    <meta content="Farm website with job offers" name="description">
+
+    <!-- Favicon -->
+    <link href="{{ asset('img/favicon.icon') }}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{{ asset('lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{{ asset('zie/css1/bootstrap.min.css') }}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{{ asset('zie/css1/style.css') }}" rel="stylesheet">
+
+    <!-- Inline CSS for Notification Styling -->
+    <style>
+        /* Container for the bell icon */
+        .notification-icon {
+            position: relative;
+            display: inline-block;
+        }
+        /* Red circular badge */
+        .notification-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #dc3545;
+            color: #fff;
+            border-radius: 50%;
+            padding: 3px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 1;
+            display: none; /* Hidden if no notifications */
+        }
+        /* Custom notifications dropdown */
+        .notifications-dropdown {
+            width: 500px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 0;
+        }
+        .notifications-dropdown .dropdown-header {
+            font-weight: bold;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .notification-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        .notification-item i {
+            font-size: 18px;
+            margin-right: 10px;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-time {
+            font-size: 10px;
+            color: #6c757d;
+        }
+        .dropdown-footer {
+            padding: 10px;
+            border-top: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        .dropdown-footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVBAR START -->
+    <nav class="navbar navbar-expand-lg bg-primary navbar-dark shadow-sm py-3 px-3">
+        <a href="" class="navbar-brand">
+            <img src="{{ asset('img/logo.png') }}" alt="FarmFresh Logo" class="logo">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+
+        
+        <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
+            
+            <ul class="navbar-nav mx-auto py-0">
+                
+                <li class="nav-item"><a href="{{ path('app_home_front')}}" class="nav-link">Home</a></li>
+
+                <li class="nav-item"><a href="#" class="nav-link">commandes</a></li>
+                <li class="nav-item"><a href="{{ path('agriculteur_index')}}" class="nav-link">Product</a></li>
+                <li class="nav-item"><a href="{{ path('app_offre_emploi_index') }}" class="nav-link">Job Offers</a></li>
+                <li class="nav-item"><a href="{{ path('app_post_front') }}" class="nav-link">Blog</a></li>
+                <!-- Notifications Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle notification-icon" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">0</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end notifications-dropdown" aria-labelledby="notificationsDropdown">
+                        <div class="dropdown-header">Notifications</div>
+                        <div id="notificationsContent">
+                            <!-- Dynamic notifications will be injected here -->
+                            <div class="notification-item">Aucune notification</div>
+                        </div>
+                        <div class="dropdown-footer">
+                            <a href="/notifications">View All Notifications</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item d-flex justify-content-center align-items-center">
+                    {% if app.user %}
+                        <h6 class="px-3 text-black">{{ app.user.name }} {{ app.user.getLastName() }} </h6>
+                        <a href="{{ path('app_user_profilefront') }}" class="me-2">
+                            <img src="{{asset('assets-front/img/Profile.png') }}" alt="Illustration" style="width: 60px ; height: 60px; object-fit: cover; border-radius: 50%">
+                        </a>
+                        <a href="{{ path('app_user_logout') }}" class="btn btn-primary py-md-3 px-md-5 me-3 ">Logout</a>
+                    {% else %}
+                        <a href="{{ path('login') }}" class="btn btn-outline-light">Login</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+
+    </nav>
+    <!-- NAVBAR END -->
+
+    <!-- Main Content Block -->
+    <main class="container my-5">
+        {% block body %}{% endblock %}
+    </main>
+
+    <!-- Footer Start -->
+    <footer class="container-fluid bg-footer bg-primary text-white mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 pt-5 mb-5">
+                    <h4 class="text-white mb-4">Get In Touch</h4>
+                    <p><i class="bi bi-geo-alt"></i> 123 Street, New York, USA</p>
+                    <p><i class="bi bi-envelope-open"></i> info@example.com</p>
+                    <p><i class="bi bi-telephone"></i> +012 345 67890</p>
+                    <div class="d-flex mt-4">
+                        <a class="btn btn-secondary btn-square rounded-circle me-2" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-secondary btn-square rounded-circle me-2" href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-secondary btn-square rounded-circle me-2" href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a class="btn btn-secondary btn-square rounded-circle" href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer End -->
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('lib/owlcarousel/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('js/main.js') }}"></script>
+
+    <!-- Notifications Integration Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Function to fetch notifications from your messaging endpoint
+            function fetchNotifications() {
+                fetch('/messaging/notifications/unread')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Calculate the total unread count
+                        let totalCount = data.reduce((sum, item) => sum + item.unreadCount, 0);
+                        let badge = document.querySelector('.notification-badge');
+                        if (badge) {
+                            badge.textContent = totalCount;
+                            badge.style.display = totalCount > 0 ? 'block' : 'none';
+                        }
+
+                        // Populate the notifications dropdown
+                        let notificationsContent = document.getElementById('notificationsContent');
+                        let html = '';
+                        if (data.length === 0) {
+                            html = '<div class="notification-item">Aucune notification</div>';
+                        } else {
+                            data.forEach(notif => {
+                                // Customize the message preview and time as needed.
+                                html += `
+                                    <a class="dropdown-item" href="#">
+                                        <div class="notification-item">
+                                            <i class="fas fa-envelope"></i>
+                                            <div class="notification-content">
+                                                ${notif.unreadCount} nouveau(x) message(s) de l'utilisateur ${notif.senderId}
+                                                <div class="notification-time">${notif.timestamp || 'À l’instant'}</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                `;
+                            });
+                        }
+                        notificationsContent.innerHTML = html;
+                    })
+                    .catch(error => console.error("Error fetching notifications:", error));
+            }
+
+            // Initial fetch and then poll every 5 seconds
+            fetchNotifications();
+            setInterval(fetchNotifications, 5000);
+
+            // Optionally, clear notifications when the dropdown is clicked.
+            let notificationsDropdown = document.getElementById("notificationsDropdown");
+            if (notificationsDropdown) {
+                notificationsDropdown.addEventListener('click', function () {
+                    console.log("Notification icon clicked. Mark notifications as read if needed.");
+                    // You could add an AJAX call here to mark notifications as read.
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

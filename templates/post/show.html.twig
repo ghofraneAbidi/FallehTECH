@@ -1,4 +1,4 @@
-{% extends 'backoffice/base.html.twig' %}
+{% extends 'base_zied.html.twig' %}
 
 {% block title %}Les detailles des posts{% endblock %}
 
@@ -151,6 +151,11 @@
                 <tr>
                     <th>ID</th>
                     <td>{{ post.id }}</td>
+                </tr>
+             
+                <tr>
+                    <th>Category</th>
+                    <td>{{ post.category     }}</td>
                 </tr>
                 <tr>
                     <th>Title</th>

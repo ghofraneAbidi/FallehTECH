@@ -1,0 +1,237 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Messenger{% endblock %}
+
+{% block body %}
+
+    <!-- Display connected user -->
+    <div class="connected-user">
+        <p>Connected as: <strong>{{ testUser.nom }} with id : {{ testUser.id }}</strong></p>
+    </div>
+
+    <div class="chat-container">
+        <h2>Messenger</h2>
+
+        {% if testUser %}
+            <!-- User Circles (Scrollable) -->
+            <div class="user-carousel">
+                <button class="carousel-btn left" onclick="slideUsers(-1)">&#9665;</button>
+                <div class="user-circles-container">
+                    {% for user in users %}
+                        <div class="user-circle-wrapper" style="position: relative; display: inline-block; margin: 0 5px;">
+                            <!-- Notification Badge -->
+                            <span class="notification-badge" id="notif-{{ user.id }}" style="display: none;">0</span>
+                            
+                            <!-- User Circle -->
+                            <div class="user-circle" data-user-id="{{ user.id }}" onclick="loadMessages({{ user.id }}, '{{ user.nom }}')">
+                                <div class="circle-border">
+                                    <div class="circle-content">
+                                        <!-- Default user image -->
+                                        <img src="{{ asset('img/user_def.jpg') }}" alt="Default user image" class="default-user-img">
+                                    </div>
+                                </div>
+                                <!-- Display user id below the circle -->
+                                <p class="user-id">User: {{ user.id }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-btn right" onclick="slideUsers(1)">&#9655;</button>
+            </div>
+
+            <!-- Selected User Name -->
+            <h3 id="selected-user-name">Select a user to start chatting</h3>
+
+            <!-- Chat Messages -->
+            <div class="chat-box" id="chat-box">
+                <p>Select a user to start chatting.</p>
+            </div>
+
+            <!-- Message Input -->
+            <div class="message-input">
+                <input type="text" id="message" placeholder="Select a user first..." disabled>
+                <button type="button" id="send-btn" disabled>Send</button>
+            </div>
+        {% else %}
+            <p class="not-logged-in">⚠️ You need to <a href="{{ path('app_login') }}">log in</a> to access messages.</p>
+        {% endif %}
+    </div>
+
+    {# Inline CSS for demonstration – ideally, add these to your stylesheet #}
+    <style>
+        .notification-badge {
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 3px 6px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 12px;
+            line-height: 1;
+        }
+        .default-user-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-circle {
+            cursor: pointer;
+        }
+    </style>
+
+    <script src="{{ asset('JS/messaging.js') }}"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let selectedUserId = null;
+        const sendBtn = document.getElementById("send-btn");
+        const messageInput = document.getElementById("message");
+        const chatBox = document.getElementById("chat-box");
+        const senderId = {{ testUser.id|default(0)|json_encode|raw }};
+        const selectedUserName = document.getElementById("selected-user-name");
+
+        if (sendBtn) sendBtn.addEventListener("click", sendMessage);
+
+        // Function to load messages dynamically and update notifications
+        window.loadMessages = function(userId, userName) {
+            selectedUserId = userId;
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+            messageInput.placeholder = "Type a message...";
+            selectedUserName.innerText = `Chatting with ${userName}`;
+
+            fetchMessages(); // Load messages initially
+            markMessagesAsRead(userId); // Mark messages as read for this conversation
+            fetchUnreadNotifications(); // Update notifications
+            startAutoRefresh();
+        };
+
+        function fetchMessages() {
+            if (!selectedUserId) return; // Prevent unnecessary fetches
+
+            fetch(`/messaging/conversation/${selectedUserId}`)
+                .then(response => response.json())
+                .then(messages => {
+                    chatBox.innerHTML = ""; // Clear chat box
+
+                    if (messages.length === 0) {
+                        chatBox.innerHTML = "<p>No messages yet.</p>";
+                        return;
+                    }
+
+                    messages.forEach(message => {
+                        let messageDiv = document.createElement("div");
+                        messageDiv.classList.add("message");
+
+                        if (message.sender.id === senderId) {
+                            messageDiv.classList.add("sent");
+                        } else {
+                            messageDiv.classList.add("received");
+                        }
+
+                        messageDiv.innerHTML = `<p><strong>${message.sender.name}:</strong> ${message.content}</p>
+                                                <small>${message.createdAt}</small>`;
+                        chatBox.appendChild(messageDiv);
+                    });
+
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                })
+                .catch(error => console.error("Error loading messages:", error));
+        }
+
+        function sendMessage() {
+            if (!selectedUserId) {
+                alert("Please select a user to chat with.");
+                return;
+            }
+
+            const message = messageInput.value.trim();
+            if (message === "") {
+                alert("Message cannot be empty!");
+                return;
+            }
+
+            const requestData = {
+                recipient_id: selectedUserId,
+                content: message
+            };
+
+            fetch('/messaging/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    fetchMessages(); // Reload messages instantly after sending
+                    messageInput.value = "";
+                    fetchUnreadNotifications();
+                } else {
+                    alert("Error: " + (data.error || "Message failed to send!"));
+                }
+            })
+            .catch(error => {
+                console.error("Fetch Error:", error);
+                alert("An error occurred while sending the message.");
+            });
+        }
+
+        function markMessagesAsRead(userId) {
+            fetch(`/messaging/conversation/${userId}/read`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => {
+                let notifElement = document.getElementById(`notif-${userId}`);
+                if (notifElement) {
+                    notifElement.style.display = "none";
+                }
+            });
+        }
+
+        function fetchUnreadNotifications() {
+            fetch('/messaging/notifications/unread')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Notifications data:", data); // Debug output
+
+                    // First hide all notification badges
+                    document.querySelectorAll(".notification-badge").forEach(el => {
+                        el.style.display = "none";
+                    });
+
+                    // Then update the ones with unread messages
+                    data.forEach(notif => {
+                        let notifElement = document.getElementById(`notif-${notif.senderId}`);
+                        if (notifElement) {
+                            notifElement.textContent = notif.unreadCount;
+                            notifElement.style.display = notif.unreadCount > 0 ? "block" : "none";
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching notifications:", error));
+        }
+
+        // Auto-refresh messages and notifications every 5 seconds
+        function startAutoRefresh() {
+            setInterval(() => {
+                if (selectedUserId) {
+                    fetchMessages();
+                    fetchUnreadNotifications();
+                }
+            }, 5000);
+        }
+    });
+
+    function slideUsers(direction) {
+        const userCirclesContainer = document.querySelector(".user-circles-container");
+        const scrollAmount = 150; // Adjust scroll speed for better effect
+        userCirclesContainer.scrollLeft += direction * scrollAmount;
+    }
+    </script>
+
+{% endblock %}

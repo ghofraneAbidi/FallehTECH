@@ -1,0 +1,56 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Accepted Job Offers{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css">
+{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">📅 Accepted Job Offers Calendar</h1>
+
+    {% if impersonated_user %}
+        <p><strong>Worker:</strong> {{ impersonated_user.nom }} (ID: {{ impersonated_user.id }})</p>
+    {% endif %}
+
+    {% if offers is empty %}
+        <p class="text-warning">No accepted job offers found.</p>
+    {% else %}
+        <div id="calendar"></div> {# Calendar will be displayed here #}
+    {% endif %}
+
+    <a href="{{ path('app_ouvrier_offers') }}" class="btn btn-primary mt-3">🔙 Back to Offers</a>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
+    <script>
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+
+        if (!calendarEl) {
+            console.error("Calendar element not found!");
+            return;
+        }
+
+        // Log the events data to check if it's correct
+        var events = {{ offers|json_encode|raw }};
+        console.log("Events Data:", events); // Debugging output
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: events,
+            eventColor: '#28a745'
+        });
+
+        calendar.render();
+    });
+</script>
+
+{% endblock %}

@@ -35,8 +35,9 @@
     <!-- Navbar Items -->
     <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
         <div class="navbar-nav mx-auto py-0">
-            <a href="/" class="nav-item nav-link active">Home</a>
+            <a href="{{ path('app_home_front')}}" class="nav-item nav-link active">Home</a>
             <a href="about.html" class="nav-item nav-link">About</a>
+            <a href="{{ path('app_post_front') }}" class="nav-item nav-link">offre de travail</a>
             <a href="{{ path('app_post_front') }}" class="nav-item nav-link">Posts</a>
             <a href="{{ path('produits_front') }}" class="nav-item nav-link">Produits</a> <!-- ✅ Products Page -->
         </div>
@@ -55,14 +56,12 @@
         <!-- ✅ USER PROFILE -->
         <div class="d-flex align-items-center ms-3">
             {% if app.user %}
-                <h6 class="px-3 text-white">{{ app.user.name }}</h6>
-                <a href="{{ path('app_user_profilefront') }}">
-                    <img src="{{ asset('frontoffice/img/avatar.jpg') }}" alt="User" class="rounded-circle" width="36">
+                <h6 class="px-3 text-black">{{ app.user.name }} {{ app.user.getLastName() }} </h6>
+                <a href="{{ path('app_user_profilefront') }}" class="me-2">
+                    <img src="{{asset('assets-front/img/Profile.png') }}" alt="Illustration" style="width: 60px ; height: 60px; object-fit: cover; border-radius: 50%">
                 </a>
-                <a href="{{ path('app_user_logout') }}" class="px-3">
-                    <img src="{{ asset('frontoffice/img/logout.png') }}" alt="Logout" width="36">
-                </a>
-            {% else %}
+                <a href="{{ path('app_user_logout') }}" class="btn btn-primary py-md-3 px-md-5 me-3 ">Logout</a>
+                {% else %}
                 <a href="{{ path('login') }}" class="btn btn-outline-light">Login</a>
             {% endif %}
         </div>

@@ -1,0 +1,607 @@
+/********** Template CSS **********/
+:root {
+    --primary: #FFFFFF; /* White color as new primary */
+    --secondary: #34AD54; /* Previous primary is now secondary */
+    --light: #F6FFF2;
+    --dark: #263A4F;
+}
+
+.btn {
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: 1px;
+    font-weight: 700;
+    transition: .5s;
+}
+
+.btn-primary,
+.btn-secondary {
+    color: #FFFFFF;
+    background: var(--secondary);
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+    background: var(--primary);
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+}
+
+.btn-square {
+    width: 36px;
+    height: 36px;
+}
+
+.btn-sm-square {
+    width: 28px;
+    height: 28px;
+}
+
+.btn-lg-square {
+    width: 46px;
+    height: 46px;
+}
+
+.btn-square,
+.btn-sm-square,
+.btn-lg-square {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+}
+
+.back-to-top {
+    position: fixed;
+    display: none;
+    right: 30px;
+    bottom: 0;
+    border-radius: 0;
+    z-index: 99;
+}
+
+.navbar-dark {
+    background: var(--primary) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    padding: 30px 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--secondary);
+    text-transform: uppercase;
+    transition: .5s;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+    background: var(--secondary);
+    color: var(--primary);
+}
+
+@media (max-width: 991.98px) {
+    .navbar-dark .navbar-nav .nav-link  {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .carousel-caption h4 {
+        font-size: 18px;
+        font-weight: 500 !important;
+    }
+
+    .carousel-caption h1 {
+        font-size: 30px;
+        font-weight: 600 !important;
+    }
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 10%;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 3rem;
+    height: 3rem;
+}
+
+.bg-hero {
+    background: url(../img/carousel-1.jpg) top right no-repeat;
+    background-size: cover;
+}
+
+@media (min-width: 991.98px) {
+    .banner {
+        position: relative;
+        margin-top: -90px;
+        z-index: 1;
+    }
+}
+
+.bg-vegetable {
+    background: linear-gradient(rgba(52, 173, 84, .2), rgba(52, 173, 84, .2)), url(../img/vegetable.png) bottom right no-repeat;
+    background-size: contain;
+}
+
+.bg-fruit {
+    background: linear-gradient(rgba(52, 173, 84, .2), rgba(52, 173, 84, .2)), url(../img/fruit.png) bottom right no-repeat;
+    background-size: contain;
+}
+
+.service-item {
+    box-shadow: 0 0 45px #EDEDED;
+    transition: .5s;
+}
+
+.about i,
+.service-item i {
+    background-image: linear-gradient(var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: .5s;
+}
+
+.service-item:hover {
+    color: var(--light);
+    background: var(--secondary) !important;
+}
+
+.service-item:hover i {
+    background-image: linear-gradient(var(--light), var(--secondary));
+}
+
+.service-item:hover h4 {
+    color: var(--light);
+}
+.logo {
+    height: 100px; /* Adjust logo size */
+    width: auto;
+}
+/* Styling for the edit form container */
+.edit-form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background: var(--light);
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Heading style */
+.edit-form-container h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 20px;
+}
+
+/* Style for form elements */
+.edit-form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Buttons group */
+.edit-button-group {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Back Button */
+.btn-back {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: var(--secondary);
+    color: var(--primary);
+    border-radius: 5px;
+    transition: 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-back:hover {
+    background: var(--primary);
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+}
+
+/* Style for form fields */
+.edit-form-container input,
+.edit-form-container textarea,
+.edit-form-container select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--secondary);
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Submit button style */
+.edit-form-container button {
+    background: var(--secondary);
+    color: var(--primary);
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.edit-form-container button:hover {
+    background: var(--primary);
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .edit-form-container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .edit-form-container h1 {
+        font-size: 20px;
+    }
+
+    .btn-back {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+
+
+/* Styling for the job offer creation container */
+.create-job-container {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    background: var(--light);
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading style */
+.create-job-container h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Card styling */
+.create-job-card {
+    background: var(--primary);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Style for form fields */
+.create-job-container input,
+.create-job-container textarea,
+.create-job-container select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--secondary);
+    border-radius: 5px;
+    font-size: 16px;
+    background: #fff;
+    transition: 0.3s ease;
+}
+
+/* Form labels */
+.create-job-container label {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+/* Placeholder text */
+.create-job-container input::placeholder,
+.create-job-container textarea::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* Submit button style */
+.create-job-container button {
+    width: 100%;
+    background: var(--secondary);
+    color: var(--primary);
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.create-job-container button:hover {
+    background: var(--primary);
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+}
+
+/* Back Button */
+.btn-back {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: var(--secondary);
+    color: var(--primary);
+    border-radius: 5px;
+    transition: 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-back:hover {
+    background: var(--primary);
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .create-job-container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .create-job-container h1 {
+        font-size: 22px;
+    }
+
+    .btn-back {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+/* Light green for accepted applications */
+.bg-accepted {
+    background-color: rgba(0, 255, 0, 0.2) !important;
+}
+
+/* Light red for rejected applications */
+.bg-rejected {
+    background-color: rgba(255, 0, 0, 0.2) !important;
+}
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 5px;
+}
+
+.rating input {
+    display: none; /* Hide radio inputs */
+}
+
+.rating label {
+    font-size: 2rem; /* Make stars bigger */
+    color: #ccc; /* Default star color */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+/* Change color when hovered */
+.rating label:hover,
+.rating label:hover ~ label {
+    color: gold;
+}
+
+/* Change color when selected */
+.rating input:checked ~ label {
+    color: gold;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/************************/
+.chat-container {
+    width: 80%;
+    margin: auto;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    background: #f9f9f9;
+    text-align: center;
+}
+
+.user-carousel {
+display: flex;
+align-items: center;
+justify-content: center;
+margin-bottom: 15px;
+}
+
+.user-circles-container {
+width: 80%;
+height: 130px;
+overflow-x: auto; /* ✅ Enables horizontal scrolling */
+white-space: nowrap;
+display: flex;
+scroll-behavior: smooth; /* ✅ Makes scrolling smooth */
+padding: 10px;
+
+
+
+}
+
+
+.user-circles {
+display: flex;
+gap: 15px;
+transition: scroll 0.3s ease-in-out;
+padding: 5px 0;
+margin-right: 10px;
+
+}
+
+/* Instagram-like circle with gradient border */
+.user-circle {
+position: relative;
+width: 65px;
+height: 65px;
+cursor: pointer;
+transition: transform 0.2s;
+margin-right: 5px;
+margin-left: 5px;
+}
+
+/* Gradient border effect */
+.circle-border {
+width: 100%;
+height: 100%;
+border-radius: 50%;
+padding: 3px;
+background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+/* Inner content with solid white background */
+.circle-content {
+width: 100%;
+height: 100%;
+background: white;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+font-weight: bold;
+color: #333;
+}
+
+/* Hover effect */
+.user-circle:hover {
+transform: scale(1.1);
+}
+
+/* Left & right buttons */
+.carousel-btn {
+background: transparent;
+color: #333;
+border: none;
+padding: 5px 10px;
+font-size: 22px;
+cursor: pointer;
+transition: 0.3s;
+}
+
+.carousel-btn:hover {
+color: #007bff;
+}
+
+h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.chat-box {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    min-height: 200px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.message {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 10px;
+    width: fit-content;
+    max-width: 70%;
+}
+
+.sent {
+    background: #dcf8c6;
+    align-self: flex-end;
+    text-align: right;
+    margin-left: auto;
+}
+
+.received {
+    background: #e5e5ea;
+}
+
+.message-input {
+    display: flex;
+    margin-top: 10px;
+    gap: 5px;
+}
+
+.message-input input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.message-input button {
+    padding: 8px 15px;
+    border: none;
+    background: #28a745;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+.notification-badge {
+position: absolute;
+top: 0;
+right: 0;
+background: red;
+color: white;
+font-size: 12px;
+font-weight: bold;
+border-radius: 50%;
+width: 18px;
+height: 18px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.default-user-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+.user-id {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 0.9em;
+}

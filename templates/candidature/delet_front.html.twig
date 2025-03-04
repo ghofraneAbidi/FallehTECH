@@ -1,0 +1,7 @@
+<form method="post" action="{{ path('app_candidature_delete_front', {'id': candidature.id}) }}" 
+      onsubmit="return confirm('Are you sure you want to delete this item?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ candidature.id) }}">
+    <button class="btn delete-btn" title="Supprimer">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>

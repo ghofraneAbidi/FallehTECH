@@ -1,0 +1,220 @@
+{% extends 'base_front_agriculteur.html.twig' %}
+
+{% block title %}Applications for My Job Offers{% endblock %}
+
+{% block body %}
+    <h1 class="text-center my-4">Workers Who Applied to My Job Offers</h1>
+
+    {% if applications is empty %}
+        <div class="alert alert-warning text-center">No workers have applied to your job offers yet.</div>
+    {% else %}
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Worker Name</th>
+                    <th>Job Title</th>
+                    <th>Location</th>
+                    <th>Application Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidature in applications %}
+                    <tr 
+                        {% if candidature.statut.value == 'acceptee' %} class="bg-accepted"
+                        {% elseif candidature.statut.value == 'terminee' %} class="bg-completed"
+                        {% elseif candidature.statut.value == 'refusee' %} class="bg-rejected"
+                        {% endif %}
+                    >
+                        <td>
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#workerDetailsModal{{ candidature.id }}">
+                                {{ candidature.getIdTravailleur().name }}
+                            </a>
+                        </td>
+                        <td>{{ candidature.getIdOffre().titre }}</td>
+                        <td>{{ candidature.getIdOffre().lieu }}</td>
+                        <td>{{ candidature.dateApplied|date("Y-m-d H:i") }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if candidature.statut == constant('App\\Enum\\StatutCandidature::EN_ATTENTE') %} bg-warning text-dark 
+                                {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::ACCEPTEE') %} bg-success 
+                                {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::TERMINEE') %} bg-primary 
+                                {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::CONFIRMEE') %} bg-info 
+                                {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::REFUSEE') %} bg-danger 
+                                {% else %} bg-secondary {% endif %}">{{ candidature.statut.label() }}</span>
+                        </td>
+
+                        <td>
+                            {% if candidature.statut == constant('App\\Enum\\StatutCandidature::EN_ATTENTE') %}
+                                <div class="d-flex gap-2">
+                                    <!-- Accept Application -->
+                                    <button class="btn btn-success btn-sm accept-button" data-candidature-id="{{ candidature.id }}">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+
+                                    <!-- Reject Application -->
+                                    <button class="btn btn-danger btn-sm reject-button" data-candidature-id="{{ candidature.id }}">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </div>
+                            {% elseif candidature.statut == constant('App\\Enum\\StatutCandidature::TERMINEE') %}
+                                <!-- Show Popup for Completed Work -->
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#workerDetailsModal{{ candidature.id }}">
+                                    <i class="fas fa-info-circle"></i> View Details
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <!-- MODAL: Worker Details & Confirmation -->
+                    <div class="modal fade" id="workerDetailsModal{{ candidature.id }}" tabindex="-1" aria-labelledby="workerDetailsLabel{{ candidature.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="workerDetailsLabel{{ candidature.id }}">
+                                        Worker Details - {{ candidature.getIdTravailleur().name }}
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Job Title:</strong> {{ candidature.getIdOffre().titre }}</p>
+                                    <p><strong>Location:</strong> {{ candidature.getIdOffre().lieu }}</p>
+                                    <p><strong>Application Date:</strong> {{ candidature.dateApplied|date("Y-m-d H:i") }}</p>
+                                    <p><strong>Current Status:</strong> {{ candidature.statut.label() }}</p>
+                                    <hr>
+                                    <h6>Worker Completion Details</h6>
+                                    <p>{{ candidature.rating ?: 'No additional details provided by the worker.' }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <!-- Confirm Completion & Open Review Modal -->
+                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#reviewModal{{ candidature.id }}">
+                                        <i class="fas fa-check-circle"></i> Confirm Completion & Review
+                                    </button>
+
+                                    <!-- Send Feedback Request -->
+                                    <a href="" class="btn btn-warning">
+                                        <i class="fas fa-envelope"></i> Request Feedback
+                                    </a>
+
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+<div class="modal fade" id="reviewModal{{ candidature.id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ candidature.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel{{ candidature.id }}">Review Worker Performance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ path('app_confirm_completion', {'id': candidature.id}) }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('confirm' ~ candidature.id) }}">
+
+                    <!-- Star Rating -->
+                    <label>Rate the Worker:</label>
+                    <div class="rating">
+                        {% for i in 5..1 %}
+                            <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}_{{ candidature.id }}">
+                            <label for="star{{ i }}_{{ candidature.id }}">★</label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Feedback Comment -->
+                    <label for="comment">Feedback:</label>
+                    <textarea name="comment" class="form-control" rows="3"></textarea>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-circle"></i> Confirm & Submit Review
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="mb-3">
+            <button onclick="window.history.back();" class="btn btn-secondary">
+                Back to Previous Page
+            </button>
+        </div>
+    {% endif %}
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Handle Accept & Reject AJAX Requests
+        document.querySelectorAll(".accept-button, .reject-button").forEach(button => {
+            button.addEventListener("click", function (e) {
+                e.preventDefault();
+
+                let candidatureId = this.getAttribute("data-candidature-id");
+                let action = this.classList.contains("accept-button") ? "accept" : "reject";
+                let actionUrl = action === "accept" 
+                    ? `/offre/emploi/farmer/application/accept/${candidatureId}`
+                    : `/offre/emploi/farmer/application/reject/${candidatureId}`;
+
+              fetch(actionUrl, {
+    method: "POST",
+    headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({})
+})
+.then(response => {
+    if (!response.ok) {
+        if (response.status === 404) {
+            throw new Error("Error 404: Route not found. Please check Symfony routes.");
+        }
+        if (response.status === 500) {
+            throw new Error("Error 500: Server error. Check Symfony logs.");
+        }
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json(); // Ensure the response is valid JSON
+})
+.then(data => {
+    if (data.status === "success") {
+        Swal.fire({
+            icon: "success",
+            title: action === "accept" ? "Application Accepted" : "Application Rejected",
+            text: data.message || "The action was successfully executed.",
+        }).then(() => {
+            location.reload(); // Reload page to update UI
+        });
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Action Failed",
+            text: data.message || "Something went wrong. Please try again.",
+        });
+    }
+})
+.catch(error => {
+    console.error("Error:", error);
+    Swal.fire({
+        icon: "error",
+        title: "An Error Occurred",
+        text: error.message || "Something went wrong. Please try again later.",
+    });
+});
+
+            });
+        });
+    });
+    </script>
+
+{% endblock %}
+
+
+

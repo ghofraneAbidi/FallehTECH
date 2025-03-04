@@ -21,7 +21,7 @@
                 </div>
                 <div class="mb-3">
                     {{ form_label(form.role) }}
-                    {{ form_widget(form.role, {'attr': {'class': 'form-select', 'id': 'role-select'}}) }}
+                    {{ form_widget(form.role, {'attr': {'class': 'form-select', 'class': 'role-select'}}) }}
                 </div>
             </div>
             <div class="col-md-6">
@@ -33,19 +33,17 @@
                     {{ form_label(form.password) }}
                     {{ form_widget(form.password, {'attr': {'class': 'form-control'}}) }}
                 </div>
-                <div id="worker-fields" style="display: none;">
-                    <div class="mb-3">
-                        {{ form_label(form.disponibility) }}
-                        {{ form_widget(form.disponibility, {'attr': {'class': 'form-control'}}) }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form_label(form.location) }}
-                        {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form_label(form.experience) }}
-                        {{ form_widget(form.experience, {'attr': {'class': 'form-control'}}) }}
-                    </div>
+                <div class="mb-3 worker-fields" style="display: none;">
+                    {{ form_label(form.disponibility) }}
+                    {{ form_widget(form.disponibility, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="mb-3 worker-fields" style="display: none;">
+                    {{ form_label(form.location) }}
+                    {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="mb-3 worker-fields" style="display: none;">
+                    {{ form_label(form.experience) }}
+                    {{ form_widget(form.experience, {'attr': {'class': 'form-control'}}) }}
                 </div>
             </div>
         </div>
@@ -59,19 +57,12 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const roleSelect = document.getElementById("role-select");
-        const workerFields = document.getElementById("worker-fields");
-
-        function toggleWorkerFields() {
-            if (roleSelect.value === "ouvrier") {
-                workerFields.style.display = "block";
+   document.querySelector(".role-select").addEventListener("change", function() {
+            const ouvrierFields = document.querySelectorAll(".worker-fields");
+            if (this.value === "ouvrier") {
+                ouvrierFields.forEach(field => field.style.display = "block");
             } else {
-                workerFields.style.display = "none";
+                ouvrierFields.forEach(field => field.style.display = "none");
             }
-        }
-
-        roleSelect.addEventListener("change", toggleWorkerFields);
-        toggleWorkerFields();
-    });
+        });
 </script>

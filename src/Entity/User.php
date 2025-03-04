@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
+
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -23,11 +24,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank(message: "Veuillez entrer votre nom")]
     #[Assert\Length(min: 2, max: 50, minMessage: "Le nom doit comporter au moins {{ limit }} caractères", maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères")]
+    #[Assert\Regex(
+        pattern: "/^[a-zA-ZÀ-ÿ\s'-]+$/", 
+        message: "Le nom ne doit pas contenir des chiffres"
+    )]
     private ?string $name = null;
 
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank(message: "Veuillez entrer votre prénom")]
     #[Assert\Length(min: 2, max: 50, minMessage: "Le prénom doit comporter au moins {{ limit }} caractères", maxMessage: "Le prénom ne peut pas dépasser {{ limit }} caractères")]
+    #[Assert\Regex(
+        pattern: "/^[a-zA-ZÀ-ÿ\s'-]+$/", 
+        message: "Le prénom ne doit pas contenir des chiffres"
+    )]
     private ?string $last_name = null;
 
     #[ORM\Column(length: 50)]
@@ -35,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Email(message: "L'email doit être sous la forme: exemple@exemple.exemple")]
     private ?string $email = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Veuillez entrer votre mot de passe")]
     #[Assert\Length(min: 8, max: 20, minMessage: "Le mot de passe doit comporter au moins {{ limit }} caractères", maxMessage: "Le mot de passe ne peut pas dépasser {{ limit }} caractères")]
     #[Assert\Regex(
@@ -207,7 +216,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     
         if ($this->role === 'admin') {  // Si ton rôle admin est stocké comme "admin"
             $roles[] = 'ROLE_ADMIN';
-        } else {
+        } else if ($this->role === 'ouvrier') {  
+            $roles[] = 'ROLE_OUVRIER';
+        } {
             $roles[] = 'ROLE_USER';
         }
     

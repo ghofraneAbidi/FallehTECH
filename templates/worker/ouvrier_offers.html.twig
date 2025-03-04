@@ -1,0 +1,267 @@
+{% extends 'base_front_agriculteur.html.twig' %}
+
+{% block title %}Job Offers - Ouvrier{% endblock %}
+
+{% block body %}
+    <!-- Display Logged-in Ouvrier Information -->
+    {% if user %}
+        <div class="alert alert-info text-center">
+            <strong>You are connected as:</strong> {{ user.name }} - 
+            <span class="badge bg-success">Ouvrier</span>
+        </div>
+    {% endif %}
+
+    
+ {# New Button to Navigate to Messaging Page #}
+        <a href="" class="btn btn-info mb-3">
+            <i class="fas fa-comments"></i> Go to Messenger
+        </a>
+    <!-- Job Offers Section -->
+    <section class="container mt-5">
+        <h2 class="text-center mb-4">Available Job Offers</h2>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Salary</th>
+                    <th>Location</th>
+                    <th>Date start</th>
+                    <th>Date end</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+             {% for offre in offres %}
+                   {% set startDate = null %}
+                   {% set endDate = null %}
+
+                   {# Loop through calendar data to find the matching offer for the worker #}
+                   {% for calendar in calendarData %}
+                       {% if calendar.ouvrier.id == user.id %}
+                           {% set startDate = calendar.startDate %}
+                           {% set endDate = calendar.endDate %}
+                       {% endif %}
+                   {% endfor %}
+
+                   {% set hasApplied = false %}
+                   {% set applicationId = null %}
+                   {% set applicationStatus = null %}
+                   {% set applicationRating = null %}
+                   {% set applicationFeedback = null %}
+
+                   {% for candidature in candidatures %}
+                       {% if candidature.getIdOffre().id == offre.id and candidature.getIdTravailleur().id == user.id %}
+                           {% set hasApplied = true %}
+                           {% set applicationId = candidature.id %}
+                           {% set applicationStatus = candidature.statut.value %}
+                           {% set applicationRating = candidature.rating %}
+                       {% endif %}
+                   {% endfor %}
+
+                    <tr 
+                        {% if applicationStatus == 'acceptee' %} class="bg-accepted"
+                        {% elseif applicationStatus == 'refusee' %} class="bg-rejected"
+                        {% elseif applicationStatus == 'confirmee' %} class="bg-confirmed"
+                        {% endif %}
+                    >
+                        <td>{{ offre.titre }}</td>
+                        <td>{{ offre.description }}</td>
+                        <td>{{ offre.salaire ? offre.salaire ~ ' TND' : 'Not specified' }}</td>
+                        <td>{{ offre.lieu }}</td>
+                        <td>
+                            {% if offre.startDate is not null %}
+                                {{ offre.startDate|date('Y-m-d') }}
+                            {% else %}
+                                <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if offre.dateExpiration is not null %}
+                                {{ offre.dateExpiration|date('Y-m-d') }}
+                            {% else %}
+                                <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if hasApplied %}
+                                {% if applicationStatus == 'acceptee' %}
+                                    <span class="badge bg-success">Accepted</span>
+                                {% elseif applicationStatus == 'terminee' %}
+                                    <span class="badge bg-primary">Completed by Worker</span>
+                                {% elseif applicationStatus == 'confirmee' %}
+                                    <span class="badge bg-info">Confirmed by Farmer</span>
+                                {% elseif applicationStatus == 'refusee' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-success">Available</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if hasApplied and applicationStatus == 'en_attente' %}
+                                <!-- Remove Application Button -->
+                                <form action="{{ path('app_candidature_delete_front', {'id': applicationId}) }}" method="post" style="display:inline;">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ applicationId) }}">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel your application?')">
+                                        <i class="fas fa-times"></i> Remove Application
+                                    </button>
+                                </form>
+                            {% elseif not hasApplied %}
+                                <!-- Apply Button -->
+                                <button class="btn btn-success btn-sm apply-button" data-offer-id="{{ offre.id }}">
+                                    <i class="fas fa-paper-plane"></i> Apply Now
+                                </button>
+                            {% endif %}
+
+                            {% if hasApplied and applicationStatus == 'acceptee' %}
+                                <!-- Mark as Completed Button -->
+                                <form action="{{ path('app_candidature_complete', {'id': applicationId}) }}" method="post" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ applicationId) }}">
+                                    <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Are you sure you want to mark this job as completed?')">
+                                        <i class="fas fa-check-double"></i> Mark as Completed
+                                    </button>
+                                </form>
+                            {% elseif hasApplied and applicationStatus == 'confirmee' and applicationRating is not null %}
+                                <!-- See Feedback Button -->
+                                <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ applicationId }}">
+                                    <i class="fas fa-star"></i> See Feedback
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <!-- MODAL: Job Offer Details -->
+                    <div class="modal fade" id="offerDetailsModal{{ offre.id }}" tabindex="-1" aria-labelledby="offerDetailsLabel{{ offre.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="offerDetailsLabel{{ offre.id }}">Job Offer Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <h4>{{ offre.titre }}</h4>
+                                    <p><strong>Description:</strong> {{ offre.description }}</p>
+                                    <p><strong>Salary:</strong> {{ offre.salaire ? offre.salaire ~ ' TND' : 'Not specified' }}</p>
+                                    <p><strong>Location:</strong> {{ offre.lieu }}</p>
+                                    <hr>
+                                    {% if hasApplied %}
+                                        <h5>Application Details</h5>
+                                        {% if applicationStatus == 'confirmee' and applicationRating is not null %}
+                                            <p><strong>Farmer's Rating:</strong> ⭐ {{ applicationRating }} / 5</p>
+                                            <p><strong>Feedback:</strong> {{ applicationFeedback ?: 'No comments provided.' }}</p>
+                                        {% endif %}
+                                    {% else %}
+                                        <p class="text-muted">You have not applied for this offer.</p>
+                                    {% endif %}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODAL: Feedback Details -->
+                    {% if hasApplied and applicationStatus == 'confirmee' and applicationRating is not null %}
+                    <div class="modal fade" id="feedbackModal{{ applicationId }}" tabindex="-1" aria-labelledby="feedbackModalLabel{{ applicationId }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="feedbackModalLabel{{ applicationId }}">Feedback from Farmer</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <h4>⭐ Rating: {{ applicationRating }} / 5</h4>
+                                    <p>{{ applicationFeedback ?: 'No comments provided.' }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <a href="" class="btn btn-primary mb-3">
+            <i class="fas fa-calendar-alt"></i> View My Calendar
+        </a>
+        
+       
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".apply-button").forEach(button => {
+                button.addEventListener("click", function (e) {
+                    e.preventDefault(); // Prevent default form submission
+
+                    let offerId = this.getAttribute("data-offer-id"); // Get the offer ID
+
+                    if (!offerId) {
+                        console.error("Error: Offer ID is missing.");
+                        return;
+                    }
+
+                    // Construct the correct Symfony route
+                    let applyUrl = `/offre/emploi/ouvrier/apply/${offerId}`;
+
+                    fetch(applyUrl, {
+                        method: "POST",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({}) // Send an empty JSON body
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            if (response.status === 404) {
+                                throw new Error("Error 404: Endpoint not found. Check your Symfony route.");
+                            } else if (response.status === 500) {
+                                throw new Error("Error 500: Server error. Check Symfony logs.");
+                            } else {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === "error") {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Application Failed",
+                                text: data.message || "Something went wrong. Please try again.",
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Application Submitted!",
+                                text: "Your job application was successfully sent.",
+                            }).then(() => {
+                                location.reload(); // Refresh the page after success
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Application Error:", error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "An Error Occurred",
+                            text: error.message || "Something went wrong. Please try again later.",
+                        });
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

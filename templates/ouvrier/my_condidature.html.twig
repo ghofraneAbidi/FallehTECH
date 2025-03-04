@@ -1,0 +1,59 @@
+{% extends 'worker_base.html.twig' %}
+
+{% block title %}Mes Candidatures{% endblock %}
+
+{% block body %}
+    <h1>Mes Candidatures</h1>
+
+    <div class="mb-3">
+        <a href="" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour aux Offres d'Emploi
+        </a>
+    </div>
+
+    <!-- ✅ Updated Table for Job Applications with Employer Column -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Statut</th>
+                <th>Offre</th>
+                <th>Entreprise</th>  {# ✅ Added Employer Column #}
+                <th>Date de Candidature</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candidature in candidatures %}
+                <tr>
+                    <td>
+                        {% if candidature.statut.value == 'en_attente' %}
+                            <span class="badge bg-warning text-dark">En attente</span>
+                        {% elseif candidature.statut.value == 'acceptee' %}
+                            <span class="badge bg-success">Acceptée</span>
+                        {% else %}
+                            <span class="badge bg-danger">Rejetée</span>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- ✅ Show Offer Title -->
+                    <td>{{ candidature.idOffre.titre }}</td>
+
+                    <!-- ✅ Show Employer Name -->
+                    <td>{{ candidature.idOffre.idEmployeur.nom }}</td>
+
+                    <td>{{ candidature.dateApplied|date('Y-m-d') }}</td>
+
+                    <td>
+                        <a href="{{ path('offre_show11', { 'id': candidature.idOffre.id }) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i> Voir l'offre
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">Vous n'avez pas encore postulé à une offre.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

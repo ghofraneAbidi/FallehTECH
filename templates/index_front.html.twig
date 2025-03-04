@@ -1,0 +1,99 @@
+{% extends 'base_front_agriculteur.html.twig' %}
+
+{% block title %}Home - FarmFresh{% endblock %}
+
+{% block body %}
+    <!-- Display Impersonated User Information -->
+
+
+
+    <!-- Carousel Start -->
+    
+
+    <!-- List Job Offers -->
+    <section class="container mt-5">
+        <h2 class="text-center mb-4">Latest Job Offers</h2>
+
+        {% if user %}
+            <!-- Toggle Buttons -->
+            <div class="d-flex justify-content-center mb-3">
+                <a href="{{ path('app_offre_emploi_index') }}" class="btn {{ showMyOffers ? 'btn-outline-primary' : 'btn-primary' }} mx-2">
+                    <i class="fas fa-globe"></i> All Offers
+                </a>
+                <a href="{{ path('app_offre_emploi_index', {'my_offers': 1}) }}" class="btn {{ showMyOffers ? 'btn-primary' : 'btn-outline-primary' }} mx-2">
+                    <i class="fas fa-user"></i> Only My Offers
+                </a>
+            </div>
+            
+            <div class="d-flex justify-content-between mb-3">
+                <!-- Add New Offer Button -->
+                <a href="{{ path('app_worker_offre_new') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add New Offer
+                </a>
+
+                <!-- Stop Impersonation Button -->
+                <a href="" class="btn btn-danger">
+                    <i class="fas fa-user-slash"></i> Stop Impersonation
+                </a>
+                 {# New Button to Navigate to Messaging Page #}
+       
+            </div>
+            <div>
+             <a href="" class="btn btn-info mb-3">
+            <i class="fas fa-comments"></i> Go to Messenger
+        </a></div>
+        {% endif %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Salary</th>
+                    <th>Location</th>
+                    {% if showMyOffers %} <th>Actions</th> {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for offre in offres %}
+                    <tr>
+                        <td>{{ offre.titre }}</td>
+                        <td>{{ offre.description }}</td>
+                        <td>{{ offre.salaire }}</td>
+                        <td>{{ offre.lieu }}</td>
+
+                        {% if showMyOffers %}
+                            <td class="text-center">
+    <!-- Modify Offer Button -->
+    <a href="{{ path('app_offre_emploi_edit_front', {'id': offre.id}) }}" class="text-dark mx-2" title="Modify Offer">
+        <i class="fas fa-edit fa-lg"></i>
+    </a>
+
+    <!-- Show Offer Button -->
+    <a href="{{ path('app_worker_offre_show1', {'id': offre.id}) }}" class="text-dark mx-2" title="View Offer">
+        <i class="fas fa-eye fa-lg"></i>
+    </a>
+
+    <!-- Delete Offer Button -->
+    <form action="{{ path('app_offre_emploi_delete_front', {'id': offre.id}) }}" method="post" style="display:inline;">
+        <input type="hidden" name="_method" value="DELETE">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offre.id) }}">
+        <button type="submit" class="border-0 bg-transparent text-danger mx-2" onclick="return confirm('Are you sure?')" title="Delete Offer">
+            <i class="fas fa-trash fa-lg"></i>
+        </button>
+    </form>
+</td>
+
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="{% if showMyOffers %}5{% else %}4{% endif %}" class="text-center">
+                            No job offers available.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

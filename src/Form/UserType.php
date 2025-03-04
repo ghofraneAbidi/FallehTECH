@@ -11,6 +11,8 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+ 
+ 
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 
@@ -49,14 +51,21 @@ class UserType extends AbstractType
                 'required' => true,
             ])            
             ->add('disponibility', DateType::class, [
+                'label' => 'Disponibilité',
                 'widget' => 'single_text',
+                'attr' => [
+                    'placeholder' => 'Sélectionner une date de disponibilité'
+                 ],
                 'required' => false,
             ])
+          
             ->add('location', null, [
                 'label' => 'Lieu',
                 'required' => false,
                 ])
+                
             ->add('experience', null, ['label' => 'Expérience', 'required' => false,]);
+            
         ;
     }
 

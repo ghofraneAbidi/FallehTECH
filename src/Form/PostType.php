@@ -15,16 +15,19 @@ class PostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('titre', ChoiceType::class, [
+            ->add('category', ChoiceType::class, [
                 'choices'  => [
                     'Agriculture News' => 'agriculture_news',
                     'Farming Tips' => 'farming_tips',
                     'Crop Management' => 'crop_management',
                     'Livestock Care' => 'livestock_care',
                 ],
-                'placeholder' => 'Choose a title',
+                'placeholder' => 'Choose a category',
                 'attr' => ['class' => 'form-control']
             ])
+            ->add('titre')
+                
+
             ->add('contenu')
             // ->add('date')
             ->add('imageFile', FileType::class, [

@@ -1,0 +1,42 @@
+{% extends 'base_front_agriculteur.html.twig' %}
+
+{% block title %}Find Job Offers{% endblock %}
+
+{% block body %}
+    <h1>Available Job Offers</h1>
+
+    <div class="mb-3">
+        <a href="{{ path('ouvrier_candidatures') }}" class="btn btn-success">
+            <i class="fas fa-briefcase"></i> My Job Applications
+        </a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Expiration Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for offre in offres %}
+                <tr>
+                    <td>{{ offre.titre }}</td>
+                    <td>{{ offre.lieu }}</td>
+                    <td>{{ offre.dateExpiration|date('Y-m-d') }}</td>
+                    <td>
+                        <a href="" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i> Show
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No job offers found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

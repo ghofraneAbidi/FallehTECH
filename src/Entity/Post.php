@@ -17,7 +17,6 @@ class Post
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Le titre ne peut pas être vide.")]
     #[Assert\Length(
@@ -26,15 +25,28 @@ class Post
         max: 255,
         maxMessage: "Le titre ne peut pas dépasser 255 caractères."
     )]
+    #[Assert\Regex(
+        pattern: "/\D/",
+        match: true,
+        message: "Le titre ne peut pas être composé uniquement de chiffres."
+    )]
     private ?string $titre = null;
 
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: 'App\Entity\Notification')]
+    private Collection $notifications;
+
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Le contenu ne peut pas etre vide.")]
+    #[Assert\NotBlank(message: "Le contenu ne peut pas être vide.")]
     #[Assert\Length(
         min: 10,
-        minMessage: "Le Contenu ne peut pas contenir moins de 10 caractères.",
+        minMessage: "Le contenu ne peut pas contenir moins de 10 caractères.",
         max: 255,
-        maxMessage: "Le Contenu ne peut pas dépasser 255 caractères."
+        maxMessage: "Le contenu ne peut pas dépasser 255 caractères."
+    )]
+    #[Assert\Regex(
+        pattern: "/\D/",
+        match: true,
+        message: "Le contenu ne peut pas être composé uniquement de chiffres."
     )]
     private ?string $contenu = null;
 
@@ -45,6 +57,22 @@ class Post
     #[ORM\Column(length: 255)]
     // #[Assert\NotBlank(message: "Image cannot be blank.")]
     private ?string $image = null;
+
+        
+        #[ORM\Column(length: 255)]
+        #[Assert\NotBlank(message: "La catégorie ne peut pas être vide.")]
+        private ?string $category = null;
+
+        public function getCategory(): ?string
+        {
+            return $this->category;
+        }
+
+        public function setCategory(string $category): static
+        {
+            $this->category = $category;
+            return $this;
+        }
 
     #[Assert\Image(
         maxSize: "15M",
@@ -63,10 +91,12 @@ class Post
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -198,4 +228,8 @@ class Post
         $this->user = $user;
         return $this;
     }
+    public function getNotifications(): Collection
+    {
+    return $this->notifications;
+    }   
 }

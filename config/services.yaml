@@ -6,6 +6,8 @@
 parameters:
     post_images_directory: '%kernel.project_dir%/public/uploads/posts'
     produit_images_directory: '%kernel.project_dir%/public/uploads'
+    no_captcha.secret: '%env(NOCAPTCHA_SECRET)%'
+    no_captcha.sitekey: '%env(NOCAPTCHA_SITEKEY)%'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -25,6 +27,11 @@ services:
     App\Controller\:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
+
+
+    App\Service\NotificationService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'     
 
 
     

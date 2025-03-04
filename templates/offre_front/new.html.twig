@@ -1,0 +1,108 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Create Job Offer{% endblock %}
+
+{% block body %}
+    <div class="craeate-job-container">
+        <h1>Create a New Job Offer</h1>
+
+        <div class="create-job-card">
+            <div class="card-body">
+            {{ form_start(form, {'attr': {'id': 'jobOfferForm', 'novalidate': 'novalidate'}}) }}
+
+               
+
+                    <div class="mb-3">
+                        {{ form_label(form.titre, 'Job Title') }}
+                        {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'id': 'titre', 'placeholder': 'Enter job title', 'required': 'required'}}) }}
+                        <small class="text-danger error-message" id="titreError"></small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.description, 'Job Description') }}
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'id': 'description', 'placeholder': 'Describe the job', 'required': 'required'}}) }}
+                        <small class="text-danger error-message" id="descriptionError"></small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.lieu, 'Location') }}
+                        {{ form_widget(form.lieu, {'attr': {'class': 'form-control', 'id': 'lieu', 'placeholder': 'Enter job location', 'required': 'required'}}) }}
+                        <small class="text-danger error-message" id="lieuError"></small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.salaire, 'Salary (Optional)') }}
+                        {{ form_widget(form.salaire, {'attr': {'class': 'form-control', 'id': 'salaire', 'placeholder': 'Enter salary', 'type': 'number', 'min': '0'}}) }}
+                        <small class="text-danger error-message" id="salaireError"></small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.startDate, 'Start Date') }}
+                        {{ form_widget(form.startDate, {'attr': {'class': 'form-control', 'id': 'startDate', 'required': 'required', 'type': 'date'}}) }}
+                        <small class="text-danger error-message" id="startDateError"></small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.dateExpiration, 'Expiration Date') }}
+                        {{ form_widget(form.dateExpiration, {'attr': {'class': 'form-control', 'id': 'dateExpiration', 'required': 'required', 'type': 'date'}}) }}
+                        <small class="text-danger error-message" id="dateExpirationError"></small>
+                    </div>
+
+                    <button type="submit" class="btn btn-success" id="submitBtn">Create Job Offer</button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        <a href="{{ path('app_offre_emploi_index') }}" class="btn-back mt-3">Back to Job Offers</a>
+    </div>
+
+    <!-- JavaScript for Input Validation -->
+ <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("jobOfferForm");
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // ✅ Prevent normal form submission
+
+            // ✅ Clear previous errors
+            document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
+            const formError = document.getElementById("formError");
+            if (formError) formError.classList.add("d-none");
+
+            let formData = new FormData(form);
+
+            fetch(form.action, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" } // ✅ Identify as AJAX request
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "error") {
+                    // ✅ Show validation errors
+                    for (let field in data.errors) {
+                        let errorElement = document.getElementById(field + "Error");
+                        if (errorElement) {
+                            errorElement.textContent = data.errors[field];
+                        }
+                    }
+
+                    // ✅ Show global error message
+                    if (data.globalError) {
+                        formError.textContent = data.globalError;
+                        formError.classList.remove("d-none");
+                    }
+                } else {
+                    // ✅ Show success message and redirect
+                    alert("Job Offer Created Successfully!");
+                    window.location.href = "{{ path('app_offre_emploi_index') }}"; // Redirect
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+    });
+</script>
+
+{% endblock %}

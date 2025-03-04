@@ -1,0 +1,69 @@
+{% extends 'base_zied.html.twig' %}
+
+{% block title %}Modifier Offre d'Emploi{% endblock %}
+
+{% block body %}
+    <div class="edit-form-container">
+        <h1>Modifier l'Offre d'Emploi</h1>
+
+ {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+<div class="form-group">
+    {{ form_label(form.titre) }}
+    {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+    {% for error in form.titre.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+    {% endfor %}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.description) }}
+    {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+    {% for error in form.description.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+    {% endfor %}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.salaire) }}
+    {{ form_widget(form.salaire, {'attr': {'class': 'form-control'}}) }}
+    {% for error in form.salaire.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+    {% endfor %}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.lieu) }}
+    {{ form_widget(form.lieu, {'attr': {'class': 'form-control'}}) }}
+    {% for error in form.lieu.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+    {% endfor %}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.startDate) }}
+    {{ form_widget(form.startDate, {'attr': {'class': 'form-control'}}) }}
+    {% for error in form.startDate.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+    {% endfor %}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.dateExpiration) }}
+    {{ form_widget(form.dateExpiration, {'attr': {'class': 'form-control'}}) }}
+    {% for error in form.dateExpiration.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+    {% endfor %}
+</div>
+
+<button type="submit" class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+
+{{ form_end(form) }}
+
+
+        <div class="edit-button-group">
+            <a href="{{ path('app_all_offers') }}" class="btn-back">Retour</a>
+           
+        </div>
+    </div>
+{% endblock %}

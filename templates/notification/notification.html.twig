@@ -1,0 +1,6 @@
+{% for notification in app.user.notifications %}
+    <div class="notification">
+        <p>{{ notification.message }}</p>
+        <small>{{ notification.createdAt|date('d/m/Y H:i') }}</small>
+    </div>
+{% endfor %}

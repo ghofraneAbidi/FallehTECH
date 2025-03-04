@@ -1,0 +1,36 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Job Applications{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="mb-4">Job Applications for {{ offre.titre }}</h1>
+
+        {% if candidatures is empty %}
+            <p class="alert alert-warning">No applications for this job yet.</p>
+        {% else %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Worker</th>
+                        <th>Application Date</th>
+                        <th>Status</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for candidature in candidatures %}
+                        <tr>
+                            <td>{{ candidature.idTravailleur.username }}</td>
+                            <td>{{ candidature.dateApplied|date('Y-m-d') }}</td>
+                            <td>{{ candidature.statut.label }}</td>
+                            <td>{{ candidature.rating ?? 'N/A' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        <a href="{{ path('app_worker_offre_show1', {'id': offre.id}) }}" class="btn btn-secondary mt-3">Back to Job Offer</a>
+    </div>
+{% endblock %}

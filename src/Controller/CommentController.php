@@ -24,19 +24,25 @@ class CommentController extends AbstractController
     }
 
     #[Route('/new', name: 'app_comment_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, NotificationService $notificationService): Response
     {
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
-
+    
         if ($form->isSubmitted() && $form->isValid()) {
+            // Sauvegarder le commentaire
             $entityManager->persist($comment);
             $entityManager->flush();
-
+    
+            // Créer une notification pour l'utilisateur du post
+            $postOwner = $comment->getPost()->getUser();  // Récupérer l'utilisateur propriétaire du post
+            $message = "{$this->getUser()->getUsername()} a commenté votre post: {$comment->getPost()->getTitle()}";
+            $notificationService->createNotification($postOwner, 'comment', $message, $comment->getPost());
+    
             return $this->redirectToRoute('app_comment_index', [], Response::HTTP_SEE_OTHER);
         }
-
+    
         return $this->renderForm('comment/new.html.twig', [
             'comment' => $comment,
             'form' => $form,
@@ -79,4 +85,6 @@ class CommentController extends AbstractController
 
         return $this->redirectToRoute('app_comment_index', [], Response::HTTP_SEE_OTHER);
     }
+
+    
 }

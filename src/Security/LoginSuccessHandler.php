@@ -24,8 +24,24 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
          // Si l'utilisateur a ROLE_ADMIN, rediriger vers le backoffice
          if (in_array('ROLE_ADMIN', $roles, true)) {
-             return new RedirectResponse($this->router->generate('app_back_office'));
+            
          }
+
+          // If the user is an admin, redirect to the back office
+          if (in_array('ROLE_ADMIN', $roles)) {
+            
+            return new RedirectResponse($this->router->generate('app_back_office'));
+        }
+
+        // If the user is an agricultor, redirect to their dashboard
+        if (in_array('ROLE_AGRICULTEUR', $roles)) {
+         
+            return new RedirectResponse($this->router->generate('agriculteur_index'));
+        }
+        if (in_array('ROLE_OUVRIER', $roles)) {
+            
+            return new RedirectResponse($this->router->generate('app_offre_emploi_index'));
+        }
 
          // Sinon, rediriger vers le frontoffice
          return new RedirectResponse($this->router->generate('app_front_office'));
