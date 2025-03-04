@@ -84,9 +84,30 @@ class Produit
     private ?int $stock = null; // 📌 Nouveau champ pour la quantité en stock
 
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeImmutable $updatedAt = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
 
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    #[ORM\PreUpdate]
+    public function updateTimestamp(PreUpdateEventArgs $event): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
+    #[ORM\PrePersist]
+    public function setCreationTimestamp(LifecycleEventArgs $event): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
     // ✅ Getters and Setters remain unchanged
     public function getId(): ?int { return $this->id; }
     public function getNom(): ?string { return $this->nom; }

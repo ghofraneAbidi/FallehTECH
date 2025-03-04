@@ -38,6 +38,25 @@ class ProduitRepository extends ServiceEntityRepository
         ->getQuery()
         ->getResult();
 }
+public function getStockEvolution(int $produitId): array
+{
+    return $this->createQueryBuilder('s')
+        ->select("s.updatedAt AS date, s.stock AS stock")
+        ->where('s.id = :produitId')
+        ->setParameter('produitId', $produitId)
+        ->orderBy('s.updatedAt', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
+public function findLowStock(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.stock < :stockThreshold')
+            ->setParameter('stockThreshold', 5)
+            ->getQuery()
+            ->getResult();
+    }
+
 
 
 
