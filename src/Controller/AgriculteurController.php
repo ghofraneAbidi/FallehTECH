@@ -10,8 +10,8 @@ use App\Form\ProduitType;
 use App\Entity\Produit;
 use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
-use App\Repository\FavorisRepository;
+use App\Repository\CategorieRepository;
+use App\Repository\SousCategorieRepository;
 
 #[Route('/agriculteur')]
 class AgriculteurController extends AbstractController
@@ -19,18 +19,19 @@ class AgriculteurController extends AbstractController
     #[Route('/', name: 'agriculteur_index', methods: ['GET', 'POST'])]
     public function index(
         ProduitRepository $produitRepository,
-        PaginatorInterface $paginator,
+        CategorieRepository $categorieRepository,
+        SousCategorieRepository $sousCategorieRepository,
         Request $request,
         EntityManagerInterface $entityManager
     ): Response {
-        // **1️⃣ Créer un nouvel objet Produit**
+        // **1️⃣ Création d'un nouvel objet Produit**
         $produit = new Produit();
         $form = $this->createForm(ProduitType::class, $produit);
         $form->handleRequest($request);
 
-        // **2️⃣ Vérifier si le formulaire est soumis et valide**
+        // **2️⃣ Gestion du formulaire**
         if ($form->isSubmitted() && $form->isValid()) {
-            // **Gérer l'image uploadée**
+            // **Gestion du téléchargement d'image**
             $imageFile = $form->get('imageFile')->getData();
             if ($imageFile) {
                 $newFilename = uniqid().'.'.$imageFile->guessExtension();
@@ -39,28 +40,30 @@ class AgriculteurController extends AbstractController
                 $produit->setImage($newFilename);
             }
 
-            // **Sauvegarder le produit en base de données**
+            // **Enregistrement du produit en base de données**
             $entityManager->persist($produit);
             $entityManager->flush();
-// ✅ Ajouter le message flash avant la redirection
-$this->addFlash('success', '✅ Produit ajouté avec succès !');
 
-return $this->redirectToRoute('agriculteur_index');
+            // ✅ Message de confirmation
+            $this->addFlash('success', '✅ Produit ajouté avec succès !');
+
+            return $this->redirectToRoute('agriculteur_index');
         }
 
-        // **3️⃣ Récupérer les produits paginés**
-        $query = $produitRepository->createQueryBuilder('p')->getQuery();
-        $produits = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            9
-        );
+        // **3️⃣ Récupération des catégories et des produits**
+        $sousCategories = $sousCategorieRepository->findAll(); // ✅ Récupère toutes les sous-catégories
+        $categories = $categorieRepository->findAll(); // ✅ Récupère toutes les catégories
+        $produits = $produitRepository->findAll(); // ✅ Récupère tous les produits sans pagination
 
         return $this->render('agriculteur/index.html.twig', [
             'produits' => $produits,
             'form' => $form->createView(),
+            'categories' => $categories, // ✅ Envoi des catégories à la vue
+            'sousCategories' => $sousCategories, // ✅ Envoi des sous-catégories à la vue
+            'allProduits' => $produits, // ✅ Variable contenant tous les produits
         ]);
     }
+
 
 
     /**
