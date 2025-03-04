@@ -1,41 +1,57 @@
 {% extends 'front_base.html.twig' %}
 
-{% block title %}Interactive Map with Area Calculation{% endblock %}
+{% block title %}Interactive Farm Land Map{% endblock %}
+
 {% block body %}
 
-    <h1>Interactive Map</h1>
-    <p>Click on the map to add points. When the shape is closed, it will be saved with an area calculation.</p>
+    <div class="container mt-4">
+        <h1 class="text-center">Interactive Farm Land Map</h1>
+        <p class="text-center text-muted">Click on the map to create land plots. Close the shape to save.</p>
 
-    <!-- Controls -->
-    <div id="controls">
-        
-        <button onclick="removeLastPoint()">Remove Last Point</button>
-        
+        <!-- Map Container -->
+        <div class="row">
+            <div class="col-md-8">
+                <div id="map"></div>
+            </div>
+            <div class="col-md-4">
+                <!-- Controls Section -->
+                <div class="card shadow-sm p-3">
+                    <h5 class="text-center mb-3">Land Creation Controls</h5>
+                    <button class="btn btn-danger w-100 mb-2" onclick="removeLastPoint()">🗑 Remove Last Point</button>
+                </div>
+
+                <!-- Area Information -->
+                <div class="card shadow-sm p-3 mt-3">
+                    <h5>📝 Area Information</h5>
+                    <div id="areaInfo" class="alert alert-info">Area: 0 m²</div>
+                </div>
+
+                <!-- Land List -->
+                <div class="card shadow-sm p-3 mt-3">
+                    <h5>📜 Saved Lands</h5>
+                    <table class="table table-bordered" id="land-table">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Size (m²)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="areaInfo">Area: 0 m²</div>
-
-    <div id="map"></div>
-
-    <table border="1" id="land-table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Size (m²)</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
-    <!-- Leaflet CSS -->
+    <!-- Leaflet & Styles -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="{{ asset('/css/map.css') }}">
 
-    <!-- Leaflet JS -->
+    <!-- JavaScript Libraries -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- Turf.js for area calculation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
     
+    <!-- Map Functionality -->
     <script src="{{ asset('js/map.js') }}"></script>
 
     <script>

@@ -37,11 +37,11 @@
             <select id="statusFilter" class="form-select form-select-sm">
                 <option value="all">All</option>
                 <option value="available">Available</option>
-                <option value="pending">Pending</option>
-                <option value="accepted">Accepted</option>
-                <option value="completed">Completed</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="rejected">Rejected</option>
+                <option value="en_attente">Pending</option>
+                <option value="acceptee">Accepted</option>
+                <option value="terminee">Completed</option>
+                <option value="confirmee">Confirmed</option>
+                <option value="refusee">Rejected</option>
             </select>
         </th>
                     <th>Info</th>
@@ -87,23 +87,24 @@
                         <td>{{ offre.salaire ? offre.salaire ~ ' TND' : 'Not specified' }}</td>
                         <td>{{ offre.lieu }}</td>
                     
-                        <td>
-                            {% if hasApplied %}
-                                {% if applicationStatus == 'acceptee' %}
-                                    <span class="badge bg-success">Accepted</span>
-                                {% elseif applicationStatus == 'terminee' %}
-                                    <span class="badge bg-primary">Completed by Worker</span>
-                                {% elseif applicationStatus == 'confirmee' %}
-                                    <span class="badge bg-info">Confirmed by Farmer</span>
-                                {% elseif applicationStatus == 'refusee' %}
-                                    <span class="badge bg-danger">Rejected</span>
-                                {% else %}
-                                    <span class="badge bg-warning">Pending</span>
-                                {% endif %}
-                            {% else %}
-                                <span class="badge bg-success">Available</span>
-                            {% endif %}
-                        </td>
+                      <td data-status="{{ hasApplied ? applicationStatus : 'available' }}">
+    {% if hasApplied %}
+        {% if applicationStatus == 'acceptee' %}
+            <span class="badge bg-success">Accepted</span>
+        {% elseif applicationStatus == 'terminee' %}
+            <span class="badge bg-primary">Completed by Worker</span>
+        {% elseif applicationStatus == 'confirmee' %}
+            <span class="badge bg-info">Confirmed by Farmer</span>
+        {% elseif applicationStatus == 'refusee' %}
+            <span class="badge bg-danger">Rejected</span>
+        {% else %}
+            <span class="badge bg-warning">Pending</span>
+        {% endif %}
+    {% else %}
+        <span class="badge bg-success">Available</span>
+    {% endif %}
+</td>
+
                         <td>
                             <!-- Info Button -->
     <button type="button" class="btn  btn-sm" data-bs-toggle="modal" data-bs-target="#offerDetailsModal{{ offre.id }}">
@@ -313,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (titleCell && statusCell) {
                 let titleText = titleCell.textContent.toLowerCase();
-                let rowStatus = statusCell.getAttribute("data-status");
+                let rowStatus = statusCell.getAttribute("data-status").toLowerCase();
 
                 let titleMatch = titleText.includes(searchFilter);
                 let statusMatch = (statusFilterValue === "all" || rowStatus === statusFilterValue);
@@ -332,6 +333,7 @@ document.addEventListener("DOMContentLoaded", function () {
     searchInput.addEventListener("keyup", filterOffers);
     statusFilter.addEventListener("change", filterOffers);
 });
+
 </script>
 
 {% endblock %}

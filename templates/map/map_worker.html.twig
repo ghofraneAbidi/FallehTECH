@@ -1,0 +1,29 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}Registered Farm Lands{% endblock %}
+
+{% block body %}
+
+    <div class="container mt-4">
+        <h1 class="text-center">Registered Farm Lands</h1>
+        <p class="text-center text-muted">Click on a land to view its details and available offers.</p>
+
+        <!-- Map Container -->
+        <div class="row">
+            <div class="col-md-12">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet & Styles -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ asset('/css/map.css') }}">
+
+    <!-- JavaScript Libraries -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Worker-Specific Map Script -->
+    <script src="{{ asset('js/worker_map.js') }}"></script>
+
+{% endblock %}

@@ -100,7 +100,8 @@ function closePolygon() {
 
 // Function to display land details popup and save data in the table
 function showLandDetailsPopup(polygon, area, polygonData) {
-    var popupContent = `
+    var popupContent = document.createElement('div');
+    popupContent.innerHTML = `
         <h3>Enter Land Details</h3>
         <label>Land Name:</label>
         <input type="text" id="land-name"><br>
@@ -114,20 +115,32 @@ function showLandDetailsPopup(polygon, area, polygonData) {
             <option value="clay">Clay</option>
             <option value="loamy">Loamy</option>
         </select><br>
-        <button onclick="
-        (${polygons.indexOf(polygonData)})">Save</button>
+        <button id="save-land-btn">Save</button>
     `;
 
     polygon.bindPopup(popupContent).openPopup();
+
+    // ✅ Add event listener properly
+    document.getElementById("save-land-btn").addEventListener("click", function () {
+        saveLandDetails(polygons.indexOf(polygonData));
+    });
 }
 
 // Function to save land details and display a circular marker
 // Function to save land details and display a circular marker
 function saveLandDetails(index) {
-    var landName = document.getElementById("land-name").value.trim() || "Unnamed";
+    console.log(`🔍 Saving land details for index: ${index}`);
+
+    var landNameInput = document.getElementById("land-name");
+    if (!landNameInput) {
+        console.error("❌ Land name input field not found!");
+        alert("⚠️ Land name input field not found!");
+        return;
+    }
+
+    var landName = landNameInput.value.trim() || "Unnamed";
 
     var polygonData = polygons[index];
-
     if (!polygonData) {
         console.error("❌ Polygon data not found for index:", index);
         return;
@@ -154,7 +167,12 @@ function saveLandDetails(index) {
         },
         body: JSON.stringify(landData)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.error || "Server error"); });
+        }
+        return response.json();
+    })
     .then(data => {
         console.log("✅ Server Response:", data);
         alert(`✅ ${landName} has been saved successfully!`);
@@ -172,6 +190,7 @@ function saveLandDetails(index) {
         alert("⚠️ Failed to save land. Check console for details.");
     });
 }
+
 
 
 // Function to generate a random color
@@ -287,41 +306,70 @@ function saveLand() {
     })
     .catch(error => console.error("❌ Error saving land:", error));
 }
+let ownerColors = {}; // ✅ Store colors outside the fetch function to persist
 
+// ✅ Store drawn polygons globally to remove them before reloading
+let landLayers = [];
 
-fetch('/land/list')
-    .then(response => response.json())
-    .then(lands => {
-        lands.forEach(land => {
-            if (!land.coordinates || !Array.isArray(land.coordinates) || land.coordinates.length === 0) {
-                console.error(`❌ Invalid coordinates for land ID ${land.id}`);
-                return;
-            }
+function loadLands() {
+    fetch('/land/list')
+        .then(response => response.json())
+        .then(lands => {
+            console.log("🌍 Full API Response:", lands);
 
-            let polygon = L.polygon(
-                land.coordinates.map(p => [p.latitude, p.longitude]), 
-                { color: 'green' }
-            ).addTo(map);
+            // ✅ Remove previous land layers before adding new ones
+            landLayers.forEach(layer => map.removeLayer(layer));
+            landLayers = [];
 
-            // ✅ Check if offers exist
-            let offersHtml = land.offers && land.offers.length > 0 ? 
-                land.offers.map(offer => `
-                    <li>
-                        <strong>${offer.title}</strong>: ${offer.description} <br>
-                        💰 Salary: ${offer.salaire} TND
-                    </li>
-                `).join('') : '<li>No offers available</li>';
+            lands.forEach(land => {
+                if (!land.coordinates || !Array.isArray(land.coordinates) || land.coordinates.length === 0) {
+                    console.error(`❌ Invalid coordinates for land ID ${land.id}`, land);
+                    return;
+                }
 
-            // ✅ Show owner & offers in popup
-            let popupContent = `
-                <h3>${land.name}</h3>
-                <p><strong>Owner:</strong> ${land.owner}</p>
-                <p><strong>Area:</strong> ${land.area} m²</p>
-                <h4>Offers:</h4>
-                <ul>${offersHtml}</ul>
-            `;
+                let ownerName = land.owner;
+                if (!ownerColors[ownerName]) {
+                    ownerColors[ownerName] = getRandomColor(); // Assign a new color if not already assigned
+                }
+                let ownerColor = ownerColors[ownerName]; // Use the same color for this owner's lands
 
-            polygon.bindPopup(popupContent);
+                let polygon = L.polygon(
+                    land.coordinates.map(p => [p.latitude, p.longitude]), 
+                    { color: ownerColor, fillColor: ownerColor, fillOpacity: 0.5 }
+                ).addTo(map);
+
+                landLayers.push(polygon); // ✅ Store polygon to remove it on reload
+
+                // ✅ Check if offers exist
+                let offersHtml = land.offers && land.offers.length > 0 ? 
+                    land.offers.map(offer => `
+                        <li>
+                            <strong>${offer.title}</strong>: ${offer.description} <br>
+                            💰 Salary: ${offer.salaire} TND
+                        </li>
+                    `).join('') : '<li>No offers available</li>';
+
+                // ✅ Show owner & offers in popup
+                let popupContent = `
+                    <h3>${land.name}</h3>
+                    <p><strong>Owner:</strong> ${land.owner}</p>
+                    <p><strong>Area:</strong> ${land.area} m²</p>
+                    <h4>Offers:</h4>
+                    <ul>${offersHtml}</ul>
+                `;
+
+                polygon.bindPopup(popupContent);
+            });
+        })
+        .catch(error => {
+            console.error("❌ Error loading lands:", error);
         });
-    })
-    .catch(error => console.error("❌ Error loading lands:", error));
+}
+
+// ✅ Function to generate random colors
+function getRandomColor() {
+    return "#" + Math.floor(Math.random() * 16777215).toString(16);
+}
+
+// ✅ Load lands when the page is ready
+document.addEventListener("DOMContentLoaded", loadLands);

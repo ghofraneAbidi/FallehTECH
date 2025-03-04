@@ -709,10 +709,7 @@ public function workerCalendar(EntityManagerInterface $entityManager, SessionInt
     $impersonatedUserId = $session->get('impersonated_user_id');
     if (!$impersonatedUserId) {
         $logger->error("User not authenticated. No impersonated_user_id in session.");
-        return new JsonResponse([
-            'error' => 'User not authenticated',
-            'session_data' => $session->all()
-        ], Response::HTTP_UNAUTHORIZED);
+        return new JsonResponse(['error' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
     }
 
     $impersonatedUser = $entityManager->getRepository(Utilisateur::class)->find($impersonatedUserId);
@@ -723,87 +720,72 @@ public function workerCalendar(EntityManagerInterface $entityManager, SessionInt
 
     $events = [];
 
-    // ✅ Fetch Worker Availability (OuvrierCalendrier)
-    $calendarEntries = $entityManager->getRepository(OuvrierCalendrier::class)->findBy([
-        'ouvrier' => $impersonatedUser
+    // ✅ Fetch **ALL** Job Applications (Candidatures for this Worker)
+    $candidatures = $entityManager->getRepository(Candidature::class)->findBy([
+        'idTravailleur' => $impersonatedUser
     ]);
 
-    foreach ($calendarEntries as $entry) {
-        $startDate = $entry->getStartDate();
-        $endDate = $entry->getEndDate();
-        $status = $entry->getStatus();
-
-        if (!$startDate || !$endDate) {
-            $logger->warning("Skipping event due to missing dates.");
-            continue;
+    foreach ($candidatures as $application) {
+        // ✅ Handle NULL calendar entries (if missing)
+        $calendarEntry = $application->getCalendar();
+        if (!$calendarEntry) {
+            $logger->warning("Candidature ID: {$application->getId()} has no calendar, using application date instead.");
+            $startDate = $application->getDateApplied(); // Default to application date
+            $endDate = $application->getDateApplied();
+        } else {
+            $startDate = $calendarEntry->getStartDate();
+            $endDate = $calendarEntry->getEndDate();
         }
 
-        // ✅ Define colors for availability status
-        $colorMapping = [
-            'rejetee' => ['#dc3545', '#c82333'], // Red
-            'acceptee' => ['#228B22', '#228B22'], // Green
-            'en_attente' => ['#ffc107', '#d39e00'], // Yellow
-        ];
-
-        $backgroundColor = $colorMapping[$status][0] ?? '#6c757d';
-        $borderColor = $colorMapping[$status][1] ?? '#5a6268';
-
-        $events[] = [
-            'title' => "Travailleur: " . $entry->getOuvrier()->getNom() . " - " . ucfirst($status),
-            'start' => $startDate->format('Y-m-d'),
-            'end' => $endDate->format('Y-m-d'),
-            'backgroundColor' => $backgroundColor,
-            'borderColor' => $borderColor
-        ];
-    }
-
-    // ✅ Fetch Job Applications
-    $jobApplications = $entityManager->getRepository(OffreEmploi::class)->findBy([
-        'ouvrier' => $impersonatedUser
-    ]);
-
-    foreach ($jobApplications as $application) {
-        $startDate = $application->getStartDate();
-        $endDate = $application->getEndDate();
-        $status = $application->getStatus();
-
-        if (!$startDate || !$endDate) {
-            $logger->warning("Skipping job application event due to missing dates.");
-            continue;
-        }
+        $status = $application->getStatut()->value;
 
         // ✅ Define colors for job applications
-        $jobColorMapping = [
-            'rejetee' => ['#ff0000', '#cc0000'], // Red
-            'acceptee' => ['#008000', '#006400'], // Green
-            'en_attente' => ['#ffa500', '#ff8c00'], // Orange
+        $statusColors = [
+            'refusee' => ['#dc3545', '#c82333'], // RED
+            'acceptee' => ['#008000', '#006400'], // GREEN
+            'en_attente' => ['#ffc107', '#d39e00'], // YELLOW
         ];
 
-        $backgroundColor = $jobColorMapping[$status][0] ?? '#6c757d';
-        $borderColor = $jobColorMapping[$status][1] ?? '#5a6268';
+        $backgroundColor = $statusColors[$status][0] ?? '#6c757d';
+        $borderColor = $statusColors[$status][1] ?? '#5a6268';
 
         $events[] = [
-            'title' => "Job: " . $application->getJob()->getTitle() . " - " . ucfirst($status),
+            'id' => "candidature_" . $application->getId(),
+            'title' => "Job: " . $application->getIdOffre()->getTitre() . " - " . ucfirst($status),
             'start' => $startDate->format('Y-m-d'),
             'end' => $endDate->format('Y-m-d'),
             'backgroundColor' => $backgroundColor,
             'borderColor' => $borderColor
         ];
-    }
-
-    // ✅ Logging
-    if (empty($events)) {
-        $logger->warning("No events found for user: {$impersonatedUser->getId()}");
     }
 
     return new JsonResponse($events);
 }
 
 #[Route('/travailleur/calendar/view', name: 'app_travailleur_calendar_view')]
-public function workerCalendarView(): Response
+public function workerCalendarView(EntityManagerInterface $entityManager, SessionInterface $session): Response
 {
-    return $this->render('offre_emploi/calendar.html.twig');
+    // ✅ Retrieve the impersonated worker ID from the session
+    $impersonatedUserId = $session->get('impersonated_user_id');
+
+    if (!$impersonatedUserId) {
+        throw $this->createNotFoundException('No impersonated worker found in session.');
+    }
+
+    // ✅ Fetch the worker entity from the database
+    $impersonatedUser = $entityManager->getRepository(Utilisateur::class)->find($impersonatedUserId);
+
+    if (!$impersonatedUser) {
+        throw $this->createNotFoundException('Worker not found.');
+    }
+
+    // ✅ Pass the impersonated user to the template
+    return $this->render('offre_emploi/calendar.html.twig', [
+        'impersonated_user' => $impersonatedUser
+    ]);
 }
+
+
 
 
 

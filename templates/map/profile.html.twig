@@ -1,0 +1,75 @@
+{% extends 'front_base.html.twig' %}
+
+{% block title %}{{ land.name }} - Profile{% endblock %}
+
+{% block body %}
+
+    <div class="container mt-4">
+        <h1 class="text-center">{{ land.name }}</h1>
+       <p class="text-center"><strong>Owner:</strong> {{ land.owner.nom }}</p>
+<p class="text-center"><strong>Owner:</strong> {{ land.description }}</p>
+        <p class="text-center text-muted"><strong>Area:</strong> {{ land.area }} m²</p>
+
+        <!-- Map Display -->
+        <div id="map"></div>
+
+        <!-- Job Offers -->
+        <!-- Job Offers -->
+<div class="card mt-4">
+    <div class="card-body">
+        <h3>Job Offers by {{ land.owner.nom }}</h3>
+        {% if offers is not empty %}
+            <ul class="list-group">
+                {% for offer in offers %}
+                    <li class="list-group-item">
+                        <strong>{{ offer.titre }}</strong>: {{ offer.description }}
+                        <span class="badge bg-success float-end">💰 {{ offer.salaire }} TND</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No job offers available.</p>
+        {% endif %}
+    </div>
+</div>
+<!-- Estimated Work & Cost Section -->
+<!-- <div class="card mt-4 shadow-sm">
+    <div class="card-body">
+        <h3>AI-Generated Work Estimation</h3>
+        <p><strong>Work Description:</strong> {{ workDescription }}</p>
+        <p><strong>Estimated Cost:</strong> 💰 {{ estimatedCost }}</p>
+    </div>
+</div> -->
+
+<!-- Back to Map Button -->
+<div class="mt-3">
+    <a href="{{ path('worker_map') }}" class="btn btn-secondary">
+        ⬅️ Back to Map
+    </a>
+</div>
+
+
+    <!-- Leaflet & Styles -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- JavaScript Libraries -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Land Profile Map -->
+    <script>
+       var map = L.map('map').setView([{{ coordinates[0].latitude }}, {{ coordinates[0].longitude }}], 12);
+
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var polygon = L.polygon([
+           {% for coord in coordinates %}
+    [{{ coord.latitude }}, {{ coord.longitude }}]{% if not loop.last %},{% endif %}
+{% endfor %}
+
+        ], { color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }).addTo(map);
+    </script>
+
+{% endblock %}

@@ -222,4 +222,25 @@ final class CandidatureController extends AbstractController
         }
     }
     
+
+    #[Route('/worker/candidatures/calendar/{id}', name: 'worker_candidatures_calendar', methods: ['GET'])]
+public function getWorkerCandidaturesCalendar(int $id, CandidatureRepository $candidatureRepository): JsonResponse
+{
+    $candidatures = $candidatureRepository->findBy(['idTravailleur' => $id]);
+
+    $events = [];
+
+    foreach ($candidatures as $candidature) {
+        $events[] = [
+            'id' => 'candidature_' . $candidature->getId(),
+            'title' => 'Job: ' . $candidature->getIdOffre()->getTitre(),
+            'start' => $candidature->getIdOffre()->getDateDebut()->format('Y-m-d'),
+            'end' => $candidature->getIdOffre()->getDateFin() ? $candidature->getIdOffre()->getDateFin()->format('Y-m-d') : null,
+            'color' => '#ff9900', // Orange color for candidatures
+        ];
+    }
+
+    return new JsonResponse($events);
+}
+
 }
