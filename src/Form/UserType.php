@@ -30,6 +30,15 @@ class UserType extends AbstractType
                 'label' => 'Mot de passe',
                 'required' => !$options['is_edit'],
             ])
+            ->add('phoneNumber', TextType::class, [
+                'label' => 'Numéro de téléphone',
+                'attr' => [
+                    'maxlength' => 8,
+                    'pattern' => '\d{8}', // Ensure only 8 digits are allowed
+                    'placeholder' => 'Entrez votre numéro de téléphone',
+                ],
+                'required' => true,
+            ])                                      
             ->add('role', ChoiceType::class, [
                 'choices'  => [
                     'Agriculteur' => 'agriculteur',

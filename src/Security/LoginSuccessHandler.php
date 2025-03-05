@@ -22,10 +22,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
          // Récupérer les rôles de l'utilisateur
          $roles = $token->getRoleNames();
 
-         // Si l'utilisateur a ROLE_ADMIN, rediriger vers le backoffice
-         if (in_array('ROLE_ADMIN', $roles, true)) {
-            
-         }
+         
 
           // If the user is an admin, redirect to the back office
           if (in_array('ROLE_ADMIN', $roles)) {
@@ -36,7 +33,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
         // If the user is an agricultor, redirect to their dashboard
         if (in_array('ROLE_AGRICULTEUR', $roles)) {
          
-            return new RedirectResponse($this->router->generate('agriculteur_index'));
+            return new RedirectResponse($this->router->generate('app_home_front'));
         }
         if (in_array('ROLE_OUVRIER', $roles)) {
             
@@ -44,6 +41,6 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
         }
 
          // Sinon, rediriger vers le frontoffice
-         return new RedirectResponse($this->router->generate('app_front_office'));
+         return new RedirectResponse($this->router->generate('app_home_front'));
     }
 }

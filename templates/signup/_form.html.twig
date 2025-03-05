@@ -21,6 +21,11 @@
     </div>
     
     <div class="input-field">
+        {{ form_widget(form.phoneNumber, {'attr': {'placeholder': 'Numéro de téléphone (8 chiffres)'}}) }}
+        <div style="color: red;">{{ form_errors(form.phoneNumber) }}</div>
+    </div>
+    
+    <div class="input-field">
         {{ form_widget(form.carte_identite, {'attr': {'placeholder': 'Carte d\'identité'}}) }}
         <div style="color: red;">{{ form_errors(form.carte_identite) }}</div>
     </div>

@@ -60,7 +60,6 @@ final class UserController extends AbstractController
         return $this->render('frontoffice/profile.html.twig');
     }
 
-
     #[Route('/signup', name: 'app_user_signup', methods: ['GET', 'POST'])]
     public function signup(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
@@ -69,18 +68,24 @@ final class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Hash the password
             $hashedPassword = $passwordHasher->hashPassword(
                 $user,
                 $user->getPassword()
             );
             $user->setPassword($hashedPassword);
 
+            // Add +216 prefix to the phone number
+            $phoneNumber = $user->getPhoneNumber();
+            $user->setPhoneNumber('+216' . $phoneNumber);
+
+            // Save the user
             $entityManager->persist($user);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
-    
+
         return $this->render('signup/index.html.twig', [
             'user' => $user,
             'form' => $form,

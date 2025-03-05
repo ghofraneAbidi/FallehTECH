@@ -1,48 +1,63 @@
-<?php 
+<?php
+
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Service\TwilioService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Mailer\Transport;
-use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
-    
-use Egulias\EmailValidator\Validation\RFCValidation;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ForgotPasswordController extends AbstractController
 {
-    #[Route('/forgot-password', name: 'forgot_password', methods: ['GET', 'POST'])]
-    public function forgotPassword(Request $request, MailerInterface $mailer       ): Response
-    {
-        if ($request->isMethod('GET')) {
-            return $this->render('forgot_password/index.html.twig');
-        }
-    
-        // Handle the POST request (sending the reset code)
-        $emailuser = $request->request->get('email');
-    
-        if (!$emailuser) {
-            return new Response('No email provided', Response::HTTP_BAD_REQUEST);
-        }
-    
-        // Generate a random 6-digit code
-        $resetCode =11; //random_int(100000, 999999);
-    
-     
-        $email = (new TemplatedEmail())
-        ->from('chaher.dridi.6@gmail.com')
-        ->to($emailuser)  // L'adresse de l'utilisateur qui a fait la demande
-        ->subject('Your Password Reset Code')
-        ->html("<p>Your password reset code is: <strong>$resetCode</strong></p>");
+    private $entityManager;
+    private $passwordHasher;
+    private $twilioService;
 
-            
-        $mailer->send($email);
-
-        return new Response('Password reset code sent successfully.');
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher,
+        TwilioService $twilioService
+    ) {
+        $this->entityManager = $entityManager;
+        $this->passwordHasher = $passwordHasher;
+        $this->twilioService = $twilioService;
     }
-    
+
+    #[Route('/forgot-password', name: 'app_forgot_password')]
+    public function index(Request $request): Response
+    {
+        if ($request->isMethod('POST')) {
+            $email = $request->request->get('email');
+
+            // Find the user by email
+            $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+
+            if ($user) {
+                // Generate a new temporary password
+                $newPassword = bin2hex(random_bytes(8)); // Generates a random 16-character password
+                $hashedPassword = $this->passwordHasher->hashPassword($user, $newPassword);
+
+                // Update the user's password
+                $user->setPassword($hashedPassword);
+                $this->entityManager->flush();
+
+                // Send the new password via SMS
+                $phoneNumber = $user->getPhoneNumber(); // Ensure your User entity has a phoneNumber field
+                $message = "Your new password is: $newPassword. Please change it after logging in.";
+
+                $this->twilioService->sendSms($phoneNumber, $message);
+
+                $this->addFlash('success', 'A new password has been sent to your phone.');
+                return $this->redirectToRoute('app_user_login');
+            } else {
+                $this->addFlash('error', 'No user found with this email address.');
+            }
+        }
+
+        return $this->render('security/forgot_password.html.twig');
+    }
 }

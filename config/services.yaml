@@ -27,13 +27,23 @@ services:
     App\Controller\:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
-
-
+    App\Controller\GoogleLoginController:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $passwordHasher: '@security.password_hasher'
+            $tokenStorage: '@security.token_storage'
+            $eventDispatcher: '@event_dispatcher'
+            $googleClientId: '%env(GOOGLE_CLIENT_ID)%'
+            $googleClientSecret: '%env(GOOGLE_CLIENT_SECRET)%'
+            $googleRedirectUri: '%env(GOOGLE_REDIRECT_URI)%'
+    App\Service\TwilioService:
+        arguments:
+            $accountSid: '%env(TWILIO_ACCOUNT_SID)%'
+            $authToken: '%env(TWILIO_AUTH_TOKEN)%'
+            $twilioPhoneNumber: '%env(TWILIO_PHONE_NUMBER)%'
     App\Service\NotificationService:
         arguments:
-            $entityManager: '@doctrine.orm.entity_manager'     
-
-
+            $entityManager: '@doctrine.orm.entity_manager'  
     
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

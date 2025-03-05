@@ -4,9 +4,8 @@
 	<head>
 		<meta charset="utf-8">
 		<title>
-			{% block title %}FarmFresh - Organic Farm
-			{% endblock %}
-			
+			{% block title %} FarmFresh - Organic Farm {% endblock %}
+
 
 		</title>
 		<meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -121,26 +120,33 @@
 
 			<div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
 				<ul class="navbar-nav mx-auto py-0">
+
 					<li class="nav-item">
 						<a href="{{ path('app_home_front') }}" class="nav-link">Home</a>
 					</li>
-					<li class="nav-item">
-						<a href="{{ path('app_commande_front')}}" class="nav-link">commandes </a>
-					</li>
+					{% if  is_granted('ROLE_CLIENT') %}
+						<li class="nav-item">
+							<a href="{{ path('app_commande_front')}}" class="nav-link">commandes
+							</a>
+						</li>
+					{% endif %}
+					{% if not is_granted('ROLE_OUVRIER') %}
 					<li class="nav-item">
 						<a href="{{ is_granted('ROLE_AGRICULTEUR') ? path('agriculteur_index') : path('app_produit_index1') }}" class="nav-link">
 							Produit
 						</a>
 					</li>
+					{% endif %}
 
 
 					{% if not is_granted('ROLE_CLIENT') %}
 						<li class="nav-item">
-							<a href="{{ path('app_offre_emploi_index') }}" class="nav-link">
-								Job Offers
+							<a href="{{ is_granted('ROLE_AGRICULTEUR') ? path('app_offre_emploi_index') : path('app_ouvrier_offers') }}" class="nav-link">
+								Offres d'emploi
 							</a>
 						</li>
 					{% endif %}
+
 
 					<li class="nav-item">
 						<a href="{{ path('app_post_front') }}" class="nav-link">Blog</a>
@@ -177,13 +183,22 @@
 						</a>
 					</li>
 				</ul>
-
-				<!-- Logout Button -->
 				<ul class="navbar-nav">
-					<li class="nav-item">
-						<a href="{{ path('app_user_logout')}}" class="btn btn-primary py-md-3 px-md-5 me-3 ">Logout</a>
+					<li class="nav-item d-flex justify-content-center align-items-center">
+						{% if app.user %}
+							<h6 class="px-3 text-black">{{ app.user.name }} {{ app.user.getLastName() }} </h6>
+							<a href="{{ path('app_user_profilefront') }}" class="me-2">
+								<img src="{{asset('assets-front/img/Profile.png') }}" alt="Illustration" style="width: 60px ; height: 60px; object-fit: cover; border-radius: 50%">
+							</a>
+							<a href="{{ path('app_user_logout') }}" class="btn btn-primary py-md-3 px-md-5 me-3 ">Logout</a>
+						{% else %}
+							<a href="{{ path('login') }}" class="btn btn-outline-light">Login</a>
+						{% endif %}
 					</li>
 				</ul>
+
+				<!-- Logout Button -->
+				
 			</div>
 		</nav>
 
@@ -229,66 +244,14 @@
 			<!-- Footer End -->
 
 			<!-- JavaScript Libraries -->
+
 			<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 			<script src="{{ asset('lib/owlcarousel/owl.carousel.min.js') }}"></script>
 			<script src="{{ asset('js/main.js') }}"></script>
 
 			<!-- Notifications Integration Script -->
-			<script>/*
-				document.addEventListener("DOMContentLoaded", function () { // Function to fetch notifications from your messaging endpoint
-function fetchNotifications() {
-fetch('/messaging/notifications/unread').then(response => response.json()).then(data => { // Calculate the total unread count
-let totalCount = data.reduce((sum, item) => sum + item.unreadCount, 0);
-let badge = document.querySelector('.notification-badge');
-if (badge) {
-badge.textContent = totalCount;
-badge.style.display = totalCount > 0 ? 'block' : 'none';
-}
 
-// Populate the notifications dropdown
-let notificationsContent = document.getElementById('notificationsContent');
-let html = '';
-if (data.length === 0) {
-html = '<div class="notification-item">Aucune notification</div>';
-} else {
-data.forEach(notif => { // Customize the message preview and time as needed.
-html += `
-                                    <a class="dropdown-item" href="#">
-                                        <div class="notification-item">
-                                            <i class="fas fa-envelope"></i>
-                                            <div class="notification-content">
-                                                ${
-notif.unreadCount
-} nouveau(x) message(s) de l'utilisateur ${
-notif.senderId
-}
-                                                <div class="notification-time">${
-notif.timestamp || 'À l’instant'
-}</div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                `;
-});
-} notificationsContent.innerHTML = html;
-}).catch(error => console.error("Error fetching notifications:", error));
-}
+		</body>
 
-// Initial fetch and then poll every 5 seconds
-fetchNotifications();
-setInterval(fetchNotifications, 5000);
-
-// Optionally, clear notifications when the dropdown is clicked.
-let notificationsDropdown = document.getElementById("notificationsDropdown");
-if (notificationsDropdown) {
-notificationsDropdown.addEventListener('click', function () {
-console.log("Notification icon clicked. Mark notifications as read if needed.");
-// You could add an AJAX call here to mark notifications as read.
-});
-}
-});
-			*/</script>
-	</body>
-
-</html>
+	</html>

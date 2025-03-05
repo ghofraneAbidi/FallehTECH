@@ -53,6 +53,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $password = null;
 
+    // src/Entity/User.php
+
+    #[ORM\Column(length: 20, nullable: false)]
+    #[Assert\NotBlank(message: "Veuillez entrer votre numéro de téléphone")]
+    #[Assert\Length(
+        min: 8,
+        max: 8,
+        exactMessage: "Le numéro de téléphone doit contenir exactement {{ limit }} chiffres"
+    )]
+    #[Assert\Regex(
+        pattern: "/^\d{8}$/",
+        message: "Le numéro de téléphone ne doit contenir que des chiffres"
+    )]
+    private ?string $phoneNumber = null;
+
     #[ORM\Column(length: 20)]
   //  #[Assert\NotBlank(message: "Veuillez spécifier votre rôle")]
     private ?string $role = null;
@@ -136,6 +151,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPassword(): ?string
     {
         return $this->password;
+    }
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(string $phoneNumber): self
+    {
+        $this->phoneNumber = $phoneNumber;
+        return $this;
     }
 
     public function getRole(): ?string
