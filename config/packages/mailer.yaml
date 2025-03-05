@@ -1,5 +1,5 @@
+# config/packages/mailer.yaml
 framework:
     mailer:
-        dsn: "smtp://smtp.gmail.com:587?encryption=tls&username=sarafaleh76@gmail.com&password=YOUR_APP_PASSWORD"
-        headers:
-            From: "sarah <sarafaleh76@gmail.com>"
+        dsn: 'smtp://sarafaleh76%40gmail.com:gkosewfcshtvpcma@smtp.gmail.com:587'
+       

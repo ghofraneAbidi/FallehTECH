@@ -16,7 +16,7 @@ class MailTestController extends AbstractController
     public function sendTestEmail(MailerInterface $mailer, LoggerInterface $logger): Response
     {
         // 📌 Replace with the agricultor's real email
-        $agricultorEmail = 'sarah.faleh@esprit.tn';
+        $agricultorEmail = 'ziedalimi2244@gmail.com';
 
         // 📌 Fake product name for testing
         $productName = 'Test Product';

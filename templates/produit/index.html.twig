@@ -187,10 +187,14 @@ html, body {
     <strong {% if produit.stock <= 5 %} style="color: red;" {% endif %}>
         {{ produit.stock }}
     </strong>
-    <a href="{{ path('app_mail_alert', {'id': produit.id}) }}" title="Envoyer une alerte">
-        <i class="fas fa-envelope" style="margin-left: 10px; color: #9BAB10; font-size: 18px;"></i>
-    </a>
+    
+    {% if produit.stock <= 5 %}
+        <a href="{{ path('app_mail_alert', {'id': produit.id}) }}" title="Envoyer une alerte">
+            <i class="fas fa-envelope" style="margin-left: 10px; color: #9BAB10; font-size: 18px;"></i>
+        </a>
+    {% endif %}
 </td>
+
 
 
 
