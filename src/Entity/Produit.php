@@ -8,7 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 #[ORM\Entity(repositoryClass: ProduitRepository::class)]
 #[Vich\Uploadable]  // Required for VichUploader
 class Produit
@@ -79,7 +80,9 @@ class Produit
 
     #[ORM\Column(type: 'boolean')]
     private bool $isFavorite = false;
-
+    #[ORM\OneToMany(mappedBy: 'produit', targetEntity: Favoris::class, cascade: ['persist', 'remove'])]
+    private Collection $favoris;
+    
     #[ORM\Column(type: 'integer')]
     private ?int $stock = null; // 📌 Nouveau champ pour la quantité en stock
 
@@ -149,5 +152,23 @@ class Produit
 
     public function getIsFavorite(): bool { return $this->isFavorite; }
     public function setIsFavorite(bool $isFavorite): self { $this->isFavorite = $isFavorite; return $this; }
-    
+    public function __construct()
+{
+    $this->favoris = new ArrayCollection();
+}
+
+public function getFavoris(): Collection
+{
+    return $this->favoris;
+}
+public function isFavoriParUtilisateur(int $userId): bool
+{
+    foreach ($this->favoris as $favori) {
+        if ($favori->getUserId() === $userId) {
+            return true;
+        }
+    }
+    return false;
+}
+
 }

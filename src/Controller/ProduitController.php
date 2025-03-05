@@ -18,6 +18,9 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use App\Service\MailService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use App\Entity\Favoris;
+use App\Service\GeminiService;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 
 #[Route('/produit')]
@@ -276,10 +279,29 @@ public function addToFavorites(Produit $produit, EntityManagerInterface $em): Js
     } catch (\Exception $e) {
         return new JsonResponse(['error' => 'Une erreur est survenue. Veuillez réessayer.'], 500);
     }
+    
+}
+
+#[Route('/produit/recettes/{ingredient}', name: 'produits_recettes')]
+public function getRecettes(HttpClientInterface $httpClient, string $ingredient): Response
+{
+    // Manually instantiate GeminiService
+    $apiKey = 'AIzaSyAs8cGkLXOMBF7xDK87xOUVi9APhnUux9g'; // Replace with your actual API key
+    $geminiService = new GeminiService($httpClient, $apiKey);
+
+    // Call the method to get recipes
+    $recipes = $geminiService->getRecipes($ingredient);
+
+
+    return $this->render('produit_new/recettes.html.twig', [
+        'ingredient' => ucfirst($ingredient),
+        'recipes' => $recipes
+    ]);
 }
 
 
-   
+
+
 
 }
 

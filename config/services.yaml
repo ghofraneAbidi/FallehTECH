@@ -1,17 +1,23 @@
 parameters:
     produit_images_directory: '%kernel.project_dir%/public/uploads'
-
+    
 services:
-    # Default configuration for services in this file
     _defaults:
-        autowire: true      # Automatically inject dependencies
-        autoconfigure: true # Automatically register services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
+    App\Service\GeminiService:
+        arguments:
+            $client: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            $apiKey: '%gemini.api_key%'
     # Register custom services
+       # Register custom services
     App\Service\MailService:
         arguments:
             $mailer: '@mailer.mailer'
-    
+
+   
+
     App\EventListener\ProduitStockListener: ~
 
     # Allow the session service to be injected automatically

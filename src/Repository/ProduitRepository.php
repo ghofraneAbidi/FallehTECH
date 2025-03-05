@@ -7,6 +7,8 @@ use App\Service\MailService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use App\Entity\Favoris;
+
 
 class ProduitRepository extends ServiceEntityRepository
 {
@@ -56,6 +58,23 @@ public function findLowStock(): array
             ->getQuery()
             ->getResult();
     }
+
+    public function findAllWithFavoriteStatus(int $userId): array
+{
+    return $this->createQueryBuilder('p')
+        ->select('p, 
+            CASE 
+                WHEN f.id IS NOT NULL THEN true 
+                ELSE false 
+            END AS isFavorite')
+        ->leftJoin('p.favoris', 'f', 'WITH', 'f.userId = :userId')
+        ->setParameter('userId', $userId)
+        ->getQuery()
+        ->getResult();
+}
+
+    
+
 
 
 
