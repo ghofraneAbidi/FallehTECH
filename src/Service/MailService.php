@@ -21,9 +21,13 @@ class MailService
         $this->logger->info("Tentative d'envoi d'un e-mail de stock bas à : " . $toEmail);
 
         $email = (new Email())
-            ->from('sarafaleh76@gmail.com')
-            ->to($toEmail)
-            ->subject('Alerte Stock Faible')
+    ->from('sarafaleh76@gmail.com')
+    ->to($toEmail)
+    ->subject('Alerte Stock Faible')
+    ->text("Le stock du produit $productName est bas.")
+    ->getHeaders()
+    ->addTextHeader('X-Transport-Options', json_encode(['verify_peer' => false])) // ✅ Corrected
+
             ->html("
                 <p>Bonjour,</p>
                 <p>Le stock du produit <strong>$productName</strong> est bas.</p>

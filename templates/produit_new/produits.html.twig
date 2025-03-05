@@ -49,7 +49,6 @@
                         <input type="text" class="form-control text-center product-quantity" id="quantity-{{ produit.id }}" value="1" readonly>
                         <button class="btn btn-outline-secondary increaseQty" data-id="{{ produit.id }}">+</button>
                     </div>
-                   <a href="{{ path('produits_recettes', {'name': produit.nom|url_encode }) }}" class="btn btn-info">Voir les Recettes</a>
 
                     <!-- Add to Cart Button -->
                     <button class="btn btn-primary addToCartBtn" data-id="{{ produit.id }}">

@@ -6,19 +6,8 @@ services:
         autowire: true
         autoconfigure: true
 
-    App\Service\GeminiService:
-        arguments:
-            $client: '@Symfony\Contracts\HttpClient\HttpClientInterface'
-            $apiKey: '%gemini.api_key%'
-    # Register custom services
-       # Register custom services
-    App\Service\MailService:
-        arguments:
-            $mailer: '@mailer.mailer'
-
-   
-
-    App\EventListener\ProduitStockListener: ~
+    App\Service\MailService: ~
+    App\EventListener\ProduitStockListener: ~ 
 
     # Allow the session service to be injected automatically
     Symfony\Component\HttpFoundation\Session\SessionInterface: '@session'

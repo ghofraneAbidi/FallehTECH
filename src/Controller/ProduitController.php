@@ -282,27 +282,10 @@ public function addToFavorites(Produit $produit, EntityManagerInterface $em): Js
     
 }
 
-#[Route('/produit/recettes/{ingredient}', name: 'produits_recettes')]
-public function getRecettes(HttpClientInterface $httpClient, string $ingredient): Response
-{
-    // Manually instantiate GeminiService
-    $apiKey = 'AIzaSyAs8cGkLXOMBF7xDK87xOUVi9APhnUux9g'; // Replace with your actual API key
-    $geminiService = new GeminiService($httpClient, $apiKey);
 
-    // Call the method to get recipes
-    $recipes = $geminiService->getRecipes($ingredient);
-
-
-    return $this->render('produit_new/recettes.html.twig', [
-        'ingredient' => ucfirst($ingredient),
-        'recipes' => $recipes
-    ]);
-}
 
 
 
 
 
 }
-
-

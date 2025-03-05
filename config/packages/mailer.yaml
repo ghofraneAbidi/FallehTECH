@@ -1,3 +1,5 @@
 framework:
     mailer:
-        dsn: "smtp://sarafaleh76@gmail.com:wfxvyrcpexrrwpkr@smtp.gmail.com:587?encryption=tls"
+        dsn: "smtp://smtp.gmail.com:587?encryption=tls&username=sarafaleh76@gmail.com&password=YOUR_APP_PASSWORD"
+        headers:
+            From: "sarah <sarafaleh76@gmail.com>"
