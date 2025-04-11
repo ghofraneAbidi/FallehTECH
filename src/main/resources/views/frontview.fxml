@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.fx.FrontViewController"
+            stylesheets="@../styles/agri-style.css">
+
+    <!-- Sidebar -->
+    <left>
+        <VBox spacing="15" styleClass="sidebar">
+            <Label text="🌱 FallehTech" styleClass="sidebar-title"/>
+            <Button text="🏠 Page d'accueil" onAction="#goToAccueil" styleClass="sidebar-button"/>
+            <Button text="🛒 Produits" onAction="#goToProduits" styleClass="sidebar-button"/>
+            <Button text="🧺 Panier" onAction="#goToPanier" styleClass="sidebar-button"/>
+            <Button text="📦 Commandes" onAction="#goToCommandes" styleClass="sidebar-button"/>
+            <Button text="🌾 Offres de travail" onAction="#goToOffres" styleClass="sidebar-button"/>
+            <Button text="📰 Blog" onAction="#goToBlog" styleClass="sidebar-button"/>
+            <Separator/>
+            <Button text="🚪 Déconnexion" onAction="#logout" styleClass="sidebar-button"/>
+        </VBox>
+    </left>
+
+    <!-- Main content -->
+    <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="20" right="30" bottom="20" left="30"/>
+            </padding>
+
+            <Label text="Bonjour Sarah !" styleClass="welcome-text"/>
+
+            <!-- Summary Cards -->
+            <HBox spacing="15" HBox.hgrow="ALWAYS">
+                <VBox spacing="5" styleClass="card" HBox.hgrow="ALWAYS">
+                    <Label text="📋 Mes commandes"/>
+                    <Label text="3 en cours" styleClass="card-info"/>
+                </VBox>
+                <VBox spacing="5" styleClass="card" HBox.hgrow="ALWAYS">
+                    <Label text="🛍️ Panier"/>
+                    <Label text="2 articles – 45,00 DT" styleClass="card-info"/>
+                </VBox>
+                <VBox spacing="5" styleClass="card" HBox.hgrow="ALWAYS">
+                    <Label text="🌿 Offres de travail"/>
+                    <Label text="4 nouvelles offres" styleClass="card-info"/>
+                </VBox>
+                <VBox spacing="5" styleClass="card" HBox.hgrow="ALWAYS">
+                    <Label text="📚 Blog"/>
+                    <Label text="2 nouvelles publications" styleClass="card-info"/>
+                </VBox>
+            </HBox>
+
+            <!-- Produits -->
+            <Label text="Produits en vedette" styleClass="section-title"/>
+            <GridPane hgap="15" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+
+                <VBox spacing="8" styleClass="product-card" GridPane.columnIndex="0">
+                    <ImageView fx:id="carottesImage" fitWidth="100" fitHeight="80" preserveRatio="true"/>
+                    <Label text="Carottes"/>
+                    <Label text="1,200 DT"/>
+                </VBox>
+                <VBox spacing="8" styleClass="product-card" GridPane.columnIndex="1">
+                    <ImageView fx:id="laitueImage" fitWidth="100" fitHeight="80" preserveRatio="true"/>
+                    <Label text="Laitue"/>
+                    <Label text="600 DT"/>
+                </VBox>
+                <VBox spacing="8" styleClass="product-card" GridPane.columnIndex="2">
+                    <ImageView fx:id="tomatesImage" fitWidth="100" fitHeight="80" preserveRatio="true"/>
+                    <Label text="Tomates"/>
+                    <Label text="1,800 DT"/>
+                </VBox>
+                <VBox spacing="8" styleClass="product-card" GridPane.columnIndex="3">
+                    <ImageView fx:id="pommesImage" fitWidth="100" fitHeight="80" preserveRatio="true"/>
+                    <Label text="Pommes de terre"/>
+                    <Label text="1,400 DT"/>
+                </VBox>
+            </GridPane>
+
+            <!-- Offres / Blog -->
+            <HBox spacing="30" HBox.hgrow="ALWAYS">
+                <VBox spacing="5" styleClass="section" HBox.hgrow="ALWAYS">
+                    <Label text="Offres de travail" styleClass="section-title"/>
+                    <Label text="Récolte – Gafsa (Urgent)"/>
+                    <Label text="Tractoriste – Kairouan"/>
+                    <Hyperlink text="Voir toutes les offres »" onAction="#goToOffres"/>
+                </VBox>
+                <VBox spacing="5" styleClass="section" HBox.hgrow="ALWAYS">
+                    <Label text="Publications du blog" styleClass="section-title"/>
+                    <Label text="Nouvelle méthode d’irrigation – Ahmed B."/>
+                    <Label text="Récolte d’olives – Saida A."/>
+                    <Hyperlink text="Voir toutes les publications »" onAction="#goToBlog"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

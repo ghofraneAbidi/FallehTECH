@@ -1,0 +1,105 @@
+.root {
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-background-color: #f5f8f4;
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2e7d32; /* vert foncé */
+}
+
+.button {
+    -fx-background-color: #a5d6a7; /* vert pastel */
+    -fx-text-fill: #1b5e20;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #81c784;
+}
+
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #c8e6c9;
+    -fx-border-radius: 5;
+    -fx-padding: 5;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: #c8e6c9;
+}
+
+.text-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #a5d6a7;
+    -fx-border-radius: 4;
+}
+.sidebar {
+    -fx-background-color: #d4e9cd;
+    -fx-padding: 20;
+}
+.sidebar-title {
+    -fx-text-fill: #2e5e3e;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10 0;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2e5e3e;
+    -fx-font-size: 14px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #c4ddbd;
+    -fx-text-fill: #1f3b2d;
+}
+
+.welcome-text {
+    -fx-font-size: 22px;
+    -fx-text-fill: #2e5e3e;
+    -fx-font-weight: bold;
+}
+
+.card {
+    -fx-background-color: #ffffff;
+    -fx-padding: 10;
+    -fx-border-color: #cce2c1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-min-width: 160;
+    -fx-alignment: CENTER;
+}
+
+.card-info {
+    -fx-text-fill: #4d784e;
+    -fx-font-weight: bold;
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-text-fill: #2e5e3e;
+    -fx-font-weight: bold;
+}
+
+.product-card {
+    -fx-background-color: #ffffff;
+    -fx-padding: 10;
+    -fx-border-color: #d0d0d0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-alignment: CENTER;
+}
+
+.hyperlink {
+    -fx-text-fill: #4caf50;
+    -fx-underline: true;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #2e7d32;
+}
