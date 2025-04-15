@@ -2,9 +2,10 @@ package tn.esprit.fx;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import tn.esprit.entities.PanierItem;
 import tn.esprit.entities.Produit;
 import tn.esprit.services.PanierService;
@@ -36,8 +37,7 @@ public class PanierController implements Initializable {
 
     private void setupColumns() {
         colImage.setCellValueFactory(cell -> {
-            ImageView img = new ImageView(ImageUtils.chargerDepuisNom(
-                    cell.getValue().getProduit().getImage()));
+            ImageView img = new ImageView(ImageUtils.chargerDepuisNom(cell.getValue().getProduit().getImage()));
             img.setFitWidth(50);
             img.setFitHeight(50);
             img.setPreserveRatio(true);
@@ -50,22 +50,38 @@ public class PanierController implements Initializable {
         colPrix.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(
                 cell.getValue().getProduit().getPrix().doubleValue()));
 
-        // ✅ Spinner pour modifier la quantité
+        // ✅ Ajout de boutons - et + dans chaque cellule pour gérer la quantité
+        colQuantite.setCellValueFactory(cellData ->
+                new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getQuantite()).asObject());
+
         colQuantite.setCellFactory(col -> new TableCell<>() {
-            private final Spinner<Integer> spinner = new Spinner<>(1, 100, 1);
+            private final Button minusBtn = new Button("-");
+            private final Button plusBtn = new Button("+");
+            private final Label qtyLabel = new Label();
+            private final HBox box = new HBox(8, minusBtn, qtyLabel, plusBtn);
 
             {
-                spinner.setEditable(true);
-                spinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-                    if (getIndex() >= 0 && getIndex() < getTableView().getItems().size()) {
-                        PanierItem item = getTableView().getItems().get(getIndex());
-                        panierService.ajouterProduit(item.getProduit(), newVal - item.getQuantite());
-                        item.setQuantite(newVal);
-                        item.updateTotal();
-                        tablePanier.refresh();
-                        totalLabel.setText(String.format("%.2f DT", panierService.getTotal()));
-                    }
-                });
+                box.setAlignment(Pos.CENTER);
+                box.getStyleClass().add("quantity-box");
+
+                minusBtn.getStyleClass().add("quantity-btn");
+                plusBtn.getStyleClass().add("quantity-btn");
+                qtyLabel.getStyleClass().add("quantity-label");
+
+                minusBtn.setOnAction(e -> updateQuantity(-1));
+                plusBtn.setOnAction(e -> updateQuantity(1));
+            }
+
+            private void updateQuantity(int delta) {
+                PanierItem item = getTableView().getItems().get(getIndex());
+                int newQty = item.getQuantite() + delta;
+                if (newQty >= 1) {
+                    panierService.ajouterProduit(item.getProduit(), delta);
+                    item.setQuantite(newQty);
+                    item.updateTotal();
+                    tablePanier.refresh();
+                    updateTotal();
+                }
             }
 
             @Override
@@ -74,18 +90,17 @@ public class PanierController implements Initializable {
                 if (empty || quantite == null) {
                     setGraphic(null);
                 } else {
-                    spinner.getValueFactory().setValue(quantite);
-                    setGraphic(spinner);
+                    qtyLabel.setText(String.valueOf(quantite));
+                    setGraphic(box);
                 }
             }
         });
 
         colTotal.setCellValueFactory(cell ->
-                new javafx.beans.property.SimpleObjectProperty<>(
-                        cell.getValue().getTotal()));
+                new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getTotal()));
 
         colAction.setCellFactory(param -> new TableCell<>() {
-            private final Button deleteBtn = new Button("🗑️");
+            private final Button deleteBtn = new Button("🗑");
 
             {
                 deleteBtn.getStyleClass().add("delete-button");
@@ -111,6 +126,10 @@ public class PanierController implements Initializable {
                         .map(e -> new PanierItem(e.getKey(), e.getValue()))
                         .collect(Collectors.toList())
         );
+        updateTotal();
+    }
+
+    private void updateTotal() {
         totalLabel.setText(String.format("%.2f DT", panierService.getTotal()));
     }
 }

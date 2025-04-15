@@ -418,25 +418,26 @@ FlowPane {
     -fx-border-color: transparent;
 }
 
-/* Boutons d'action */
 .action-button {
-    -fx-background-color: #c8e6c9;
-    -fx-background-radius: 6;
+    -fx-background-color: #e0f7da;            /* vert clair doux */
     -fx-border-color: #a5d6a7;
     -fx-border-radius: 6;
+    -fx-background-radius: 6;
     -fx-padding: 5;
     -fx-cursor: hand;
+    -fx-min-width: 32px;                     /* taille minimale visible */
+    -fx-min-height: 32px;
+    -fx-alignment: center;
 }
-
 .action-button:hover {
-    -fx-background-color: #a5d6a7;
+    -fx-background-color: #c8e6c9;
 }
 
-/* Icônes dans les boutons */
 .action-button .graphic {
-    -fx-fit-width: 16;
-    -fx-fit-height: 16;
+    -fx-fit-width: 18px;
+    -fx-fit-height: 18px;
 }
+
 
 .notif-label {
     -fx-background-color: #d0f0c0; /* vert très doux */
@@ -513,5 +514,32 @@ FlowPane {
     -fx-background-radius: 8px;
 }
 
+.notif-label {
+    -fx-background-color: #fcebbd;
+    -fx-border-color: #f5c16c;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16 8 16; /* ↓ réduit la taille globale */
+    -fx-font-size: 13px;    /* ↓ réduit la taille du texte */
+    -fx-text-fill: #7a5901;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 6, 0.0, 0, 2);
+}
 
 
+.notif-label.warning {
+    -fx-background-color: #f5e0a3; /* jaune ocre clair */
+    -fx-text-fill: #5a3e0e;
+    -fx-border-color: #e2c26e;
+}
+.add-button {
+    -fx-background-color: #5cb85c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 6px 12px;
+    -fx-background-radius: 6px;
+}
+
+.add-button:hover {
+    -fx-background-color: #4cae4c;
+}

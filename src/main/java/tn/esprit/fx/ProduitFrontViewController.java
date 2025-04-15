@@ -132,10 +132,15 @@ public class ProduitFrontViewController implements Initializable {
 
 // ✅ Configurer l'action APRES avoir créé le bouton
             ajouter.setOnAction(e -> {
-                int quantite = Integer.parseInt(quantityLabel.getText());
-                panierService.ajouterProduit(p, quantite);
-                showNotification("🛒 Produit ajouté au panier !", false);
+                if (panierService.contient(p)) {
+                    showNotification("⚠️ Produit déjà dans le panier !", true);
+                } else {
+                    int quantite = Integer.parseInt(quantityLabel.getText());
+                    panierService.ajouterProduit(p, quantite);
+                    showNotification("🛒 Produit ajouté au panier !", false);
+                }
             });
+
 
 
             // === Bouton Favoris ===

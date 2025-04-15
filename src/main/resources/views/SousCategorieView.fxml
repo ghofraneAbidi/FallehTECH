@@ -25,12 +25,15 @@
             <Insets bottom="20" left="20" right="20" top="20"/>
         </padding>
 
-        <Label text="Gestion des Sous-Catégories"/>
+        <Label text="Gestion des Sous-Catégories" styleClass="title-label"/>
+
+        <!-- ✅ Zone de notification -->
+        <Label fx:id="notifLabel" visible="false" styleClass="notif-label"/>
 
         <HBox spacing="10">
             <VBox spacing="5">
                 <TextField fx:id="nomField" promptText="Nom de la sous-catégorie"/>
-                <ComboBox fx:id="categorieComboBox" promptText="catégories" prefWidth="200"/>
+                <ComboBox fx:id="categorieComboBox" promptText="Catégories" prefWidth="200"/>
                 <HBox spacing="10">
                     <Button text="Choisir Image" onAction="#choisirImage"/>
                     <Button text="Prendre Photo" onAction="#prendrePhoto"/>

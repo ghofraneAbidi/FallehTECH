@@ -1,51 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/23.0.1"
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.esprit.fx.CategorieController"
             stylesheets="@../styles/agri-style.css">
 
-    <children>
-        <VBox spacing="10" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
-              AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
+    <VBox spacing="15" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
+          AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
 
-            <HBox spacing="10">
-                <VBox spacing="5">
-                    <TextField fx:id="nomField" promptText="Nom de la catégorie"/>
-                    <HBox spacing="10">
-                        <Button text="Choisir Image" onAction="#choisirImage"/>
-                        <Button text="Prendre Photo" onAction="#prendrePhoto"/>
-                    </HBox>
-                </VBox>
-                <ImageView fx:id="imagePreview" fitWidth="160" fitHeight="120"
-                           preserveRatio="true" style="-fx-border-color: gray;"/>
-            </HBox>
+        <!-- ✅ Notification (invisible par défaut) -->
+        <HBox alignment="CENTER">
+            <Label fx:id="notifLabel"
+                   visible="false"
+                   styleClass="notif-label warning"
+                   maxWidth="500"
+                   wrapText="true"
+                   alignment="CENTER"/>
+        </HBox>
 
-            <Button text="Ajouter / Modifier" onAction="#ajouterCategorie"/>
+        <!-- ✅ Bouton Ajouter (ouvre une petite fenêtre) -->
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Button text="➕ Ajouter une Catégorie"
+                    onAction="#ouvrirPopupAjout"
+                    styleClass="add-button"/>
+        </HBox>
 
-            <TableView fx:id="tableView">
-                <columns>
-                    <TableColumn fx:id="idCol" text="ID"/>
-                    <TableColumn fx:id="nomCol" text="Nom"/>
-                    <TableColumn fx:id="imageCol" text="Image"/>
-                    <TableColumn fx:id="actionCol" text="Actions"/>
-                </columns>
-            </TableView>
-        </VBox>
-    </children>
+
+        <!-- ✅ TableView des catégories -->
+        <TableView fx:id="tableView">
+            <columns>
+                <TableColumn fx:id="idCol" text="ID"/>
+                <TableColumn fx:id="nomCol" text="Nom"/>
+                <TableColumn fx:id="imageCol" text="Image"/>
+                <TableColumn fx:id="actionCol" text="Actions"/>
+            </columns>
+        </TableView>
+    </VBox>
 </AnchorPane>

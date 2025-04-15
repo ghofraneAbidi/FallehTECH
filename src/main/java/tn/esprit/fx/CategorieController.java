@@ -11,10 +11,15 @@ import javafx.scene.layout.HBox;
 import tn.esprit.entities.Categorie;
 import tn.esprit.services.CategorieService;
 import tn.esprit.utils.ImageUtils;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import java.io.IOException;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class CategorieController implements Initializable {
@@ -24,7 +29,7 @@ public class CategorieController implements Initializable {
     @FXML private TableColumn<Categorie, String> nomCol;
     @FXML private TableColumn<Categorie, String> imageCol;
     @FXML private TableColumn<Categorie, Void> actionCol;
-
+    @FXML private Label notifLabel;
     @FXML private TextField nomField;
     @FXML private ImageView imagePreview;
 
@@ -38,8 +43,10 @@ public class CategorieController implements Initializable {
         nomCol.setCellValueFactory(new PropertyValueFactory<>("nom"));
         imageCol.setCellValueFactory(new PropertyValueFactory<>("image"));
 
-        imageCol.setCellFactory(param -> new TableCell<>() {
+        // Affichage des images dans la colonne image
+        imageCol.setCellFactory(col -> new TableCell<>() {
             private final ImageView imageView = new ImageView();
+
             {
                 imageView.setFitWidth(80);
                 imageView.setFitHeight(60);
@@ -58,8 +65,18 @@ public class CategorieController implements Initializable {
             }
         });
 
+        ajusterColonnes();
         setupActionColumn();
         afficherCategories();
+        notifLabel.setVisible(false);
+    }
+
+    private void ajusterColonnes() {
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        idCol.setMaxWidth(1f * Integer.MAX_VALUE * 0.10);
+        nomCol.setMaxWidth(1f * Integer.MAX_VALUE * 0.30);
+        imageCol.setMaxWidth(1f * Integer.MAX_VALUE * 0.30);
+        actionCol.setMaxWidth(1f * Integer.MAX_VALUE * 0.30);
     }
 
     public void afficherCategories() {
@@ -69,19 +86,48 @@ public class CategorieController implements Initializable {
     @FXML
     public void ajouterCategorie() {
         String nom = nomField.getText().trim();
-        if (!nom.isEmpty()) {
-            if (categorieEnCoursEdition == null) {
-                Categorie c = new Categorie(nom, selectedImageFilename);
-                service.ajouter(c);
-            } else {
-                categorieEnCoursEdition.setNom(nom);
-                categorieEnCoursEdition.setImage(selectedImageFilename);
-                service.modifier(categorieEnCoursEdition);
-                categorieEnCoursEdition = null;
-            }
-            clearFields();
-            afficherCategories();
+
+        if (nom.isEmpty()) {
+            showNotification("⚠ Le nom est requis.", true);
+            nomField.requestFocus();
+            return;
         }
+
+        if (nom.length() < 3 || nom.matches("\\d+")) {
+            showNotification("⚠ Le nom doit contenir au moins 3 lettres et ne pas être uniquement des chiffres.", true);
+            nomField.requestFocus();
+            return;
+        }
+
+        boolean existe = service.getAll().stream()
+                .anyMatch(c -> c.getNom().equalsIgnoreCase(nom) &&
+                        (categorieEnCoursEdition == null || !c.getId().equals(categorieEnCoursEdition.getId())));
+
+        if (existe) {
+            showNotification("⚠ Une catégorie avec ce nom existe déjà !", true);
+            nomField.requestFocus();
+            return;
+        }
+
+        if (selectedImageFilename == null || selectedImageFilename.isBlank()) {
+            showNotification("⚠ Veuillez sélectionner une image.", true);
+            return;
+        }
+
+        if (categorieEnCoursEdition == null) {
+            Categorie c = new Categorie(nom, selectedImageFilename);
+            service.ajouter(c);
+            showNotification("✅ Catégorie ajoutée avec succès !", false);
+        } else {
+            categorieEnCoursEdition.setNom(nom);
+            categorieEnCoursEdition.setImage(selectedImageFilename);
+            service.modifier(categorieEnCoursEdition);
+            showNotification("✏ Catégorie modifiée avec succès !", false);
+            categorieEnCoursEdition = null;
+        }
+
+        clearFields();
+        afficherCategories();
     }
 
     @FXML
@@ -110,12 +156,30 @@ public class CategorieController implements Initializable {
     }
 
     private void setupActionColumn() {
-        actionCol.setCellFactory(param -> new TableCell<>() {
-            private final Button btnEdit = new Button("✏️");
-            private final Button btnDelete = new Button("🗑️");
+        actionCol.setCellFactory(col -> new TableCell<>() {
+            private final Button btnEdit = new Button();
+            private final Button btnDelete = new Button();
             private final HBox hbox = new HBox(10, btnEdit, btnDelete);
+            private final ImageView editIcon;
+            private final ImageView deleteIcon;
 
             {
+                URL editUrl = getClass().getResource("/icons/modifier.png");
+                URL deleteUrl = getClass().getResource("/icons/delete.png");
+
+                editIcon = (editUrl != null) ? new ImageView(new Image(editUrl.toExternalForm())) : new ImageView();
+                deleteIcon = (deleteUrl != null) ? new ImageView(new Image(deleteUrl.toExternalForm())) : new ImageView();
+
+                editIcon.setFitWidth(18);
+                editIcon.setFitHeight(18);
+                deleteIcon.setFitWidth(18);
+                deleteIcon.setFitHeight(18);
+
+                btnEdit.setGraphic(editIcon);
+                btnDelete.setGraphic(deleteIcon);
+                btnEdit.getStyleClass().add("action-button");
+                btnDelete.getStyleClass().add("action-button");
+
                 btnEdit.setOnAction(event -> {
                     Categorie selected = getTableView().getItems().get(getIndex());
                     nomField.setText(selected.getNom());
@@ -140,6 +204,42 @@ public class CategorieController implements Initializable {
             }
         });
 
-        actionCol.setCellValueFactory(features -> new ReadOnlyObjectWrapper<>(null));
+        actionCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(null));
     }
+
+    private void showNotification(String message, boolean isWarning) {
+        notifLabel.setText(message);
+        notifLabel.getStyleClass().removeAll("notif-label", "warning");
+        notifLabel.getStyleClass().add("notif-label");
+        if (isWarning) notifLabel.getStyleClass().add("warning");
+        notifLabel.setVisible(true);
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+                javafx.application.Platform.runLater(() -> notifLabel.setVisible(false));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
+    }
+    @FXML
+    public void ouvrirPopupAjout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ajouterCategorie.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Ajouter une Catégorie");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            // Après fermeture, rafraîchir la liste
+            afficherCategories();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

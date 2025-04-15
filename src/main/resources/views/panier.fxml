@@ -5,7 +5,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="tn.esprit.fx.PanierController"
-      stylesheets="@../styles/panier.css"
+      stylesheets="@/styles/panier.css"
       styleClass="main-pane"
       spacing="20"
       alignment="TOP_CENTER">
@@ -13,7 +13,7 @@
 
     <children>
         <HBox alignment="CENTER_LEFT" spacing="10" styleClass="top-bar">
-            <Button text="←" fx:id="backButton" />
+
             <Label text="🛒 Mon Panier" styleClass="section-title" />
         </HBox>
 

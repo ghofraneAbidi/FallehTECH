@@ -39,4 +39,9 @@ public class PanierService {
     public void vider() {
         panier.clear();
     }
+    public boolean contient(Produit produit) {
+        return panier.keySet().stream()
+                .anyMatch(p -> p.getId().equals(produit.getId()));
+    }
+
 }

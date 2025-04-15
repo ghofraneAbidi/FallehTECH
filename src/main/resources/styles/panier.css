@@ -1,112 +1,122 @@
-/* === PANIER TABLE STYLE === */
-
-.table-view {
-    -fx-border-color: #c8e6c9;
-    -fx-background-color: white;
-    -fx-border-radius: 5;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);
+/* ===== CONTENEUR PRINCIPAL ===== */
+.main-pane {
+    -fx-spacing: 20;
+    -fx-padding: 25;
+    -fx-background-color: #f9f9f9;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
 }
 
-/* En-tête du tableau */
-.table-view .column-header-background {
-    -fx-background-color: #e8f5e9; /* Vert doux */
-    -fx-border-color: transparent;
-    -fx-border-radius: 8 8 0 0;
-    -fx-background-radius: 8 8 0 0;
-}
-
-.table-view .column-header {
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
-    -fx-text-fill: #2e7d32;
-    -fx-alignment: CENTER;
-}
-
-/* Lignes normales */
-.table-row-cell {
-    -fx-background-color: white;
-    -fx-border-color: #d0e8d0;
-    -fx-border-width: 0 0 1 0;
-}
-
-.table-row-cell:filled:selected {
-    -fx-background-color: #c8e6c9;
-}
-
-/* Cellules */
-.table-cell {
-    -fx-padding: 8;
-    -fx-alignment: CENTER;
-}
-
-/* === TOTAL LABEL === */
-.total-label {
-    -fx-font-weight: bold;
-    -fx-font-size: 16px;
-    -fx-text-fill: #2e7d32;
-}
-
-/* Bouton supprimer */
-.delete-button {
-    -fx-background-color: #e53935;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-background-radius: 10;
-    -fx-cursor: hand;
-}
-.delete-button:hover {
-    -fx-background-color: #c62828;
-}
-
-/* === BOUTON RETOUR === */
-#backButton {
-    -fx-background-color: #c8e6c9;
-    -fx-text-fill: #2e7d32;
-    -fx-font-weight: bold;
-    -fx-padding: 6 12;
-    -fx-background-radius: 5;
-    -fx-border-color: transparent;
-    -fx-cursor: hand;
-}
-
-#backButton:hover {
-    -fx-background-color: #a5d6a7;
-}
-
-/* === BARRE DU HAUT (titre + retour) === */
-.top-bar {
-    -fx-padding: 15;
-    -fx-spacing: 15;
-    -fx-alignment: CENTER_LEFT;
-}
+/* ===== TITRE ===== */
 .section-title {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
+    -fx-text-fill: #2E7D32;
+}
+
+/* ===== TABLE ===== */
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-table-cell-border-color: transparent;
+    -fx-padding: 10;
+    -fx-border-color: #cdecc3;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.06), 8, 0, 0, 2);
+}
+
+.table-row-cell:filled:selected, .table-row-cell:focused:selected {
+    -fx-background-color: #d6f5d6;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #e8f5e9;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: #e8f5e9;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
     -fx-text-fill: #2e7d32;
 }
-/* === CONTAINER PRINCIPAL === */
-.main-pane {
-    -fx-background-color: #f8f9f8;
-    -fx-padding: 20;
+
+.table-cell {
+    -fx-alignment: CENTER;
 }
-/* Bouton commander */
+
+
+/* ===== TOTAL ===== */
+.total-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #388E3C;
+}
+
+/* ===== BOUTON COMMANDER ===== */
 .commander-button {
     -fx-background-color: #43a047;
     -fx-text-fill: white;
     -fx-font-size: 16px;
-    -fx-padding: 10 20;
-    -fx-background-radius: 20;
     -fx-font-weight: bold;
+    -fx-padding: 8 18;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 5, 0.2, 0, 2);
 }
-/* Colonnes du tableau */
-.table-column {
-    -fx-font-size: 14px;
+
+.commander-button:hover {
+    -fx-background-color: #2e7d32;
 }
-/* Label du total */
-.total-label {
-    -fx-font-size: 16px;
+
+/* ===== BOUTON SUPPRIMER (🗑️) ===== */
+.delete-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-text-fill: #2e7d32;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
 }
+
+.delete-button:hover {
+    -fx-background-color: #c0392b;
+}
+.quantity-box {
+    -fx-alignment: center;
+    -fx-spacing: 6;
+}
+
+.quantity-btn {
+    -fx-background-color: #e0f2f1;
+    -fx-border-color: #26a69a;
+    -fx-text-fill: #00695c;
+    -fx-font-weight: bold;
+    -fx-padding: 3 8;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-cursor: hand;
+}
+
+.quantity-btn:hover {
+    -fx-background-color: #b2dfdb;
+}
+
+.quantity-label {
+    -fx-font-weight: bold;
+    -fx-padding: 3 10;
+    -fx-font-size: 13px;
+}
+
+/* ===== SPINNER STYLE (quantité) ===== */
+.spinner {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cdecc3;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-pref-width: 70px;
+    -fx-alignment: center;
+}
+
+

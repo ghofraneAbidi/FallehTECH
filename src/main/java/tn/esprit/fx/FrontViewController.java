@@ -93,6 +93,8 @@ public class FrontViewController implements Initializable {
         currentActiveButton = newActiveButton;
     }
 
+
+
     private void hideCategorieTree() {
         if (categorieTreeContainer != null) {
             categorieTreeContainer.setVisible(false);
@@ -118,14 +120,17 @@ public class FrontViewController implements Initializable {
     @FXML
     private void goToPanier() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Panier.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/panier.fxml"));
             Parent root = loader.load();
             contentPane.getChildren().setAll(root);
             activePageLabel.setText("🛒 Mon Panier");
+            setActiveButton(panierButton); // ✅ C’est ça qu’il fallait
+            hideCategorieTree();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
 
 
