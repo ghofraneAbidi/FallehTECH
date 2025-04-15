@@ -8,17 +8,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.stage.FileChooser;
 import tn.esprit.entities.Categorie;
 import tn.esprit.services.CategorieService;
+import tn.esprit.utils.ImageUtils;
 
-import com.github.sarxos.webcam.Webcam;
-import com.github.sarxos.webcam.WebcamResolution;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -28,21 +22,21 @@ public class CategorieController implements Initializable {
     @FXML private TableView<Categorie> tableView;
     @FXML private TableColumn<Categorie, Long> idCol;
     @FXML private TableColumn<Categorie, String> nomCol;
-    @FXML private TableColumn<Categorie, Void> actionCol;
     @FXML private TableColumn<Categorie, String> imageCol;
+    @FXML private TableColumn<Categorie, Void> actionCol;
 
     @FXML private TextField nomField;
     @FXML private ImageView imagePreview;
 
-    private String selectedImagePath;
-
     private final CategorieService service = new CategorieService();
     private Categorie categorieEnCoursEdition = null;
+    private String selectedImageFilename;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         nomCol.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        imageCol.setCellValueFactory(new PropertyValueFactory<>("image"));
 
         imageCol.setCellFactory(param -> new TableCell<>() {
             private final ImageView imageView = new ImageView();
@@ -53,30 +47,23 @@ public class CategorieController implements Initializable {
             }
 
             @Override
-            protected void updateItem(String path, boolean empty) {
-                super.updateItem(path, empty);
-                if (empty || path == null || path.isBlank()) {
+            protected void updateItem(String filename, boolean empty) {
+                super.updateItem(filename, empty);
+                if (empty || filename == null || filename.isBlank()) {
                     setGraphic(null);
                 } else {
-                    try {
-                        imageView.setImage(new Image(path, 80, 60, true, true));
-                        setGraphic(imageView);
-                    } catch (Exception e) {
-                        System.err.println("Erreur image catégorie: " + path);
-                        setGraphic(null);
-                    }
+                    imageView.setImage(ImageUtils.chargerDepuisNom(filename));
+                    setGraphic(imageView);
                 }
             }
         });
-        imageCol.setCellValueFactory(new PropertyValueFactory<>("image"));
 
         setupActionColumn();
         afficherCategories();
     }
 
     public void afficherCategories() {
-        List<Categorie> list = service.getAll();
-        tableView.getItems().setAll(list);
+        tableView.getItems().setAll(service.getAll());
     }
 
     @FXML
@@ -84,13 +71,11 @@ public class CategorieController implements Initializable {
         String nom = nomField.getText().trim();
         if (!nom.isEmpty()) {
             if (categorieEnCoursEdition == null) {
-                Categorie c = new Categorie();
-                c.setNom(nom);
-                c.setImage(selectedImagePath);
+                Categorie c = new Categorie(nom, selectedImageFilename);
                 service.ajouter(c);
             } else {
                 categorieEnCoursEdition.setNom(nom);
-                categorieEnCoursEdition.setImage(selectedImagePath);
+                categorieEnCoursEdition.setImage(selectedImageFilename);
                 service.modifier(categorieEnCoursEdition);
                 categorieEnCoursEdition = null;
             }
@@ -101,57 +86,42 @@ public class CategorieController implements Initializable {
 
     @FXML
     public void choisirImage() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choisir une image");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
-        );
-        File file = fileChooser.showOpenDialog(null);
+        File file = ImageUtils.ouvrirEtCopierImage();
         if (file != null) {
-            selectedImagePath = file.toURI().toString();
-            imagePreview.setImage(new Image(selectedImagePath));
+            selectedImageFilename = file.getName();
+            imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageFilename));
         }
     }
 
     @FXML
     public void prendrePhoto() {
-        try {
-            Webcam webcam = Webcam.getDefault();
-            webcam.setViewSize(WebcamResolution.VGA.getSize());
-            webcam.open();
-
-            BufferedImage image = webcam.getImage();
-            File output = new File("captured/" + System.currentTimeMillis() + ".png");
-            output.getParentFile().mkdirs();
-            ImageIO.write(image, "PNG", output);
-
-            selectedImagePath = output.toURI().toString();
-            imagePreview.setImage(new Image(selectedImagePath));
-            webcam.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        File file = ImageUtils.prendrePhotoDepuisWebcam();
+        if (file != null) {
+            selectedImageFilename = file.getName();
+            imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageFilename));
         }
     }
 
     private void clearFields() {
         nomField.clear();
         imagePreview.setImage(null);
-        selectedImagePath = null;
+        selectedImageFilename = null;
+        categorieEnCoursEdition = null;
     }
 
     private void setupActionColumn() {
         actionCol.setCellFactory(param -> new TableCell<>() {
-            private final Button btnEdit = new Button("Modifier");
-            private final Button btnDelete = new Button("Supprimer");
-            private final HBox hbox = new HBox(5, btnEdit, btnDelete);
+            private final Button btnEdit = new Button("✏️");
+            private final Button btnDelete = new Button("🗑️");
+            private final HBox hbox = new HBox(10, btnEdit, btnDelete);
 
             {
                 btnEdit.setOnAction(event -> {
                     Categorie selected = getTableView().getItems().get(getIndex());
                     nomField.setText(selected.getNom());
-                    selectedImagePath = selected.getImage();
-                    if (selectedImagePath != null && !selectedImagePath.isBlank()) {
-                        imagePreview.setImage(new Image(selectedImagePath));
+                    selectedImageFilename = selected.getImage();
+                    if (selectedImageFilename != null && !selectedImageFilename.isBlank()) {
+                        imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageFilename));
                     }
                     categorieEnCoursEdition = selected;
                 });
@@ -169,6 +139,7 @@ public class CategorieController implements Initializable {
                 setGraphic(empty ? null : hbox);
             }
         });
+
         actionCol.setCellValueFactory(features -> new ReadOnlyObjectWrapper<>(null));
     }
 }

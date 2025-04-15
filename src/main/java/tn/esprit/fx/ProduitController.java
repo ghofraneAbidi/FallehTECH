@@ -33,6 +33,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.NumberAxis;
+import tn.esprit.utils.ImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -150,21 +151,23 @@ public class ProduitController implements Initializable {
             }
 
             @Override
-            protected void updateItem(String path, boolean empty) {
-                super.updateItem(path, empty);
-                if (empty || path == null || path.isBlank()) {
+            protected void updateItem(String imageName, boolean empty) {
+                super.updateItem(imageName, empty);
+                if (empty || imageName == null || imageName.isBlank()) {
                     setGraphic(null);
                 } else {
                     try {
-                        Image img = new Image(path, 80, 60, true, true);
-                        imageView.setImage(img);
+                        Image image = new Image(ImageUtils.IMAGE_BASE_URL + imageName, true);
+                        imageView.setImage(image);
                         setGraphic(imageView);
                     } catch (Exception e) {
+                        System.out.println("❌ Erreur image : " + imageName);
                         setGraphic(null);
                     }
                 }
             }
         });
+
         imageCol.setCellValueFactory(new PropertyValueFactory<>("image"));
 
         chargerCategories();
@@ -285,13 +288,30 @@ public class ProduitController implements Initializable {
     public void ajouterProduit() {
         try {
             String nom = nomField.getText().trim();
-            BigDecimal prix = new BigDecimal(prixField.getText().trim());
+            BigDecimal prix;
+            int stock;
+            try {
+                prix = new BigDecimal(prixField.getText().trim());
+                stock = Integer.parseInt(stockField.getText().trim());
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Prix ou stock invalide.");
+                alert.setHeaderText("Erreur de saisie");
+                alert.showAndWait();
+                return;
+            }
+
             String desc = descriptionField.getText().trim();
-            int stock = Integer.parseInt(stockField.getText().trim());
+
             Categorie cat = categorieComboBox.getValue();
             SousCategorie sc = sousCategorieComboBox.getValue();
 
-            if (nom.isEmpty() || cat == null || sc == null) return;
+            if (nom.isEmpty() || cat == null || sc == null || selectedImagePath == null || selectedImagePath.isBlank()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Veuillez remplir tous les champs et sélectionner une image.");
+                alert.setHeaderText("Champs incomplets");
+                alert.showAndWait();
+                return;
+            }
+
 
             if (produitEnCoursEdition == null) {
                 Produit p = new Produit();
@@ -322,44 +342,24 @@ public class ProduitController implements Initializable {
             afficherProduits();
         } catch (Exception e) {
             e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Une erreur s'est produite.");
+            alert.setHeaderText("Erreur");
+            alert.showAndWait();
+
         }
     }
 
 
     @FXML
     public void choisirImage() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choisir une image");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
-        );
-
-        File selectedFile = fileChooser.showOpenDialog(null);
+        File selectedFile = ImageUtils.ouvrirEtCopierImage();
         if (selectedFile != null) {
-            try {
-                // Définir le dossier cible
-                File targetDir = new File("photos"); // ou "src/main/resources/uploads" si tu veux
-                if (!targetDir.exists()) {
-                    targetDir.mkdirs();
-                }
-
-                // Créer un nom unique basé sur timestamp
-                String extension = selectedFile.getName().substring(selectedFile.getName().lastIndexOf("."));
-                String fileName = "img_" + System.currentTimeMillis() + extension;
-                File targetFile = new File(targetDir, fileName);
-
-                // Copier le fichier
-                java.nio.file.Files.copy(selectedFile.toPath(), targetFile.toPath());
-
-                // Enregistrer le chemin relatif pour affichage
-                selectedImagePath = targetFile.toURI().toString();
-                imagePreview.setImage(new Image(selectedImagePath));
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            selectedImagePath = selectedFile.getName(); // juste le nom de fichier
+            imagePreview.setImage(new Image(ImageUtils.IMAGE_BASE_URL + selectedImagePath));
         }
     }
+
+
     private void envoyerMailStockFaible(Produit produit) {
         String destinataire = "destinataire@email.com"; // à modifier
         String sujet = "Alerte Stock Faible: " + produit.getNom();
@@ -383,7 +383,7 @@ public class ProduitController implements Initializable {
 
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress("sarafaleh76@gmail.com"));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("sinda.ouri@esprit.tn"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("ziedalimi2244@gmail.com"));
 
             // Sujet dynamique avec nom du produit
             String subject = "Alerte : Stock faible pour le produit " + produit.getNom();
@@ -420,31 +420,14 @@ public class ProduitController implements Initializable {
 
     @FXML
     public void prendrePhoto() {
-        try {
-            Webcam webcam = Webcam.getDefault();
-            if (webcam != null) {
-                webcam.setViewSize(WebcamResolution.VGA.getSize());
-                webcam.open();
-
-                BufferedImage image = webcam.getImage();
-                if (image != null) {
-                    String imageName = "photo_" + System.currentTimeMillis() + ".png";
-                    String imagePath = "photos/" + imageName;
-                    File outputFile = new File(imagePath);
-                    outputFile.getParentFile().mkdirs();
-                    ImageIO.write(image, "PNG", outputFile);
-
-                    selectedImagePath = outputFile.toURI().toString();
-                    imagePreview.setImage(new Image(selectedImagePath));
-                }
-                webcam.close();
-            } else {
-                System.out.println("Webcam non détectée");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        File photoFile = ImageUtils.prendrePhotoDepuisWebcam();
+        if (photoFile != null) {
+            selectedImagePath = photoFile.getName();
+            imagePreview.setImage(new Image(ImageUtils.IMAGE_BASE_URL + selectedImagePath));
         }
     }
+
+
 
     public void afficherProduits() {
         tableView.getItems().setAll(produitService.getAll());
@@ -511,9 +494,9 @@ public class ProduitController implements Initializable {
                     categorieComboBox.setValue(p.getCategorie());
                     sousCategorieComboBox.setValue(p.getSousCategorie());
                     selectedImagePath = p.getImage();
-                    if (selectedImagePath != null && !selectedImagePath.isBlank()) {
-                        imagePreview.setImage(new Image(selectedImagePath));
-                    }
+                    imagePreview.setImage(new Image(ImageUtils.IMAGE_BASE_URL + selectedImagePath));
+
+
                 });
 
                 btnDelete.setOnAction(event -> {

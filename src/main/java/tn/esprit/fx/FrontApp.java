@@ -5,24 +5,30 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
+import javafx.scene.Node;
+
+import java.util.prefs.Preferences;
 
 public class FrontApp extends Application {
 
+    Preferences prefs = Preferences.userNodeForPackage(getClass());
+
     @Override
     public void start(Stage stage) throws Exception {
-        // Charge la vue depuis le fichier FXML
         Parent root = FXMLLoader.load(getClass().getResource("/views/FrontView.fxml"));
-
-        // Crée la scène et l'attache au stage
         Scene scene = new Scene(root);
         stage.setTitle("AGRIMANAGER - Front Office");
         stage.setScene(scene);
-
-        // 👉 Adapter la taille automatiquement au contenu
         stage.sizeToScene();
-
-        // Affiche la fenêtre
         stage.show();
+    }
+
+    // ✅ Now declared outside the start method
+    public void restoreWidgetPosition(Node node, String widgetKey, double defaultX, double defaultY) {
+        double x = prefs.getDouble(widgetKey + "X", defaultX);
+        double y = prefs.getDouble(widgetKey + "Y", defaultY);
+        node.setLayoutX(x);
+        node.setLayoutY(y);
     }
 
     public static void main(String[] args) {

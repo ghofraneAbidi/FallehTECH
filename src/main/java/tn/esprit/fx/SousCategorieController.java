@@ -8,13 +8,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 import tn.esprit.entities.Categorie;
 import tn.esprit.entities.SousCategorie;
 import tn.esprit.services.CategorieService;
-import tn.esprit.services.SousCategorieService;
 import tn.esprit.services.ProduitService;
+import tn.esprit.services.SousCategorieService;
+import tn.esprit.utils.ImageUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -38,7 +38,7 @@ public class SousCategorieController implements Initializable {
     private final ProduitService produitService = new ProduitService();
 
     private SousCategorie sousCategorieEnCoursEdition = null;
-    private String selectedImagePath;
+    private String selectedImageName;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -57,19 +57,15 @@ public class SousCategorieController implements Initializable {
                 imageView.setFitHeight(60);
                 imageView.setPreserveRatio(true);
             }
+
             @Override
-            protected void updateItem(String path, boolean empty) {
-                super.updateItem(path, empty);
-                if (empty || path == null || path.isBlank()) {
+            protected void updateItem(String imageName, boolean empty) {
+                super.updateItem(imageName, empty);
+                if (empty || imageName == null || imageName.isBlank()) {
                     setGraphic(null);
                 } else {
-                    try {
-                        Image img = new Image(path, 80, 60, true, true);
-                        imageView.setImage(img);
-                        setGraphic(imageView);
-                    } catch (Exception e) {
-                        setGraphic(null);
-                    }
+                    imageView.setImage(ImageUtils.chargerDepuisNom(imageName));
+                    setGraphic(imageView);
                 }
             }
         });
@@ -83,16 +79,14 @@ public class SousCategorieController implements Initializable {
     private void chargerCategories() {
         List<Categorie> categories = categorieService.getAll();
         categorieComboBox.getItems().setAll(categories);
-
         categorieComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(Categorie categorie) { return categorie != null ? categorie.getNom() : ""; }
+            @Override public String toString(Categorie c) { return c != null ? c.getNom() : ""; }
             @Override public Categorie fromString(String s) { return null; }
         });
     }
 
     public void afficherSousCategories() {
-        List<SousCategorie> list = sousCategorieService.getAll();
-        tableView.getItems().setAll(list);
+        tableView.getItems().setAll(sousCategorieService.getAll());
     }
 
     @FXML
@@ -105,47 +99,38 @@ public class SousCategorieController implements Initializable {
                 SousCategorie sc = new SousCategorie();
                 sc.setNom(nom);
                 sc.setCategorie(selectedCategorie);
-                sc.setImage(selectedImagePath);
+                sc.setImage(selectedImageName);
                 sousCategorieService.ajouter(sc);
             } else {
                 sousCategorieEnCoursEdition.setNom(nom);
                 sousCategorieEnCoursEdition.setCategorie(selectedCategorie);
-                sousCategorieEnCoursEdition.setImage(selectedImagePath);
+                sousCategorieEnCoursEdition.setImage(selectedImageName);
                 sousCategorieService.modifier(sousCategorieEnCoursEdition);
                 sousCategorieEnCoursEdition = null;
             }
 
-            nomField.clear();
-            categorieComboBox.getSelectionModel().clearSelection();
-            imagePreview.setImage(null);
-            selectedImagePath = null;
+            clearFields();
             afficherSousCategories();
         }
     }
 
     @FXML
     public void choisirImage() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choisir une image");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
-        );
-        File file = fileChooser.showOpenDialog(null);
-        if (file != null) {
-            selectedImagePath = file.toURI().toString();
-            imagePreview.setImage(new Image(selectedImagePath));
+        File imageFile = ImageUtils.ouvrirEtCopierImage();
+        if (imageFile != null) {
+            selectedImageName = imageFile.getName();
+            imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageName));
         }
     }
+
     @FXML
     public void prendrePhoto() {
-        // TODO: intégrer webcam ici, pour l’instant juste afficher une alerte
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Caméra");
-        alert.setHeaderText("Fonction 'Prendre Photo'");
-        alert.setContentText("Capture via webcam à implémenter ici.");
-        alert.showAndWait();
+        File photo = ImageUtils.prendrePhotoDepuisWebcam();
+        if (photo != null) {
+            selectedImageName = photo.getName();
+            imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageName));
+        }
     }
-
 
     private void setupActionColumn() {
         actionCol.setCellFactory(param -> new TableCell<>() {
@@ -158,19 +143,16 @@ public class SousCategorieController implements Initializable {
                     SousCategorie selected = getTableView().getItems().get(getIndex());
                     nomField.setText(selected.getNom());
                     categorieComboBox.setValue(selected.getCategorie());
-                    selectedImagePath = selected.getImage();
-                    if (selectedImagePath != null && !selectedImagePath.isBlank()) {
-                        imagePreview.setImage(new Image(selectedImagePath));
-                    }
+                    selectedImageName = selected.getImage();
+                    imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageName));
                     sousCategorieEnCoursEdition = selected;
                 });
 
                 btnDelete.setOnAction(event -> {
                     SousCategorie selected = getTableView().getItems().get(getIndex());
-
                     if (produitService.existsBySousCategorie(selected.getId())) {
                         Alert alert = new Alert(Alert.AlertType.WARNING,
-                                "Impossible de supprimer cette sous-catégorie car elle est liée à un ou plusieurs produits.",
+                                "Impossible de supprimer cette sous-catégorie car elle est liée à des produits.",
                                 ButtonType.OK);
                         alert.setHeaderText("Suppression bloquée");
                         alert.showAndWait();
@@ -178,8 +160,7 @@ public class SousCategorieController implements Initializable {
                     }
 
                     Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                            "Êtes-vous sûr de vouloir supprimer cette sous-catégorie ?",
-                            ButtonType.YES, ButtonType.NO);
+                            "Supprimer cette sous-catégorie ?", ButtonType.YES, ButtonType.NO);
                     confirm.setHeaderText("Confirmation");
                     confirm.showAndWait().ifPresent(response -> {
                         if (response == ButtonType.YES) {
@@ -198,5 +179,13 @@ public class SousCategorieController implements Initializable {
         });
 
         actionCol.setCellValueFactory(features -> new ReadOnlyObjectWrapper<>(null));
+    }
+
+    private void clearFields() {
+        nomField.clear();
+        categorieComboBox.getSelectionModel().clearSelection();
+        imagePreview.setImage(null);
+        selectedImageName = null;
+        sousCategorieEnCoursEdition = null;
     }
 }
