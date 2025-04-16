@@ -1,21 +1,19 @@
 package tn.esprit.fx;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import tn.esprit.services.CategorieService;
 import tn.esprit.utils.ImageUtils;
-import javafx.scene.layout.BorderPane;
-
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -26,11 +24,9 @@ public class FrontViewController implements Initializable {
     @FXML private ImageView logoImage;
     @FXML private ImageView menuAvatar;
     @FXML private Label profileNameLabel;
-    @FXML private StackPane contentPane;
     @FXML private Label activePageLabel;
-    @FXML
-    private BorderPane mainPane;
-
+    @FXML private StackPane contentPane;
+    @FXML private BorderPane mainPane;
 
     @FXML private Button accueilButton;
     @FXML private Button produitsButton;
@@ -38,10 +34,9 @@ public class FrontViewController implements Initializable {
     @FXML private Button commandesButton;
     @FXML private Button offresButton;
     @FXML private Button blogButton;
-    @FXML private Button logoutButton;
     @FXML private Button btnFavoris;
     @FXML private Button btnPanier;
-
+    @FXML private Button prodagriculteur;
     @FXML private VBox categorieTreeContainer;
     @FXML private TreeView<String> categorieTree;
 
@@ -50,15 +45,13 @@ public class FrontViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Chargement des images depuis ImageUtils
         logoImage.setImage(ImageUtils.chargerDepuisNom("logo.png"));
         menuAvatar.setImage(ImageUtils.chargerDepuisNom("avatar.jpg"));
         setupClip(menuAvatar);
-
-        profileNameLabel.setText("Sarah"); // TODO: charger dynamiquement le nom utilisateur
+        profileNameLabel.setText("Sarah"); // TODO: rendre dynamique si besoin
 
         hideCategorieTree();
-        goToAccueil();
+        goToAccueil(); // affiche la page d'accueil par défaut
     }
 
     private void setupClip(ImageView imageView) {
@@ -69,36 +62,29 @@ public class FrontViewController implements Initializable {
         imageView.setClip(clip);
     }
 
-    private void loadView(String fxml) {
-        try {
-            Parent view = FXMLLoader.load(getClass().getResource("/views/" + fxml));
-            contentPane.getChildren().setAll(view);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("❌ Erreur chargement vue : " + fxml);
-        }
+    private void hideCategorieTree() {
+        categorieTreeContainer.setVisible(false);
+        categorieTreeContainer.setManaged(false);
     }
 
     private void setActiveButton(Button newActiveButton) {
-        if (newActiveButton == null) return;
-
         if (currentActiveButton != null) {
             currentActiveButton.getStyleClass().remove("active-button");
         }
-
-        if (!newActiveButton.getStyleClass().contains("active-button")) {
+        if (newActiveButton != null && !newActiveButton.getStyleClass().contains("active-button")) {
             newActiveButton.getStyleClass().add("active-button");
         }
-
         currentActiveButton = newActiveButton;
     }
 
-
-
-    private void hideCategorieTree() {
-        if (categorieTreeContainer != null) {
-            categorieTreeContainer.setVisible(false);
-            categorieTreeContainer.setManaged(false);
+    private void loadView(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/" + fxmlPath));
+            Parent view = loader.load();
+            contentPane.getChildren().setAll(view); // injecte la vue dans la zone centrale
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("❌ Erreur chargement vue : " + fxmlPath);
         }
     }
 
@@ -114,28 +100,16 @@ public class FrontViewController implements Initializable {
     @FXML private void goToProduits() {
         setActiveButton(produitsButton);
         activePageLabel.setText("Produits");
+        hideCategorieTree();
         loadView("ProduitFrontView.fxml");
     }
 
-    @FXML
-    private void goToPanier() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/panier.fxml"));
-            Parent root = loader.load();
-            contentPane.getChildren().setAll(root);
-            activePageLabel.setText("🛒 Mon Panier");
-            setActiveButton(panierButton); // ✅ C’est ça qu’il fallait
-            hideCategorieTree();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @FXML private void goToPanier() {
+        setActiveButton(panierButton);
+        activePageLabel.setText("🛒 Mon Panier");
+        hideCategorieTree();
+        loadView("panier.fxml");
     }
-
-
-
-
-
-
 
     @FXML private void goToCommandes() {
         setActiveButton(commandesButton);
@@ -166,12 +140,19 @@ public class FrontViewController implements Initializable {
     }
 
     @FXML private void openProfile() {
-        System.out.println("🔐 Ouverture du profil...");
+        activePageLabel.setText("👤 Mon Profil");
         loadView("ProfileView.fxml");
     }
 
     @FXML private void logout() {
         System.out.println("🔓 Déconnexion...");
-        // TODO: Implémenter la logique de logout
+        // TODO: Implémenter logout + redirection vers LoginView.fxml
+    }
+
+    @FXML private void goToProdagru(ActionEvent event) {
+        setActiveButton(prodagriculteur);
+        activePageLabel.setText("Vos Produits");
+        hideCategorieTree();
+        loadView("Agriculteur.fxml"); // ✅ NE PAS changer de scène !
     }
 }

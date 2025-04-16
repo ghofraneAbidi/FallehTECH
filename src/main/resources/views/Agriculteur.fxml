@@ -1,38 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="tn.esprit.fx.AgriculteurController"
-           stylesheets="@../styles/agri-style.css">
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.fx.AgriculteurController"
+            stylesheets="@../styles/agriculteur.css">
 
-    <VBox spacing="15" alignment="TOP_CENTER" maxWidth="780"> <!-- 👈 plus étroit qu'avant -->
-        <padding>
-            <Insets top="20" right="20" bottom="20" left="20"/>
-        </padding>
+    <VBox spacing="10"
+          AnchorPane.topAnchor="10.0"
+          AnchorPane.leftAnchor="10.0"
+          AnchorPane.rightAnchor="10.0"
+          AnchorPane.bottomAnchor="10.0">
 
-        <!-- Header -->
-        <HBox alignment="CENTER_LEFT" spacing="12">
-            <Button text="+" onAction="#ajouterProduitPopup"
-                    style="-fx-font-size: 18; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 35; -fx-pref-height: 35; -fx-background-radius: 100%;" />
-            <Label text="Mes Produits"
-                   style="-fx-font-size: 22px; -fx-text-fill: #2e7d32; -fx-font-weight: bold;" />
-        </HBox>
+        <!-- ✅ Titre -->
+        <Label text="🌿 Mes Produits" styleClass="label" />
+        <!-- ✅ Ligne titre + bouton Ajouter -->
 
-        <!-- Filtres -->
-        <HBox spacing="12" alignment="CENTER">
-            <TextField fx:id="searchField" promptText="Rechercher un produit..." prefWidth="200"/>
-            <ComboBox fx:id="categorieFilter" promptText="Catégorie" prefWidth="130"/>
-            <ComboBox fx:id="sousCategorieFilter" promptText="Sous-catégorie" prefWidth="130"/>
-        </HBox>
+            <Button fx:id="ajouterButton"
+                    text="➕ Ajouter un produit"
+                    onAction="#ajouterProduitPopup"
+                    styleClass="ajouter-produit-btn"/>
 
-        <!-- Cartes produit -->
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" fx:id="scrollPane">
-            <FlowPane fx:id="produitsContainer" prefWrapLength="720" hgap="12" vgap="12"> <!-- 👈 wrap resserré -->
-                <padding>
-                    <Insets top="10" right="10" bottom="10" left="10"/>
-                </padding>
-            </FlowPane>
+
+
+        <!-- ✅ Scrollable FlowPane -->
+        <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS" hbarPolicy="NEVER">
+            <content>
+                <FlowPane fx:id="productContainer" hgap="15" vgap="15" prefWrapLength="900">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                </FlowPane>
+            </content>
         </ScrollPane>
     </VBox>
-</StackPane>
+</AnchorPane>

@@ -1,0 +1,76 @@
+/* =========================
+   STYLING POUR PRODUIT CARD AGRICOLE
+   ========================= */
+
+.card-produit {
+    -fx-padding: 14;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-background-color: #f5fff7; /* vert très pâle */
+    -fx-border-color: #b2d8b2;     /* vert clair */
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 80, 0, 0.05), 5, 0, 0, 2);
+    -fx-pref-width: 250;
+    -fx-spacing: 10;
+}
+
+/* Style général pour tous les labels */
+.label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #2e4f2e;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-wrap-text: true; /* ✅ Permet les sauts de ligne si besoin */
+}
+
+/* Style spécifique pour le nom du produit */
+.label.nom {
+    -fx-font-size: 20px;                /* ✨ Plus gros et visible */
+    -fx-font-weight: bold;
+    -fx-text-fill: #388E3C;             /* 🌿 Vert profond agricole */
+    -fx-padding: 8 0 4 0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif; /* ✅ police plus moderne */
+}
+
+
+.label.stock {
+    -fx-background-color: #e74c3c; /* rouge stock bas */
+    -fx-text-fill: white;
+    -fx-padding: 4 10;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+}
+
+.hbox-buttons {
+    -fx-alignment: CENTER_LEFT; /* ✅ aligne les boutons à gauche */
+}
+/* ✅ Bouton MODIFIER - vert doux */
+.btn-modifier {
+    -fx-background-color: #7bc47f;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(two-pass-box, rgba(0, 100, 0, 0.1), 2, 0, 0, 1);
+}
+
+.btn-modifier:hover {
+    -fx-background-color: #66b266;
+}
+
+/* ✅ Bouton SUPPRIMER - rouge plus doux */
+.btn-supprimer {
+    -fx-background-color: #427c3b;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(two-pass-box, rgba(100, 0, 0, 0.1), 2, 0, 0, 1);
+}
+
+.btn-supprimer:hover {
+    -fx-background-color: #81d84f;
+}

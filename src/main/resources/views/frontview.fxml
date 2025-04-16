@@ -62,7 +62,7 @@
                     </VBox>
 
                     <Button fx:id="accueilButton" text="Page d'accueil" onAction="#goToAccueil" styleClass="sidebar-button"/>
-                    <Button fx:id="produitsButton" text="Produits" onAction="#goToProduits" styleClass="sidebar-button"/>
+                    <Button fx:id="produitsButton" text="Nos Produits" onAction="#goToProduits" styleClass="sidebar-button"/>
 
                     <VBox fx:id="categorieTreeContainer" visible="false" managed="false" spacing="5" styleClass="tree-container">
                         <Label text="Catégories disponibles" styleClass="tree-title"/>
@@ -70,6 +70,7 @@
                     </VBox>
 
                     <Button fx:id="panierButton" text="Panier" onAction="#goToPanier" styleClass="sidebar-button"/>
+                    <Button fx:id="prodagriculteur" text="vos produits" onAction="#goToProdagru" styleClass="sidebar-button"/>
                     <Button fx:id="commandesButton" text="Commandes" onAction="#goToCommandes" styleClass="sidebar-button"/>
                     <Button fx:id="offresButton" text="Offres de travail" onAction="#goToOffres" styleClass="sidebar-button"/>
                     <Button fx:id="blogButton" text="Blog" onAction="#goToBlog" styleClass="sidebar-button"/>

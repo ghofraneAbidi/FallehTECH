@@ -174,4 +174,29 @@ public class ProduitService {
 
         return p;
     }
+    public Produit getById(Long id) {
+        String sql = """
+        SELECT p.*, 
+               c.id AS cat_id, c.nom AS cat_nom, 
+               sc.id AS sc_id, sc.nom AS sc_nom
+        FROM produit p
+        JOIN categorie c ON p.categorie_id = c.id
+        JOIN sous_categorie sc ON p.sous_categorie_id = sc.id
+        WHERE p.id = ?
+    """;
+
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapProduit(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 }
