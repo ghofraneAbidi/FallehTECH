@@ -8,7 +8,7 @@
 <AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.esprit.fx.AjouterCategorieController"
-            prefWidth="400" prefHeight="300"
+            prefWidth="400" prefHeight="320"
             stylesheets="@../styles/agri-style.css">
 
     <VBox spacing="10" alignment="TOP_CENTER" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
@@ -18,32 +18,27 @@
             <Insets top="15" bottom="15" left="15" right="15"/>
         </padding>
 
-        <!-- ✅ Notification centrée en haut -->
-        <HBox alignment="CENTER">
-            <Label fx:id="notifLabel"
-                   visible="false"
-                   wrapText="true"
-                   maxWidth="300"
-                   styleClass="notif-label warning"
-                   alignment="CENTER"/>
-        </HBox>
-
-        <!-- Le reste du contenu -->
         <Label text="➕ Nouvelle Catégorie" styleClass="form-title"/>
-        <TextField fx:id="nomField" promptText="Nom de la catégorie"/>
 
+        <!-- Nom + erreur -->
+        <TextField fx:id="nomField" promptText="Nom de la catégorie" />
+        <Label fx:id="nomError" visible="false" styleClass="error-msg" />
+
+        <!-- Choix d'image -->
         <HBox spacing="10" alignment="CENTER">
             <Button text="Choisir Image" onAction="#choisirImage"/>
             <Button text="Prendre Photo" onAction="#prendrePhoto"/>
         </HBox>
+        <Label fx:id="imageError" visible="false" styleClass="error-msg" />
 
+        <!-- Aperçu image -->
         <ImageView fx:id="imagePreview" fitWidth="120" fitHeight="90" preserveRatio="true"
                    style="-fx-border-color: lightgray;"/>
 
+        <!-- Boutons action -->
         <HBox spacing="10" alignment="CENTER">
             <Button text="Ajouter" onAction="#ajouterCategorie" styleClass="add-button"/>
             <Button text="Annuler" onAction="#fermerFenetre" styleClass="cancel-button"/>
         </HBox>
     </VBox>
-
 </AnchorPane>

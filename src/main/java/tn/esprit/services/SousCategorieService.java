@@ -3,6 +3,7 @@ package tn.esprit.services;
 import tn.esprit.entities.Categorie;
 import tn.esprit.entities.SousCategorie;
 import tn.esprit.tools.my_db;
+import java.util.stream.Collectors;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -100,4 +101,10 @@ public class SousCategorieService {
 
         return list;
     }
+    public List<SousCategorie> getByCategorie(Long categorieId) {
+        return getAll().stream()
+                .filter(sc -> sc.getCategorie() != null && sc.getCategorie().getId().equals(categorieId))
+                .collect(Collectors.toList());
+    }
+
 }

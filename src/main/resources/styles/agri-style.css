@@ -532,14 +532,55 @@ FlowPane {
     -fx-text-fill: #5a3e0e;
     -fx-border-color: #e2c26e;
 }
+/* ✅ Bouton Ajouter */
 .add-button {
-    -fx-background-color: #5cb85c;
+    -fx-background-color: #4CAF50;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-padding: 6px 12px;
-    -fx-background-radius: 6px;
+    -fx-padding: 6 16;
+    -fx-background-radius: 5;
 }
 
-.add-button:hover {
-    -fx-background-color: #4cae4c;
+/* ✅ Boutons d'action (éditer/supprimer) */
+.action-button {
+    -fx-background-color: white;
+    -fx-border-color: #A5D6A7;
+    -fx-border-width: 1;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-padding: 4;
+    -fx-cursor: hand;
+}
+.error-msg {
+    -fx-text-fill: #d32f2f; /* Rouge profond */
+    -fx-font-weight: bold; /* Texte en gras */
+    -fx-font-size: 12.5px;
+}
+.combo-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #71a171;
+    -fx-border-radius: 6px;
+    -fx-padding: 4px;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: #d3f2d3;
+    -fx-border-color: transparent;
+}
+
+.combo-box .list-cell {
+    -fx-padding: 6px 10px;
+    -fx-font-size: 13px;
+}
+.text-area {
+    -fx-border-color: #A0D468;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-background-color: #ffffff;
+    -fx-padding: 8px;
+    -fx-font-size: 13px;
+    -fx-focus-color: #7CD1C0;
 }

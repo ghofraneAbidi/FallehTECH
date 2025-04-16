@@ -2,12 +2,17 @@ package tn.esprit.fx;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import tn.esprit.entities.Categorie;
 import tn.esprit.entities.SousCategorie;
@@ -17,13 +22,14 @@ import tn.esprit.services.SousCategorieService;
 import tn.esprit.utils.ImageUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class SousCategorieController implements Initializable {
 
-    @FXML private ComboBox<Categorie> categorieComboBox;
+
     @FXML private TextField nomField;
     @FXML private TableView<SousCategorie> tableView;
     @FXML private TableColumn<SousCategorie, Long> idCol;
@@ -72,19 +78,12 @@ public class SousCategorieController implements Initializable {
         });
 
         setupActionColumn();
-        chargerCategories();
+
         afficherSousCategories();
         ajusterColonnes();
     }
 
-    private void chargerCategories() {
-        List<Categorie> categories = categorieService.getAll();
-        categorieComboBox.getItems().setAll(categories);
-        categorieComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(Categorie c) { return c != null ? c.getNom() : ""; }
-            @Override public Categorie fromString(String s) { return null; }
-        });
-    }
+
 
     public void afficherSousCategories() {
         tableView.getItems().setAll(sousCategorieService.getAll());
@@ -92,93 +91,57 @@ public class SousCategorieController implements Initializable {
 
     @FXML
     public void ajouterSousCategorie() {
-        String nom = nomField.getText().trim();
-        Categorie selectedCategorie = categorieComboBox.getSelectionModel().getSelectedItem();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ajouterSousCategorie.fxml"));
+            Parent root = loader.load();
 
-        // ⚠️ Contrôle du champ "nom"
-        if (nom.isEmpty()) {
-            showNotification("⚠ Le nom est requis.", true);
-            nomField.requestFocus();
-            return;
-        }
+            Stage stage = new Stage();
+            stage.setTitle("Ajouter une Sous-Catégorie");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
 
-        if (nom.length() < 3 || nom.matches("\\d+")) {
-            showNotification("⚠ Le nom doit contenir au moins 3 lettres et ne peut pas être uniquement des chiffres.", true);
-            nomField.requestFocus();
-            return;
-        }
-
-        // ⚠️ Contrôle de la catégorie sélectionnée
-        if (selectedCategorie == null) {
-            showNotification("⚠ Veuillez sélectionner une catégorie.", true);
-            categorieComboBox.requestFocus();
-            return;
-        }
-
-        // ⚠️ Contrôle de l’image
-        if (selectedImageName == null || selectedImageName.isBlank()) {
-            showNotification("⚠ Veuillez choisir une image ou prendre une photo.", true);
-            return;
-        }
-
-        // ✅ Création ou modification
-        if (sousCategorieEnCoursEdition == null) {
-            SousCategorie sc = new SousCategorie(nom, selectedImageName, selectedCategorie);
-            sousCategorieService.ajouter(sc);
-            showNotification("✅ Sous-catégorie ajoutée avec succès !", false);
-        } else {
-            sousCategorieEnCoursEdition.setNom(nom);
-            sousCategorieEnCoursEdition.setCategorie(selectedCategorie);
-            sousCategorieEnCoursEdition.setImage(selectedImageName);
-            sousCategorieService.modifier(sousCategorieEnCoursEdition);
-            sousCategorieEnCoursEdition = null;
-            showNotification("✏ Sous-catégorie modifiée avec succès !", false);
-        }
-
-        clearFields();
-        afficherSousCategories();
-    }
-
-
-    @FXML
-    public void choisirImage() {
-        File imageFile = ImageUtils.ouvrirEtCopierImage();
-        if (imageFile != null) {
-            selectedImageName = imageFile.getName();
-            imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageName));
-        }
-    }
-
-    @FXML
-    public void prendrePhoto() {
-        File photo = ImageUtils.prendrePhotoDepuisWebcam();
-        if (photo != null) {
-            selectedImageName = photo.getName();
-            imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageName));
+            afficherSousCategories();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     private void setupActionColumn() {
-        actionCol.setCellFactory(param -> new TableCell<>() {
-            private final Button btnEdit = new Button("Modifier");
-            private final Button btnDelete = new Button("Supprimer");
-            private final HBox hbox = new HBox(5, btnEdit, btnDelete);
+        actionCol.setCellFactory(col -> new TableCell<>() {
+            private final Button btnEdit = new Button();
+            private final Button btnDelete = new Button();
+            private final HBox hbox = new HBox(10, btnEdit, btnDelete);
+            private final ImageView editIcon;
+            private final ImageView deleteIcon;
 
             {
+                URL editUrl = getClass().getResource("/icons/modifier.png");
+                URL deleteUrl = getClass().getResource("/icons/delete.png");
+
+                editIcon = (editUrl != null) ? new ImageView(new Image(editUrl.toExternalForm())) : new ImageView();
+                deleteIcon = (deleteUrl != null) ? new ImageView(new Image(deleteUrl.toExternalForm())) : new ImageView();
+
+                editIcon.setFitWidth(18);
+                editIcon.setFitHeight(18);
+                deleteIcon.setFitWidth(18);
+                deleteIcon.setFitHeight(18);
+
+                btnEdit.setGraphic(editIcon);
+                btnDelete.setGraphic(deleteIcon);
                 btnEdit.getStyleClass().add("action-button");
                 btnDelete.getStyleClass().add("action-button");
 
+                // Action de modification
                 btnEdit.setOnAction(event -> {
                     SousCategorie selected = getTableView().getItems().get(getIndex());
-                    nomField.setText(selected.getNom());
-                    categorieComboBox.setValue(selected.getCategorie());
-                    selectedImageName = selected.getImage();
-                    imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageName));
-                    sousCategorieEnCoursEdition = selected;
+                    ouvrirPopupModification(selected);
                 });
 
+                // Action de suppression
                 btnDelete.setOnAction(event -> {
                     SousCategorie selected = getTableView().getItems().get(getIndex());
+
                     if (produitService.existsBySousCategorie(selected.getId())) {
                         Alert alert = new Alert(Alert.AlertType.WARNING,
                                 "Impossible de supprimer cette sous-catégorie car elle est liée à des produits.",
@@ -206,7 +169,8 @@ public class SousCategorieController implements Initializable {
                 setGraphic(empty ? null : hbox);
             }
         });
-        actionCol.setCellValueFactory(features -> new ReadOnlyObjectWrapper<>(null));
+
+        actionCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(null));
     }
 
     private void showNotification(String message, boolean isWarning) {
@@ -226,11 +190,9 @@ public class SousCategorieController implements Initializable {
         }).start();
     }
 
-
-
     private void clearFields() {
         nomField.clear();
-        categorieComboBox.getSelectionModel().clearSelection();
+
         imagePreview.setImage(null);
         selectedImageName = null;
         sousCategorieEnCoursEdition = null;
@@ -244,20 +206,44 @@ public class SousCategorieController implements Initializable {
         imageCol.setMaxWidth(1f * Integer.MAX_VALUE * 0.20);
         actionCol.setMaxWidth(1f * Integer.MAX_VALUE * 0.20);
     }
-    private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Validation");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    @FXML
+    private void ouvrirPopupAjout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ajoutersouscat.fxml"));
+            Parent root = loader.load();
+
+            Stage popup = new Stage();
+            popup.setTitle("Ajouter une Sous-Catégorie");
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.setScene(new Scene(root));
+            popup.showAndWait();
+
+            afficherSousCategories(); // rafraîchit la table après fermeture
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+    public void ouvrirPopupModification(SousCategorie sousCategorie) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ajoutersouscat.fxml"));
+            Parent root = loader.load();
+
+            AjouterSousCategorieController controller = loader.getController();
+            controller.setSousCategorie(sousCategorie); // On remplit les champs ici
+
+            Stage stage = new Stage();
+            stage.setTitle("Modifier une Sous-Catégorie");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            afficherSousCategories(); // Actualiser la liste après fermeture
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void showInfo(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Succès");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 
 }

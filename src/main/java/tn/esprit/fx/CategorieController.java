@@ -182,13 +182,27 @@ public class CategorieController implements Initializable {
 
                 btnEdit.setOnAction(event -> {
                     Categorie selected = getTableView().getItems().get(getIndex());
-                    nomField.setText(selected.getNom());
-                    selectedImageFilename = selected.getImage();
-                    if (selectedImageFilename != null && !selectedImageFilename.isBlank()) {
-                        imagePreview.setImage(ImageUtils.chargerDepuisNom(selectedImageFilename));
+
+                    try {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ajouterCategorie.fxml"));
+                        Parent root = loader.load();
+
+                        // 🔄 Charger les données dans le contrôleur du popup
+                        AjouterCategorieController controller = loader.getController();
+                        controller.setCategorie(selected);  // Pré-remplir le formulaire
+
+                        Stage stage = new Stage();
+                        stage.setTitle("Modifier une Catégorie");
+                        stage.initModality(Modality.APPLICATION_MODAL);
+                        stage.setScene(new Scene(root));
+                        stage.showAndWait();
+
+                        afficherCategories();  // 🔁 Rafraîchir la table après modification
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    categorieEnCoursEdition = selected;
                 });
+
 
                 btnDelete.setOnAction(event -> {
                     Categorie selected = getTableView().getItems().get(getIndex());

@@ -12,8 +12,9 @@
 
     <VBox spacing="15" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
           AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
+        <Label text="Gestion des Catégories" styleClass="form-title" alignment="CENTER"/>
 
-        <!-- ✅ Notification (invisible par défaut) -->
+        <!-- ✅ Notification centrée -->
         <HBox alignment="CENTER">
             <Label fx:id="notifLabel"
                    visible="false"
@@ -23,19 +24,18 @@
                    alignment="CENTER"/>
         </HBox>
 
-        <!-- ✅ Bouton Ajouter (ouvre une petite fenêtre) -->
-        <HBox alignment="CENTER_LEFT" spacing="10">
+        <!-- ✅ Bouton Ajouter à droite -->
+        <HBox alignment="TOP_RIGHT">
             <Button text="➕ Ajouter une Catégorie"
                     onAction="#ouvrirPopupAjout"
                     styleClass="add-button"/>
         </HBox>
 
-
         <!-- ✅ TableView des catégories -->
         <TableView fx:id="tableView">
             <columns>
-                <TableColumn fx:id="idCol" text="ID"/>
-                <TableColumn fx:id="nomCol" text="Nom"/>
+                <TableColumn fx:id="idCol" text="ID" style="-fx-font-weight: bold;"/>
+                <TableColumn fx:id="nomCol" text="Nom" style="-fx-font-weight: bold;"/>
                 <TableColumn fx:id="imageCol" text="Image"/>
                 <TableColumn fx:id="actionCol" text="Actions"/>
             </columns>

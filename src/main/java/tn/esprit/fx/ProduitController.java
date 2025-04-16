@@ -1,75 +1,42 @@
 package tn.esprit.fx;
 
-import com.github.sarxos.webcam.Webcam;
-import com.github.sarxos.webcam.WebcamResolution;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
-import tn.esprit.entities.Categorie;
-import tn.esprit.entities.Produit;
-import tn.esprit.entities.SousCategorie;
-import tn.esprit.services.CategorieService;
-import tn.esprit.services.ProduitService;
-import tn.esprit.services.SousCategorieService;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.XYChart;
+import tn.esprit.entities.*;
+import tn.esprit.services.*;
+import tn.esprit.utils.ImageUtils;
+
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import java.util.Properties;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.XYChart;
-import javafx.scene.chart.NumberAxis;
-import tn.esprit.utils.ImageUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ProduitController implements Initializable {
 
-    @FXML private ComboBox<Categorie> categorieComboBox;
-    @FXML private ComboBox<SousCategorie> sousCategorieComboBox;
-    @FXML private TextField nomField, prixField, descriptionField, stockField;
     @FXML private TableView<Produit> tableView;
     @FXML private TableColumn<Produit, Long> idCol;
-    @FXML private TableColumn<Produit, String> nomCol, descCol, categorieCol, sousCategorieCol;
+    @FXML private TableColumn<Produit, String> nomCol, descCol, imageCol, categorieCol, sousCategorieCol;
     @FXML private TableColumn<Produit, BigDecimal> prixCol;
     @FXML private TableColumn<Produit, Integer> stockCol;
     @FXML private TableColumn<Produit, Void> actionCol;
-    @FXML private TableColumn<Produit, String> imageCol;
-    @FXML private ImageView imagePreview;
-    @FXML
-    private ComboBox<String> statistiqueComboBox;
-
-    @FXML
-    private BarChart<String, Number> statistiqueChart;
-
-    @FXML
-    private CategoryAxis xAxis;
-
-    @FXML
-    private NumberAxis yAxis;
-
 
     @FXML private ComboBox<String> filtreTypeComboBox;
     @FXML private TextField rechercheField;
@@ -77,71 +44,87 @@ public class ProduitController implements Initializable {
     @FXML private ComboBox<SousCategorie> filtreSousCategorieComboBox;
     @FXML private ComboBox<String> filtreStockComboBox;
 
-    private String selectedImagePath;
     private final ProduitService produitService = new ProduitService();
     private final CategorieService categorieService = new CategorieService();
     private final SousCategorieService sousCategorieService = new SousCategorieService();
-    private Produit produitEnCoursEdition = null;
-
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        nomCol.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        descCol.setCellValueFactory(new PropertyValueFactory<>("description"));
-        prixCol.setCellValueFactory(new PropertyValueFactory<>("prix"));
-        stockCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
-        statistiqueComboBox.getItems().addAll(
-                "Nombre de produits par catégorie",
-                "Top 5 des produits avec le stock le plus élevé"
-        );
+        configColonnes();
+        configFiltrage();
+        setupActionColumn();
+        afficherProduits();
+    }
 
+    private void configColonnes() {
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idCol.setPrefWidth(50);
+
+        nomCol.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        nomCol.setPrefWidth(140);
+
+        descCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+        descCol.setPrefWidth(180);
+
+        prixCol.setCellValueFactory(new PropertyValueFactory<>("prix"));
+        prixCol.setPrefWidth(80);
+
+        // 🌡️ Colonne Stock avec alerte visuelle + bouton mail
+        stockCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
         stockCol.setCellFactory(col -> new TableCell<>() {
             private final Label stockLabel = new Label();
-            private final Button mailButton = new Button("📧");
-            private final HBox hbox = new HBox(5, stockLabel, mailButton);
+            private final Button mailBtn = new Button();
+            private final HBox box = new HBox(5, stockLabel, mailBtn);
 
             {
-                mailButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
-                mailButton.setOnAction(event -> {
+                // Icône
+                URL iconUrl = getClass().getResource("/icons/mail.png");
+                if (iconUrl != null) {
+                    ImageView icon = new ImageView(new Image(iconUrl.toExternalForm()));
+                    icon.setFitHeight(16);
+                    icon.setFitWidth(16);
+                    mailBtn.setGraphic(icon);
+                }
+                mailBtn.setStyle("-fx-background-color: transparent;");
+                mailBtn.setOnAction(e -> {
                     Produit produit = getTableView().getItems().get(getIndex());
                     envoyerMailStockFaible(produit);
                 });
             }
 
-
             @Override
             protected void updateItem(Integer stock, boolean empty) {
                 super.updateItem(stock, empty);
+
                 if (empty || stock == null) {
                     setGraphic(null);
                 } else {
                     stockLabel.setText(String.valueOf(stock));
-
-                    if (stock < 5) {
-                        stockLabel.setStyle("-fx-text-fill: red;");
-                        mailButton.setVisible(true);
-                        setGraphic(hbox);
-                    } else {
-                        stockLabel.setStyle("-fx-text-fill: black;");
-                        mailButton.setVisible(false);
-                        setGraphic(stockLabel);
-                    }
+                    mailBtn.setVisible(stock <= 5); // on cache ou montre le bouton
+                    stockLabel.setStyle(stock <= 5
+                            ? "-fx-text-fill: red; -fx-font-weight: bold;"
+                            : "-fx-text-fill: green;");
+                    setGraphic(box); // toujours afficher le HBox
                 }
             }
         });
 
 
-        categorieCol.setCellValueFactory(cellData -> {
-            Categorie c = cellData.getValue().getCategorie();
-            return new ReadOnlyObjectWrapper<>(c != null ? c.getNom() : "");
-        });
+        // 📂 Catégorie
+        categorieCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(
+                Optional.ofNullable(c.getValue().getCategorie()).map(Categorie::getNom).orElse("")
+        ));
+        categorieCol.setPrefWidth(130);
 
-        sousCategorieCol.setCellValueFactory(cellData -> {
-            SousCategorie sc = cellData.getValue().getSousCategorie();
-            return new ReadOnlyObjectWrapper<>(sc != null ? sc.getNom() : "");
-        });
+        // 📂 Sous-Catégorie
+        sousCategorieCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(
+                Optional.ofNullable(c.getValue().getSousCategorie()).map(SousCategorie::getNom).orElse("")
+        ));
+        sousCategorieCol.setPrefWidth(140);
 
+        // 🖼️ Colonne Image
+        imageCol.setCellValueFactory(new PropertyValueFactory<>("image"));
+        imageCol.setPrefWidth(100);
         imageCol.setCellFactory(param -> new TableCell<>() {
             private final ImageView imageView = new ImageView();
             {
@@ -156,71 +139,64 @@ public class ProduitController implements Initializable {
                 if (empty || imageName == null || imageName.isBlank()) {
                     setGraphic(null);
                 } else {
-                    try {
-                        Image image = new Image(ImageUtils.IMAGE_BASE_URL + imageName, true);
-                        imageView.setImage(image);
-                        setGraphic(imageView);
-                    } catch (Exception e) {
-                        System.out.println("❌ Erreur image : " + imageName);
-                        setGraphic(null);
-                    }
+                    imageView.setImage(ImageUtils.chargerDepuisNom(imageName));
+                    setGraphic(imageView);
                 }
             }
         });
 
-        imageCol.setCellValueFactory(new PropertyValueFactory<>("image"));
-
-        chargerCategories();
-        chargerFiltres();
-        setupActionColumn();
-        afficherProduits();
-
-        filtreTypeComboBox.setOnAction(e -> {
-            String selected = filtreTypeComboBox.getValue();
-            rechercheField.setDisable(true);
-            filtreCategorieComboBox.setDisable(true);
-            filtreSousCategorieComboBox.setDisable(true);
-            filtreStockComboBox.setDisable(true);
-
-            switch (selected) {
-                case "Nom" -> {
-                    rechercheField.setDisable(false);
-                    rechercheField.textProperty().addListener((obs, oldVal, newVal) -> appliquerFiltres());
-                }
-                case "Catégorie" -> filtreCategorieComboBox.setDisable(false);
-                case "Sous-Catégorie" -> filtreSousCategorieComboBox.setDisable(false);
-                case "Stock" -> filtreStockComboBox.setDisable(false);
-            }
-        });
+        // 📐 Résize auto (optionnel)
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
-    private void chargerCategories() {
-        List<Categorie> categories = categorieService.getAll();
-        categorieComboBox.setItems(FXCollections.observableArrayList(categories));
-        categorieComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(Categorie c) { return c != null ? c.getNom() : ""; }
-            @Override public Categorie fromString(String s) { return null; }
-        });
+    private void setupActionColumn() {
+        actionCol.setCellFactory(col -> new TableCell<>() {
+            private final Button editBtn = createIconButton("/icons/modifier.png");
+            private final Button deleteBtn = createIconButton("/icons/delete.png");
+            private final HBox hbox = new HBox(10, editBtn, deleteBtn);
 
-        categorieComboBox.setOnAction(e -> {
-            Categorie selected = categorieComboBox.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                List<SousCategorie> sousCategories = sousCategorieService.getAll();
-                sousCategorieComboBox.getItems().setAll(
-                        sousCategories.stream()
-                                .filter(sc -> sc.getCategorie().getId().equals(selected.getId()))
-                                .toList()
-                );
+            {
+                editBtn.setOnAction(e -> openPopup("/views/ajouterproduit.fxml", getTableView().getItems().get(getIndex())));
+                deleteBtn.setOnAction(e -> {
+                    Produit produit = getTableView().getItems().get(getIndex());
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ce produit ?", ButtonType.YES, ButtonType.NO);
+                    confirm.setHeaderText("Confirmation");
+                    confirm.showAndWait().ifPresent(response -> {
+                        if (response == ButtonType.YES) {
+                            produitService.supprimer(produit);
+                            afficherProduits();
+                        }
+                    });
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : hbox);
             }
         });
-
-        sousCategorieComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(SousCategorie sc) { return sc != null ? sc.getNom() : ""; }
-            @Override public SousCategorie fromString(String s) { return null; }
-        });
+        actionCol.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(null));
     }
 
-    private void chargerFiltres() {
+    private Button createIconButton(String iconPath) {
+        Button button = new Button();
+        try {
+            URL iconUrl = getClass().getResource(iconPath);
+            if (iconUrl != null) {
+                ImageView icon = new ImageView(new Image(iconUrl.toExternalForm()));
+                icon.setFitWidth(18);
+                icon.setFitHeight(18);
+                button.setGraphic(icon);
+                button.getStyleClass().add("action-button");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return button;
+    }
+
+    private void configFiltrage() {
         filtreTypeComboBox.setItems(FXCollections.observableArrayList("Nom", "Catégorie", "Sous-Catégorie", "Stock"));
         filtreCategorieComboBox.setItems(FXCollections.observableArrayList(categorieService.getAll()));
         filtreSousCategorieComboBox.setItems(FXCollections.observableArrayList(sousCategorieService.getAll()));
@@ -230,10 +206,25 @@ public class ProduitController implements Initializable {
             @Override public String toString(Categorie c) { return c != null ? c.getNom() : ""; }
             @Override public Categorie fromString(String s) { return null; }
         });
-
         filtreSousCategorieComboBox.setConverter(new StringConverter<>() {
             @Override public String toString(SousCategorie sc) { return sc != null ? sc.getNom() : ""; }
             @Override public SousCategorie fromString(String s) { return null; }
+        });
+
+        filtreTypeComboBox.setOnAction(e -> {
+            rechercheField.setDisable(true);
+            filtreCategorieComboBox.setDisable(true);
+            filtreSousCategorieComboBox.setDisable(true);
+            filtreStockComboBox.setDisable(true);
+            switch (filtreTypeComboBox.getValue()) {
+                case "Nom" -> {
+                    rechercheField.setDisable(false);
+                    rechercheField.textProperty().addListener((obs, oldVal, newVal) -> appliquerFiltres());
+                }
+                case "Catégorie" -> filtreCategorieComboBox.setDisable(false);
+                case "Sous-Catégorie" -> filtreSousCategorieComboBox.setDisable(false);
+                case "Stock" -> filtreStockComboBox.setDisable(false);
+            }
         });
     }
 
@@ -250,33 +241,22 @@ public class ProduitController implements Initializable {
         switch (type) {
             case "Nom" -> {
                 String query = rechercheField.getText().toLowerCase().trim();
-                produits = produits.stream()
-                        .filter(p -> p.getNom() != null && p.getNom().toLowerCase().contains(query))
-                        .toList();
+                produits = produits.stream().filter(p -> p.getNom().toLowerCase().contains(query)).toList();
             }
             case "Catégorie" -> {
                 Categorie selected = filtreCategorieComboBox.getValue();
-                if (selected != null) {
-                    produits = produits.stream()
-                            .filter(p -> p.getCategorie() != null && p.getCategorie().getId().equals(selected.getId()))
-                            .toList();
-                }
+                if (selected != null)
+                    produits = produits.stream().filter(p -> p.getCategorie().getId().equals(selected.getId())).toList();
             }
             case "Sous-Catégorie" -> {
                 SousCategorie selected = filtreSousCategorieComboBox.getValue();
-                if (selected != null) {
-                    produits = produits.stream()
-                            .filter(p -> p.getSousCategorie() != null && p.getSousCategorie().getId().equals(selected.getId()))
-                            .toList();
-                }
+                if (selected != null)
+                    produits = produits.stream().filter(p -> p.getSousCategorie().getId().equals(selected.getId())).toList();
             }
             case "Stock" -> {
                 String stockType = filtreStockComboBox.getValue();
-                if ("Stock faible".equals(stockType)) {
-                    produits = produits.stream().filter(p -> p.getStock() < 5).toList();
-                } else if ("Stock suffisant".equals(stockType)) {
-                    produits = produits.stream().filter(p -> p.getStock() >= 5).toList();
-                }
+                if ("Stock faible".equals(stockType)) produits = produits.stream().filter(p -> p.getStock() < 5).toList();
+                else if ("Stock suffisant".equals(stockType)) produits = produits.stream().filter(p -> p.getStock() >= 5).toList();
             }
         }
 
@@ -284,96 +264,45 @@ public class ProduitController implements Initializable {
     }
 
     @FXML
-
-    public void ajouterProduit() {
-        try {
-            String nom = nomField.getText().trim();
-            BigDecimal prix;
-            int stock;
-            try {
-                prix = new BigDecimal(prixField.getText().trim());
-                stock = Integer.parseInt(stockField.getText().trim());
-            } catch (NumberFormatException e) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Prix ou stock invalide.");
-                alert.setHeaderText("Erreur de saisie");
-                alert.showAndWait();
-                return;
-            }
-
-            String desc = descriptionField.getText().trim();
-
-            Categorie cat = categorieComboBox.getValue();
-            SousCategorie sc = sousCategorieComboBox.getValue();
-
-            if (nom.isEmpty() || cat == null || sc == null || selectedImagePath == null || selectedImagePath.isBlank()) {
-                Alert alert = new Alert(Alert.AlertType.WARNING, "Veuillez remplir tous les champs et sélectionner une image.");
-                alert.setHeaderText("Champs incomplets");
-                alert.showAndWait();
-                return;
-            }
-
-
-            if (produitEnCoursEdition == null) {
-                Produit p = new Produit();
-                p.setNom(nom);
-                p.setPrix(prix);
-                p.setDescription(desc);
-                p.setCategorie(cat);
-                p.setSousCategorie(sc);
-                p.setStock(stock);
-                p.setUpdatedAt(LocalDateTime.now());
-                p.setImage(selectedImagePath);
-                produitService.ajouter(p);
-            } else {
-                produitEnCoursEdition.setNom(nom);
-                produitEnCoursEdition.setPrix(prix);
-                produitEnCoursEdition.setDescription(desc);
-                produitEnCoursEdition.setCategorie(cat);
-                produitEnCoursEdition.setSousCategorie(sc);
-                produitEnCoursEdition.setStock(stock);
-                produitEnCoursEdition.setUpdatedAt(LocalDateTime.now());
-                produitEnCoursEdition.setImage(selectedImagePath);
-                produitService.modifier(produitEnCoursEdition);
-
-                produitEnCoursEdition = null;
-            }
-
-            clearFields();
-            afficherProduits();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Une erreur s'est produite.");
-            alert.setHeaderText("Erreur");
-            alert.showAndWait();
-
-        }
+    public void afficherProduits() {
+        tableView.getItems().setAll(produitService.getAll());
     }
-
 
     @FXML
-    public void choisirImage() {
-        File selectedFile = ImageUtils.ouvrirEtCopierImage();
-        if (selectedFile != null) {
-            selectedImagePath = selectedFile.getName(); // juste le nom de fichier
-            imagePreview.setImage(new Image(ImageUtils.IMAGE_BASE_URL + selectedImagePath));
+    public void ouvrirPopupAjout() {
+        openPopup("/views/ajouterproduit.fxml", null);
+    }
+
+    @FXML
+    public void ouvrirPopupStatistiques() {
+        openPopup("/views/stat.fxml", null);
+    }
+
+    private void openPopup(String fxmlPath, Produit produit) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            if (produit != null) {
+                AjouterProduitController controller = loader.getController();
+                controller.setProduit(produit);
+            }
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle(produit == null ? "Ajouter Produit" : "Modifier Produit");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-
     private void envoyerMailStockFaible(Produit produit) {
-        String destinataire = "destinataire@email.com"; // à modifier
-        String sujet = "Alerte Stock Faible: " + produit.getNom();
-        String corps = "Le stock du produit \"" + produit.getNom() + "\" est faible : " + produit.getStock();
-
         try {
             Properties props = new Properties();
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", "true");
             props.put("mail.smtp.host", "smtp.gmail.com");
             props.put("mail.smtp.port", "587");
-
-            String username = "sarafaleh76@gmail.com";
-            String password = "eaktxbfbmqpnedtw"; // mot de passe application
 
             Session session = Session.getInstance(props, new Authenticator() {
                 protected PasswordAuthentication getPasswordAuthentication() {
@@ -383,135 +312,25 @@ public class ProduitController implements Initializable {
 
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress("sarafaleh76@gmail.com"));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("ziedalimi2244@gmail.com"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("sarah.faleh@esprit.tn"));
+            message.setSubject("Alerte : Stock faible pour le produit " + produit.getNom());
 
-            // Sujet dynamique avec nom du produit
-            String subject = "Alerte : Stock faible pour le produit " + produit.getNom();
-            message.setSubject(subject);
-
-            // Corps de l’e-mail avec les infos détaillées du produit
-            String body = "Bonjour,\n\n" +
+            message.setText("Bonjour,\n\n" +
                     "Le produit suivant présente un stock faible :\n\n" +
-                    "🔹 Nom : " + produit.getNom() + "\n" +
-                    "🔹 Stock actuel : " + produit.getStock() + "\n" +
-                    "🔹 Catégorie : " + (produit.getCategorie() != null ? produit.getCategorie().getNom() : "N/A") + "\n" +
-                    "🔹 Sous-catégorie : " + (produit.getSousCategorie() != null ? produit.getSousCategorie().getNom() : "N/A") + "\n\n" +
+                    "Nom : " + produit.getNom() + "\n" +
+                    "Stock : " + produit.getStock() + "\n" +
+                    "Catégorie : " + produit.getCategorie().getNom() + "\n" +
+                    "Sous-catégorie : " + produit.getSousCategorie().getNom() + "\n\n" +
                     "Merci de réapprovisionner ce produit rapidement.\n\n" +
-                    "Cordialement,\n" +
-                    "L’équipe de gestion d’inventaire.";
-
-            message.setText(body);
+                    "Cordialement,\nL’équipe de gestion d’inventaire.");
 
             Transport.send(message);
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Email envoyé avec succès !");
-            alert.setHeaderText("Succès");
-            alert.showAndWait();
-
+            new Alert(Alert.AlertType.INFORMATION, "Email envoyé avec succès !").showAndWait();
 
         } catch (Exception e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Échec de l'envoi de l'e-mail.");
-            alert.setHeaderText("Erreur");
-            alert.showAndWait();
-        }
-    }
-
-
-    @FXML
-    public void prendrePhoto() {
-        File photoFile = ImageUtils.prendrePhotoDepuisWebcam();
-        if (photoFile != null) {
-            selectedImagePath = photoFile.getName();
-            imagePreview.setImage(new Image(ImageUtils.IMAGE_BASE_URL + selectedImagePath));
-        }
-    }
-
-
-
-    public void afficherProduits() {
-        tableView.getItems().setAll(produitService.getAll());
-    }
-    @FXML
-    public void afficherStatistiques() {
-        String selected = statistiqueComboBox.getValue();
-        if (selected == null) return;
-
-        statistiqueChart.getData().clear();
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-
-        List<Produit> produits = produitService.getAll();
-
-        switch (selected) {
-            case "Nombre de produits par catégorie" -> {
-                Map<String, Long> produitsParCategorie = produits.stream()
-                        .collect(Collectors.groupingBy(
-                                p -> p.getCategorie() != null ? p.getCategorie().getNom() : "Inconnue",
-                                Collectors.counting()));
-                produitsParCategorie.forEach((categorie, count) ->
-                        series.getData().add(new XYChart.Data<>(categorie, count)));
-            }
-
-            case "Top 5 des produits avec le stock le plus élevé" -> {
-                produits.stream()
-                        .sorted(Comparator.comparingInt(Produit::getStock).reversed())
-                        .limit(5)
-                        .forEach(p -> series.getData().add(
-                                new XYChart.Data<>(p.getNom(), p.getStock())));
-            }
+            new Alert(Alert.AlertType.ERROR, "Erreur d'envoi d'email !").showAndWait();
         }
 
-        statistiqueChart.getData().add(series);
-    }
-
-
-
-    private void clearFields() {
-        nomField.clear();
-        prixField.clear();
-        descriptionField.clear();
-        stockField.clear();
-        imagePreview.setImage(null);
-        selectedImagePath = null;
-        categorieComboBox.getSelectionModel().clearSelection();
-        sousCategorieComboBox.getItems().clear();
-    }
-
-    private void setupActionColumn() {
-        actionCol.setCellFactory(param -> new TableCell<>() {
-            private final Button btnEdit = new Button("Modifier");
-            private final Button btnDelete = new Button("Supprimer");
-            private final HBox hbox = new HBox(5, btnEdit, btnDelete);
-
-            {
-                btnEdit.setOnAction(event -> {
-                    Produit p = getTableView().getItems().get(getIndex());
-                    produitEnCoursEdition = p;
-                    nomField.setText(p.getNom());
-                    prixField.setText(p.getPrix().toString());
-                    descriptionField.setText(p.getDescription());
-                    stockField.setText(String.valueOf(p.getStock()));
-                    categorieComboBox.setValue(p.getCategorie());
-                    sousCategorieComboBox.setValue(p.getSousCategorie());
-                    selectedImagePath = p.getImage();
-                    imagePreview.setImage(new Image(ImageUtils.IMAGE_BASE_URL + selectedImagePath));
-
-
-                });
-
-                btnDelete.setOnAction(event -> {
-                    Produit p = getTableView().getItems().get(getIndex());
-                    produitService.supprimer(p);
-                    afficherProduits();
-                });
-            }
-
-            @Override protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : hbox);
-            }
-        });
-
-        actionCol.setCellValueFactory(features -> new ReadOnlyObjectWrapper<>(null));
     }
 }
