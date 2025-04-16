@@ -20,11 +20,16 @@ import tn.esprit.services.CategorieService;
 import tn.esprit.services.ProduitService;
 import tn.esprit.services.SousCategorieService;
 import tn.esprit.utils.ImageUtils;
+import javafx.collections.FXCollections;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TableView;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
+
 import java.util.ResourceBundle;
 
 public class SousCategorieController implements Initializable {
@@ -39,6 +44,8 @@ public class SousCategorieController implements Initializable {
     @FXML private TableColumn<SousCategorie, Void> actionCol;
     @FXML private ImageView imagePreview;
     @FXML private Label notifLabel;
+    @FXML
+    private TextField searchFieldSousCategorie;
 
     private final CategorieService categorieService = new CategorieService();
     private final SousCategorieService sousCategorieService = new SousCategorieService();
@@ -49,6 +56,10 @@ public class SousCategorieController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        searchFieldSousCategorie.textProperty().addListener((obs, oldValue, newValue) -> {
+            filtrerSousCategoriesParNom(newValue);
+        });
+
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         nomCol.setCellValueFactory(new PropertyValueFactory<>("nom"));
 
@@ -81,6 +92,7 @@ public class SousCategorieController implements Initializable {
 
         afficherSousCategories();
         ajusterColonnes();
+        filtrerSousCategoriesParNom("");
     }
 
 
@@ -244,6 +256,16 @@ public class SousCategorieController implements Initializable {
             e.printStackTrace();
         }
     }
+    private void filtrerSousCategoriesParNom(String nomRecherche) {
+        List<SousCategorie> toutes = sousCategorieService.getAll();
+        List<SousCategorie> filtrées = toutes.stream()
+                .filter(sc -> sc.getNom().toLowerCase().contains(nomRecherche.toLowerCase()))
+                .collect(Collectors.toList());
+
+        tableView.setItems(FXCollections.observableArrayList(filtrées));
+    }
+
+
 
 
 }

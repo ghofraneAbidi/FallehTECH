@@ -131,5 +131,44 @@ public class FavorisService {
             System.err.println("❌ Erreur lors de la suppression du favori : " + e.getMessage());
         }
     }
+    // ✅ Récupérer tous les favoris (admin ou dashboard)
+    public List<Favoris> getAllFavoris() {
+        List<Favoris> favorisList = new ArrayList<>();
+
+        String sql = """
+        SELECT f.id AS fav_id, f.user_id,
+               p.id AS produit_id, p.nom, p.prix, p.description, p.stock, p.image
+        FROM favoris f
+        JOIN produit p ON f.produit_id = p.id
+    """;
+
+        try (Statement stmt = cnx.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Produit produit = new Produit();
+                produit.setId(rs.getLong("produit_id"));
+                produit.setNom(rs.getString("nom"));
+                produit.setPrix(rs.getBigDecimal("prix"));
+                produit.setDescription(rs.getString("description"));
+                produit.setStock(rs.getInt("stock"));
+                produit.setImage(rs.getString("image"));
+
+                Favoris favoris = new Favoris();
+                favoris.setId(rs.getLong("fav_id"));
+                favoris.setUserId(rs.getInt("user_id"));
+                favoris.setProduit(produit);
+
+                favorisList.add(favoris);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur lors de la récupération de tous les favoris : " + e.getMessage());
+        }
+
+        return favorisList;
+    }
+
+
 
 }

@@ -13,6 +13,10 @@
     <VBox spacing="15" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
           AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
         <Label text="Gestion des Catégories" styleClass="form-title" alignment="CENTER"/>
+        <HBox spacing="10">
+            <Label text="Recherche par nom :"/>
+            <TextField fx:id="searchFieldCategorie" promptText="Rechercher..."/>
+        </HBox>
 
         <!-- ✅ Notification centrée -->
         <HBox alignment="CENTER">

@@ -333,4 +333,23 @@ public class ProduitController implements Initializable {
         }
 
     }
+    @FXML
+    private void ouvrirPopupFavoris() {
+        try {
+            // Remplace le chemin par le bon chemin dans ton projet
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/FavorisDashboard.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Produits Favoris");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 }

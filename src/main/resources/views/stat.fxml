@@ -20,13 +20,18 @@
             <Button text="Fermer" onAction="#fermerFenetre" styleClass="cancel-button"/>
         </HBox>
 
-        <BarChart fx:id="statistiqueChart" prefHeight="300" animated="true">
-            <xAxis>
-                <CategoryAxis fx:id="xAxis" label="Catégories / Produits"/>
-            </xAxis>
-            <yAxis>
-                <NumberAxis fx:id="yAxis" label="Valeur"/>
-            </yAxis>
-        </BarChart>
+        <!-- Un seul conteneur pour afficher soit le BarChart soit le PieChart -->
+        <StackPane prefHeight="300" alignment="CENTER">
+            <BarChart fx:id="statistiqueChart" animated="true" visible="true">
+                <xAxis>
+                    <CategoryAxis fx:id="xAxis" label="Catégories / Produits"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="yAxis" label="Valeur"/>
+                </yAxis>
+            </BarChart>
+
+            <PieChart fx:id="pieChart" visible="false"/>
+        </StackPane>
     </VBox>
 </AnchorPane>

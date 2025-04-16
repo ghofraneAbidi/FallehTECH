@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="tn.esprit.fx.AgriculteurController"
+           stylesheets="@../styles/agri-style.css">
+
+    <VBox spacing="15" alignment="TOP_CENTER" maxWidth="780"> <!-- 👈 plus étroit qu'avant -->
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <Button text="+" onAction="#ajouterProduitPopup"
+                    style="-fx-font-size: 18; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 35; -fx-pref-height: 35; -fx-background-radius: 100%;" />
+            <Label text="Mes Produits"
+                   style="-fx-font-size: 22px; -fx-text-fill: #2e7d32; -fx-font-weight: bold;" />
+        </HBox>
+
+        <!-- Filtres -->
+        <HBox spacing="12" alignment="CENTER">
+            <TextField fx:id="searchField" promptText="Rechercher un produit..." prefWidth="200"/>
+            <ComboBox fx:id="categorieFilter" promptText="Catégorie" prefWidth="130"/>
+            <ComboBox fx:id="sousCategorieFilter" promptText="Sous-catégorie" prefWidth="130"/>
+        </HBox>
+
+        <!-- Cartes produit -->
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" fx:id="scrollPane">
+            <FlowPane fx:id="produitsContainer" prefWrapLength="720" hgap="12" vgap="12"> <!-- 👈 wrap resserré -->
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+            </FlowPane>
+        </ScrollPane>
+    </VBox>
+</StackPane>

@@ -14,6 +14,11 @@
           AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
 
         <Label text="Gestion des Sous-Catégories" styleClass="form-title" alignment="CENTER"/>
+        <HBox spacing="10">
+            <Label text="Recherche par nom :"/>
+            <TextField fx:id="searchFieldSousCategorie" promptText="Rechercher..."/>
+        </HBox>
+
 
         <HBox alignment="CENTER">
             <Label fx:id="notifLabel"

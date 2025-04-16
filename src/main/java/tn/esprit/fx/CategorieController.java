@@ -17,6 +17,12 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.IOException;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TableView;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import java.io.File;
 import java.net.URL;
@@ -32,6 +38,8 @@ public class CategorieController implements Initializable {
     @FXML private Label notifLabel;
     @FXML private TextField nomField;
     @FXML private ImageView imagePreview;
+    @FXML
+    private TextField searchFieldCategorie;
 
     private final CategorieService service = new CategorieService();
     private Categorie categorieEnCoursEdition = null;
@@ -39,6 +47,10 @@ public class CategorieController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        searchFieldCategorie.textProperty().addListener((observable, oldValue, newValue) -> {
+            filtrerCategoriesParNom(newValue);
+        });
+
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         nomCol.setCellValueFactory(new PropertyValueFactory<>("nom"));
         imageCol.setCellValueFactory(new PropertyValueFactory<>("image"));
@@ -255,5 +267,17 @@ public class CategorieController implements Initializable {
             e.printStackTrace();
         }
     }
+    private void filtrerCategoriesParNom(String nomRecherche) {
+        final String filtre = (nomRecherche != null) ? nomRecherche.toLowerCase() : "";
+
+        List<Categorie> toutesCategories = service.getAll();
+        List<Categorie> resultat = toutesCategories.stream()
+                .filter(c -> c.getNom() != null && c.getNom().toLowerCase().contains(filtre))
+                .collect(Collectors.toList());
+
+        tableView.setItems(FXCollections.observableArrayList(resultat));
+    }
+
+
 
 }
