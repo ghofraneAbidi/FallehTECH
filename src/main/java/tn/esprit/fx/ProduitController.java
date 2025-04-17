@@ -282,19 +282,26 @@ public class ProduitController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
+
             if (produit != null) {
                 AjouterProduitController controller = loader.getController();
                 controller.setProduit(produit);
             }
+
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle(produit == null ? "Ajouter Produit" : "Modifier Produit");
             stage.setScene(new Scene(root));
+
+            // 🔁 Callback à la fermeture : recharger les produits
+            stage.setOnHidden(e -> afficherProduits());
+
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     private void envoyerMailStockFaible(Produit produit) {
         try {

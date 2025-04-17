@@ -14,6 +14,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import tn.esprit.services.CategorieService;
 import tn.esprit.utils.ImageUtils;
+import tn.esprit.utils.SessionUtilisateur;
 
 import java.io.IOException;
 import java.net.URL;
@@ -39,6 +40,7 @@ public class FrontViewController implements Initializable {
     @FXML private Button prodagriculteur;
     @FXML private VBox categorieTreeContainer;
     @FXML private TreeView<String> categorieTree;
+    private String roleActuel = "Agriculteur"; // à rendre dynamique plus tard
 
     private Button currentActiveButton;
     private final CategorieService categorieService = new CategorieService();
@@ -51,7 +53,9 @@ public class FrontViewController implements Initializable {
         profileNameLabel.setText("Sarah"); // TODO: rendre dynamique si besoin
 
         hideCategorieTree();
+        applyRoleRestrictions(); // 👉 ici
         goToAccueil(); // affiche la page d'accueil par défaut
+
     }
 
     private void setupClip(ImageView imageView) {
@@ -87,6 +91,25 @@ public class FrontViewController implements Initializable {
             System.out.println("❌ Erreur chargement vue : " + fxmlPath);
         }
     }
+    private void applyRoleRestrictions() {
+        String role = SessionUtilisateur.getRole();
+
+        switch (role) {
+            case "Agriculteur" -> {
+                if (btnFavoris != null) btnFavoris.setVisible(false);
+                if (btnPanier != null) btnPanier.setVisible(false);
+                if (produitsButton != null) produitsButton.setVisible(false);
+                if (panierButton != null) panierButton.setVisible(false);
+            }
+            case "Client" -> {
+                if (prodagriculteur != null) prodagriculteur.setVisible(false);
+                if (offresButton != null) offresButton.setVisible(false);
+                if (blogButton != null) blogButton.setVisible(false);
+            }
+        }
+    }
+
+
 
     // ============ Navigation ============
 

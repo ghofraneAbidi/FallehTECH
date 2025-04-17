@@ -69,7 +69,7 @@
                         <TreeView fx:id="categorieTree"/>
                     </VBox>
 
-                    <Button fx:id="panierButton" text="Panier" onAction="#goToPanier" styleClass="sidebar-button"/>
+
                     <Button fx:id="prodagriculteur" text="vos produits" onAction="#goToProdagru" styleClass="sidebar-button"/>
                     <Button fx:id="commandesButton" text="Commandes" onAction="#goToCommandes" styleClass="sidebar-button"/>
                     <Button fx:id="offresButton" text="Offres de travail" onAction="#goToOffres" styleClass="sidebar-button"/>

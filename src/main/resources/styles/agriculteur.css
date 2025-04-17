@@ -74,3 +74,26 @@
 .btn-supprimer:hover {
     -fx-background-color: #81d84f;
 }
+.ajouter-produit-btn {
+    -fx-background-color: #c8e6c9;             /* Vert pastel */
+    -fx-text-fill: #1b5e20;                    /* Vert foncé */
+    -fx-font-size: 13px;
+    -fx-font-family: 'Segoe UI', 'Poppins', sans-serif;
+    -fx-font-weight: normal;
+    -fx-padding: 6 14;
+    -fx-background-radius: 8;
+    -fx-border-color: #a5d6a7;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 3, 0, 0, 1);
+    -fx-content-display: CENTER;
+    -fx-graphic-text-gap: 6;
+    -fx-pref-width: 160;
+}
+
+/* Hover effet doux 🌿 */
+.ajouter-produit-btn:hover {
+    -fx-background-color: #a5d6a7;
+    -fx-text-fill: #0d3f1e;
+}

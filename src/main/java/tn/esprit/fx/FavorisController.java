@@ -13,6 +13,7 @@ import tn.esprit.entities.Favoris;
 import tn.esprit.entities.Produit;
 import tn.esprit.services.FavorisService;
 import tn.esprit.utils.ImageUtils;
+import tn.esprit.services.PanierService;
 
 import java.net.URL;
 import java.util.List;
@@ -28,6 +29,7 @@ public class FavorisController implements Initializable {
     @FXML private TableColumn<Favoris, Void> colActions;
 
     private final FavorisService favorisService = new FavorisService();
+    private final PanierService panierService = PanierService.getInstance();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -91,8 +93,16 @@ public class FavorisController implements Initializable {
 
                 btnAddCart.setOnAction(event -> {
                     Favoris favoris = getTableView().getItems().get(getIndex());
-                    System.out.println("🛒 Ajout au panier : " + favoris.getProduit().getNom());
+                    Produit produit = favoris.getProduit();
+
+                    panierService.ajouterProduit(produit, 1); // ajoute 1 unité
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setHeaderText(null);
+                    alert.setContentText(produit.getNom() + " a été ajouté au panier !");
+                    alert.showAndWait();
                 });
+
 
                 btnDelete.setOnAction(event -> {
                     Favoris favoris = getTableView().getItems().get(getIndex());

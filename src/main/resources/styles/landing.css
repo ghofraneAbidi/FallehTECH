@@ -1,0 +1,65 @@
+/* 🌱 Arrière-plan général */
+.anchor-pane {
+    -fx-background-color: #f1f8e9; /* vert très clair */
+}
+
+/* 🌾 Titre principal */
+.text {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: normal;
+    -fx-fill: #2e7d32; /* vert doux */
+}
+
+/* 🌿 Boutons standards */
+.button {
+    -fx-background-color: #c5e1a5;
+    -fx-text-fill: #1b5e20;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-weight: normal;
+    -fx-background-radius: 8;
+    -fx-padding: 6 14;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+/* 🌿 Hover bouton */
+.button:hover {
+    -fx-background-color: #aed581;
+    -fx-text-fill: white;
+}
+
+/* 👥 Boutons de rôle */
+/* 🌾 Boutons de sélection de rôle */
+.role-button {
+    -fx-background-color: #e0f2e9;             /* Vert doux */
+    -fx-text-fill: #2e7d32;                   /* Vert profond */
+    -fx-font-family: 'Segoe UI', 'Poppins', sans-serif;
+    -fx-font-size: 12px;                      /* Plus petit */
+    -fx-font-weight: normal;
+    -fx-padding: 4 8;
+    -fx-background-radius: 6;
+    -fx-border-color: #c8e6c9;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-content-display: LEFT;
+    -fx-graphic-text-gap: 6;                 /* espace entre icône et texte */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 2, 0, 0, 1);
+    -fx-pref-width: 180;
+    -fx-wrap-text: false;
+}
+
+/* 🖱️ Hover */
+.role-button:hover {
+    -fx-background-color: #c5e1a5;
+    -fx-text-fill: #1b5e20;
+}
+
+/* 🔻 Séparateur */
+.separator {
+    -fx-background-color: #c8e6c9;
+    -fx-border-color: transparent;
+}
