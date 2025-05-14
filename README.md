@@ -24,18 +24,24 @@ Elle a pour but de moderniser le secteur agricole tunisien en facilitant les éc
    git clone https://github.com/ton-utilisateur/fallehtech-symfony.git
    cd fallehtech-symfony
 2. **Installer les dépendances PHP avec Composer**
+   ```bash
    composer install
-3. **Installer les dépendances frontend avec npm**
+4. **Installer les dépendances frontend avec npm**
+   ```bash
    npm install
    npm run build
-4. **Configurer l’environnement**
+6. **Configurer l’environnement**
+   ```bash
    cp .env .env.local
-5. **Créer la base de données**
+8. **Créer la base de données**
+   ```bash
    php bin/console doctrine:database:create
-6. **Exécuter les migrations**
-   php bin/console doctrine:migrations:migrate
-7. **Lancer le serveur Symfony**
-   symfony server:start
+10. **Exécuter les migrations**
+    ```bash
+    php bin/console doctrine:migrations:migrate
+12. **Lancer le serveur Symfony**
+    ```bash
+    symfony server:start
 
 ---
 
